@@ -1,7 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout.jsx'
-import CentrosDeCusto from './pages/CentrosDeCusto.jsx'
-import CentroDeCustoForm from './pages/CentroDeCustoForm.jsx'
 import Iniciativas from './pages/Iniciativas.jsx'
 import IniciativaForm from './pages/IniciativaForm.jsx'
 import Placeholder from './pages/Placeholder.jsx'
@@ -10,15 +8,17 @@ export default function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route index element={<Navigate to="/centros-de-custo" replace />} />
-
-        <Route path="/centros-de-custo" element={<CentrosDeCusto />} />
-        <Route path="/centros-de-custo/novo" element={<CentroDeCustoForm />} />
-        <Route path="/centros-de-custo/:id/editar" element={<CentroDeCustoForm />} />
+        <Route index element={<Navigate to="/iniciativas" replace />} />
 
         <Route path="/iniciativas" element={<Iniciativas />} />
         <Route path="/iniciativas/nova" element={<IniciativaForm />} />
         <Route path="/iniciativas/:id/editar" element={<IniciativaForm />} />
+
+        {/* Centro de custo continua no menu, mas sem tela funcional. */}
+        <Route
+          path="/centros-de-custo"
+          element={<Placeholder title="Centros de custo" />}
+        />
 
         <Route path="/central-de-aprovacoes" element={<Placeholder title="Central de Aprovações" />} />
 
@@ -31,7 +31,7 @@ export default function App() {
         <Route path="/integrar-cloud" element={<Placeholder title="Integrar serviço de cloud" />} />
         <Route path="/documentacao" element={<Placeholder title="Documentação" />} />
 
-        <Route path="*" element={<Navigate to="/centros-de-custo" replace />} />
+        <Route path="*" element={<Navigate to="/iniciativas" replace />} />
       </Route>
     </Routes>
   )

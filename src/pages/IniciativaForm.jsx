@@ -85,7 +85,7 @@ export default function IniciativaForm() {
       ...v,
       orcamentos: [
         ...v.orcamentos,
-        { id: uid('o'), provedor: 'AWS', valor: 0 },
+        { id: uid('o'), provedor: 'Provedor A', valor: 0 },
       ],
     })
   const removeOrc = (v, oid) =>

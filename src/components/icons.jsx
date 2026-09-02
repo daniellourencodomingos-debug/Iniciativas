@@ -15,6 +15,12 @@ export const Icon = {
       <path d="M3 6h18M3 12h18M3 18h18" />
     </svg>
   ),
+  CloudPlain: (p) => (
+    <svg {...base} {...p}>
+      <path d="M17.5 19a4.5 4.5 0 0 0 0-9h-1.26A8 8 0 1 0 4 16.25" />
+      <path d="M4 16.25A4.75 4.75 0 0 0 8.75 21H17.5" />
+    </svg>
+  ),
   Bell: (p) => (
     <svg {...base} {...p}>
       <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />

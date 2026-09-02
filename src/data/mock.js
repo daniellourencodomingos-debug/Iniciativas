@@ -1,4 +1,5 @@
-export const PROVEDORES = ['AWS', 'Azure', 'GCP', 'OCI']
+// Provedores de cloud com rótulos 100% genéricos (sem marcas reais).
+export const PROVEDORES = ['Provedor A', 'Provedor B', 'Provedor C', 'Provedor D']
 
 export const GERENTES = [
   { id: 'g1', nome: 'Ana Ribeiro', email: 'ana.ribeiro@exemplo.com' },
@@ -40,8 +41,8 @@ export const VINCULOS_INICIAIS = [
     iniciativaId: 'ini-1',
     centroId: 'cc-1',
     orcamentos: [
-      { id: 'o-1', provedor: 'AWS', valor: 120000 },
-      { id: 'o-2', provedor: 'Azure', valor: 45000 },
+      { id: 'o-1', provedor: 'Provedor A', valor: 120000 },
+      { id: 'o-2', provedor: 'Provedor B', valor: 45000 },
     ],
     alerta: 'padrao',
     emails: ['ana.ribeiro@exemplo.com', 'time-dados@exemplo.com'],
@@ -50,7 +51,7 @@ export const VINCULOS_INICIAIS = [
     id: 'v-2',
     iniciativaId: 'ini-1',
     centroId: 'cc-2',
-    orcamentos: [{ id: 'o-1', provedor: 'GCP', valor: 30000 }],
+    orcamentos: [{ id: 'o-1', provedor: 'Provedor C', valor: 30000 }],
     alerta: 'padrao',
     emails: ['bruno.carvalho@exemplo.com', 'time-produto@exemplo.com'],
   },
@@ -59,8 +60,8 @@ export const VINCULOS_INICIAIS = [
     iniciativaId: 'ini-2',
     centroId: 'cc-1',
     orcamentos: [
-      { id: 'o-1', provedor: 'AWS', valor: 80000 },
-      { id: 'o-2', provedor: 'OCI', valor: 22000 },
+      { id: 'o-1', provedor: 'Provedor A', valor: 80000 },
+      { id: 'o-2', provedor: 'Provedor D', valor: 22000 },
     ],
     alerta: 'padrao',
     emails: ['camila.fontes@exemplo.com', 'ana.ribeiro@exemplo.com'],
@@ -70,8 +71,8 @@ export const VINCULOS_INICIAIS = [
     iniciativaId: 'ini-3',
     centroId: 'cc-4',
     orcamentos: [
-      { id: 'o-1', provedor: 'GCP', valor: 55000 },
-      { id: 'o-2', provedor: 'Azure', valor: 15000 },
+      { id: 'o-1', provedor: 'Provedor C', valor: 55000 },
+      { id: 'o-2', provedor: 'Provedor B', valor: 15000 },
     ],
     alerta: 'nenhum',
     emails: ['diego.nunes@exemplo.com', 'observabilidade@exemplo.com'],
@@ -80,7 +81,7 @@ export const VINCULOS_INICIAIS = [
     id: 'v-5',
     iniciativaId: 'ini-4',
     centroId: 'cc-4',
-    orcamentos: [{ id: 'o-1', provedor: 'AWS', valor: 18000 }],
+    orcamentos: [{ id: 'o-1', provedor: 'Provedor A', valor: 18000 }],
     alerta: 'padrao',
     emails: ['diego.nunes@exemplo.com', 'finops@exemplo.com'],
   },
@@ -101,7 +102,7 @@ export const somaOrcamentos = (orcamentos = []) =>
 export const novoVinculo = (uid, centroId = '') => ({
   id: uid('v'),
   centroId,
-  orcamentos: [{ id: uid('o'), provedor: 'AWS', valor: 0 }],
+  orcamentos: [{ id: uid('o'), provedor: 'Provedor A', valor: 0 }],
   alerta: 'padrao',
   emails: [],
 })

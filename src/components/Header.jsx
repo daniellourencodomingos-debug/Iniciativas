@@ -16,10 +16,8 @@ export default function Header() {
           <Icon.Menu width={22} height={22} />
         </button>
         <div className="flex items-center gap-2">
-          <Icon.Cloud width={20} height={20} />
-          <span className="text-lg font-bold lowercase tracking-tight">
-            omnicloud
-          </span>
+          <Icon.CloudPlain width={20} height={20} />
+          <span className="text-lg font-bold tracking-tight">NuvemOps</span>
         </div>
       </div>
 
