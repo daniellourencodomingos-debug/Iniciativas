@@ -1,15 +1,21 @@
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { PageHeader } from '../components/Layout.jsx'
 import FormCard, { Field, TextInput, Select } from '../components/FormCard.jsx'
 import AttentionBanner from '../components/AttentionBanner.jsx'
 import Stepper from '../components/Stepper.jsx'
 import Toast from '../components/Toast.jsx'
-import VinculoEditor from '../components/VinculoEditor.jsx'
 import EmailChipsInput from '../components/EmailChipsInput.jsx'
 import { Icon } from '../components/icons.jsx'
 import { useApp } from '../store/AppContext.jsx'
-import { currency, somaOrcamentos, SLUG_RE, novoVinculo } from '../data/mock.js'
+import {
+  currency,
+  somaOrcamentos,
+  SLUG_RE,
+  novoVinculo,
+  PROVEDORES,
+  ALERTA_OPCOES,
+} from '../data/mock.js'
 
 const STEPS = [
   'Instruções',
@@ -21,7 +27,14 @@ const STEPS = [
 export default function IniciativaForm() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { centros, dispatch, uid, iniciativaById, vinculosDaIniciativa } = useApp()
+  const {
+    centros,
+    dispatch,
+    uid,
+    iniciativaById,
+    vinculosDaIniciativa,
+    gerenteById,
+  } = useApp()
 
   const editing = Boolean(id)
   const existing = editing ? iniciativaById(id) : null
@@ -59,6 +72,32 @@ export default function IniciativaForm() {
 
   const setVinculo = (vid, next) =>
     setVinculos((l) => l.map((v) => (v.id === vid ? next : v)))
+
+  const setOrc = (v, oid, patch) =>
+    setVinculo(v.id, {
+      ...v,
+      orcamentos: v.orcamentos.map((o) =>
+        o.id === oid ? { ...o, ...patch } : o,
+      ),
+    })
+  const addOrc = (v) =>
+    setVinculo(v.id, {
+      ...v,
+      orcamentos: [
+        ...v.orcamentos,
+        { id: uid('o'), provedor: 'AWS', valor: 0 },
+      ],
+    })
+  const removeOrc = (v, oid) =>
+    setVinculo(v.id, {
+      ...v,
+      orcamentos: v.orcamentos.filter((o) => o.id !== oid),
+    })
+
+  const gestorDoVinculo = (v) => {
+    const c = centros.find((x) => x.id === v.centroId)
+    return c ? gerenteById(c.gerenteId) : null
+  }
 
   const centrosDisponiveis = (vid) =>
     centros.filter(
@@ -189,48 +228,138 @@ export default function IniciativaForm() {
 
           {step === 2 && (
             <div className="space-y-5">
-              {vinculos.map((v, idx) => (
-                <div
-                  key={v.id}
-                  className="space-y-5 rounded-md border border-hairline p-4"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-gray-900">
-                      Vínculo {idx + 1}
-                    </span>
-                    {vinculos.length > 1 && (
-                      <button
-                        onClick={() =>
-                          setVinculos((l) => l.filter((x) => x.id !== v.id))
-                        }
-                        className="flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-red-500"
-                      >
-                        <Icon.Trash width={14} height={14} /> Remover
-                      </button>
-                    )}
-                  </div>
-                  <Field label="Centro de Custo" required>
-                    <Select
-                      value={v.centroId}
-                      onChange={(e) =>
-                        setVinculo(v.id, { ...v, centroId: e.target.value })
-                      }
-                    >
-                      <option value="">Selecione um centro de custo</option>
-                      {centrosDisponiveis(v.id).map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.nome} ({c.codigo})
-                        </option>
+              {vinculos.map((v, idx) => {
+                const gestor = gestorDoVinculo(v)
+                return (
+                  <div
+                    key={v.id}
+                    className="space-y-4 rounded-md border border-hairline p-4"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold text-gray-900">
+                        Vínculo {idx + 1}
+                      </span>
+                      {vinculos.length > 1 && (
+                        <button
+                          onClick={() =>
+                            setVinculos((l) => l.filter((x) => x.id !== v.id))
+                          }
+                          className="flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-red-500"
+                        >
+                          <Icon.Trash width={14} height={14} /> Remover
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-x-4 gap-y-4 md:grid-cols-2">
+                      {/* col. esquerda — topo */}
+                      <Field label="Centro de Custo pagador" required>
+                        <Select
+                          leftIcon={Icon.Search}
+                          value={v.centroId}
+                          onChange={(e) =>
+                            setVinculo(v.id, { ...v, centroId: e.target.value })
+                          }
+                        >
+                          <option value="">Selecione um centro de custo</option>
+                          {centrosDisponiveis(v.id).map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {c.nome} ({c.codigo})
+                            </option>
+                          ))}
+                        </Select>
+                      </Field>
+
+                      {/* col. direita — topo */}
+                      <Field label="Gestor do centro de custo">
+                        <TextInput
+                          readOnly
+                          value={
+                            gestor ? `${gestor.nome} — ${gestor.email}` : '—'
+                          }
+                        />
+                      </Field>
+
+                      {/* linhas de orçamento: Provedor (esq.) + Orçamento mensal (dir.) */}
+                      {v.orcamentos.map((o) => (
+                        <Fragment key={o.id}>
+                          <Field label="Provedor">
+                            <Select
+                              value={o.provedor}
+                              onChange={(e) =>
+                                setOrc(v, o.id, { provedor: e.target.value })
+                              }
+                            >
+                              {PROVEDORES.map((p) => (
+                                <option key={p} value={p}>
+                                  {p}
+                                </option>
+                              ))}
+                            </Select>
+                          </Field>
+                          <div className="flex items-start gap-2">
+                            <Field
+                              label="Orçamento mensal"
+                              className="flex-1"
+                            >
+                              <TextInput
+                                type="number"
+                                min={0}
+                                value={o.valor}
+                                onChange={(e) =>
+                                  setOrc(v, o.id, {
+                                    valor: Number(e.target.value),
+                                  })
+                                }
+                              />
+                            </Field>
+                            {v.orcamentos.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => removeOrc(v, o.id)}
+                                title="Remover"
+                                className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded border border-gray-300 text-gray-400 hover:text-red-500"
+                              >
+                                <Icon.Trash width={16} height={16} />
+                              </button>
+                            )}
+                          </div>
+                        </Fragment>
                       ))}
-                    </Select>
-                  </Field>
-                  <VinculoEditor
-                    value={v}
-                    onChange={(next) => setVinculo(v.id, next)}
-                    showEmails={false}
-                  />
-                </div>
-              ))}
+
+                      {/* col. esquerda — link adicionar */}
+                      <div>
+                        <button
+                          type="button"
+                          onClick={() => addOrc(v)}
+                          className="flex items-center gap-1 text-sm font-semibold text-brand hover:text-brand-dark"
+                        >
+                          <Icon.Plus width={15} height={15} /> Adicionar orçamento
+                          por cloud
+                        </button>
+                      </div>
+                      <div className="hidden md:block" />
+
+                      {/* col. esquerda — alerta */}
+                      <Field label="Alerta de consumo">
+                        <Select
+                          value={v.alerta ?? 'padrao'}
+                          onChange={(e) =>
+                            setVinculo(v.id, { ...v, alerta: e.target.value })
+                          }
+                        >
+                          {ALERTA_OPCOES.map((op) => (
+                            <option key={op.value} value={op.value}>
+                              {op.label}
+                            </option>
+                          ))}
+                        </Select>
+                      </Field>
+                      <div className="hidden md:block" />
+                    </div>
+                  </div>
+                )
+              })}
 
               <button
                 type="button"

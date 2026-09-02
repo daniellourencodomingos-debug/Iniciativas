@@ -44,10 +44,20 @@ export function TextArea({ className = '', ...props }) {
   return <textarea {...props} className={`${CTRL} resize-none ${className}`} />
 }
 
-export function Select({ className = '', children, ...props }) {
+export function Select({ className = '', children, leftIcon: LeftIcon, ...props }) {
   return (
     <div className="relative">
-      <select {...props} className={`${CTRL} appearance-none pr-9 ${className}`}>
+      {LeftIcon && (
+        <LeftIcon
+          width={16}
+          height={16}
+          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+        />
+      )}
+      <select
+        {...props}
+        className={`${CTRL} appearance-none pr-9 ${LeftIcon ? 'pl-9' : ''} ${className}`}
+      >
         {children}
       </select>
       <Icon.ChevronDown

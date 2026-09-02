@@ -1,105 +1,82 @@
-import { Icon } from './icons.jsx'
-
 /**
- * Stepper da plataforma ("Solicitação de Workspace"): etapas em formato de
- * seta/chevron, com vão fino entre os segmentos.
- * - Concluída / futura: fundo quase branco + contorno cinja fino; ✓ verde nas concluídas.
- * - Atual: fundo azul (#3468A4), texto branco, um pouco mais alta ("pop").
+ * Stepper da plataforma: UMA barra contínua, sem espaço entre as etapas.
+ * Cada segmento tem formato de seta/chevron (borda reta à esquerda encaixando
+ * no segmento anterior, ponta em ângulo saindo pela direita) — uma trilha de
+ * setas apontando para a direita. As pontas do primeiro e do último segmento
+ * são levemente arredondadas.
  *
- * O contorno é feito com DUAS camadas de clip-path (borda + preenchimento 1px
- * para dentro) — sem `drop-shadow`, para as diagonais não ficarem serrilhadas.
+ * Dois estados apenas:
+ * - atual   → fundo azul #3468A4, texto branco em negrito
+ * - qualquer outra (passada ou futura) → fundo cinza #E8E8E8, texto cinza escuro
+ *
  * props: steps (string[]), current (índice 0-based)
  */
 
-const N = 17 // profundidade do chevron
-const GAP = 6 // vão branco entre segmentos
-const R = 2 // leve arredondamento da ponta
+const N = 15 // profundidade do chevron
+const RC = 5 // raio (bevel) das quinas externas da barra
 
-const rightTip = [
-  `calc(100% - ${N}px) 0%`,
-  `calc(100% - ${R}px) calc(50% - ${R * 1.7}px)`,
-  `100% calc(50% - ${R * 0.35}px)`,
-  `100% calc(50% + ${R * 0.35}px)`,
-  `calc(100% - ${R}px) calc(50% + ${R * 1.7}px)`,
-  `calc(100% - ${N}px) 100%`,
-]
+// primeiro segmento: canto sup-esq / inf-esq levemente arredondados; ponta à direita
+const clipFirst = `polygon(
+  ${RC}px 0%,
+  calc(100% - ${N}px) 0%,
+  100% 50%,
+  calc(100% - ${N}px) 100%,
+  ${RC}px 100%,
+  0% calc(100% - ${RC}px),
+  0% ${RC}px
+)`
 
-const leftNotch = [
-  `${R}px calc(50% + ${R * 1.7}px)`,
-  `0% calc(50% + ${R * 0.35}px)`,
-  `0% calc(50% - ${R * 0.35}px)`,
-  `${R}px calc(50% - ${R * 1.7}px)`,
-]
+// último segmento: encaixe à esquerda; ponta à direita levemente arredondada
+const clipLast = `polygon(
+  0% 0%,
+  calc(100% - ${N}px) 0%,
+  calc(100% - 3px) calc(50% - 4px),
+  100% calc(50% - 1px),
+  100% calc(50% + 1px),
+  calc(100% - 3px) calc(50% + 4px),
+  calc(100% - ${N}px) 100%,
+  0% 100%,
+  ${N}px 50%
+)`
 
-function clipFor(first, last) {
-  if (first) return `polygon(0% 0%, ${rightTip.join(', ')}, 0% 100%)`
-  if (last)
-    return `polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, ${leftNotch.join(', ')})`
-  return `polygon(0% 0%, ${rightTip.join(', ')}, 0% 100%, ${leftNotch.join(', ')})`
-}
-
-const BORDER_COLOR = '#D4D4D6'
+// segmento do meio: encaixe à esquerda; ponta reta à direita
+const clipMiddle = `polygon(
+  0% 0%,
+  calc(100% - ${N}px) 0%,
+  100% 50%,
+  calc(100% - ${N}px) 100%,
+  0% 100%,
+  ${N}px 50%
+)`
 
 export default function Stepper({ steps, current }) {
   return (
     <div className="overflow-x-auto py-1">
-      <ol className="flex w-full min-w-max items-center pr-0.5">
+      <ol className="flex w-full min-w-max">
         {steps.map((label, i) => {
-          const done = i < current
           const active = i === current
           const first = i === 0
           const last = i === steps.length - 1
-          const clip = clipFor(first, last)
+          const clip = first ? clipFirst : last ? clipLast : clipMiddle
 
           return (
             <li
               key={label}
               aria-current={active ? 'step' : undefined}
-              className="relative flex flex-1"
+              className={[
+                'flex flex-1 items-center justify-center whitespace-nowrap px-5 py-2.5 text-[13px]',
+                active ? 'font-bold text-white' : 'text-[#3D3D3D]',
+              ].join(' ')}
               style={{
-                height: active ? 46 : 38,
-                marginLeft: first ? 0 : -(N - GAP),
+                position: 'relative',
+                background: active ? '#3468A4' : '#E8E8E8',
+                clipPath: clip,
+                marginLeft: first ? 0 : -N,
+                paddingLeft: first ? undefined : 20 + N,
+                zIndex: active ? 2 : 1,
               }}
             >
-              {/* camada de contorno (só nas etapas não-ativas) */}
-              {!active && (
-                <span
-                  aria-hidden
-                  className="absolute inset-0"
-                  style={{ clipPath: clip, background: BORDER_COLOR }}
-                />
-              )}
-              {/* camada de preenchimento */}
-              <span
-                aria-hidden
-                className="absolute"
-                style={{
-                  clipPath: clip,
-                  background: active ? '#3468A4' : '#F7F7F8',
-                  inset: active ? 0 : 1,
-                }}
-              />
-              {/* conteúdo */}
-              <span
-                className={[
-                  'relative z-[1] flex h-full flex-1 items-center justify-center gap-1.5 whitespace-nowrap px-4 text-[13px]',
-                  active
-                    ? 'font-semibold text-white'
-                    : done
-                      ? 'text-gray-600'
-                      : 'text-gray-500',
-                ].join(' ')}
-                style={{ paddingLeft: first ? undefined : 16 + N }}
-              >
-                {done && (
-                  <Icon.Check
-                    width={14}
-                    height={14}
-                    className="shrink-0 text-green-600"
-                  />
-                )}
-                {label}
-              </span>
+              {label}
             </li>
           )
         })}

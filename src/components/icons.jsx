@@ -10,6 +10,11 @@ const base = {
 }
 
 export const Icon = {
+  Menu: (p) => (
+    <svg {...base} {...p}>
+      <path d="M3 6h18M3 12h18M3 18h18" />
+    </svg>
+  ),
   Bell: (p) => (
     <svg {...base} {...p}>
       <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
