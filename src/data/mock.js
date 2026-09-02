@@ -26,12 +26,14 @@ export const CENTROS_INICIAIS = [
   { id: 'cc-4', nome: 'Operações de Nuvem', codigo: 'CLOUD-OPS-004', gerenteId: 'g4' },
 ]
 
-// Iniciativa é só identidade (nome/slug). Vínculos carregam orçamento e alerta.
+// Iniciativa é só identidade (nome/slug) + contagem de workspaces vinculados
+// (só número — a jornada de Workspaces vive no produto real, fora do escopo).
+// Vínculos carregam orçamento e alerta.
 export const INICIATIVAS_INICIAIS = [
-  { id: 'ini-1', slug: 'aceleracao-de-agentes-ia' },
-  { id: 'ini-2', slug: 'migracao-lakehouse' },
-  { id: 'ini-3', slug: 'observabilidade-unificada' },
-  { id: 'ini-4', slug: 'reducao-de-custo-storage' },
+  { id: 'ini-1', slug: 'aceleracao-de-agentes-ia', workspaces: 4 },
+  { id: 'ini-2', slug: 'migracao-lakehouse', workspaces: 2 },
+  { id: 'ini-3', slug: 'observabilidade-unificada', workspaces: 3 },
+  { id: 'ini-4', slug: 'reducao-de-custo-storage', workspaces: 1 },
 ]
 
 // Vínculo = Iniciativa + Centro de Custo + (Cloud → Orçamento) + alerta + e-mails.

@@ -1,13 +1,20 @@
+import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import Header from './Header.jsx'
 import Sidebar from './Sidebar.jsx'
 
 export default function Layout() {
+  const [menuOpen, setMenuOpen] = useState(true)
+
   return (
     <div className="min-h-screen bg-pagebg">
-      <Header />
-      <Sidebar />
-      <main className="ml-16 pt-14">
+      <Header onToggleMenu={() => setMenuOpen((o) => !o)} />
+      <Sidebar open={menuOpen} />
+      <main
+        className={`pt-14 transition-[margin] duration-200 ease-out ${
+          menuOpen ? 'ml-64' : 'ml-0'
+        }`}
+      >
         <div className="mx-auto max-w-6xl px-8 py-8">
           <Outlet />
         </div>
