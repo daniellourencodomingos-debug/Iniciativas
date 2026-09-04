@@ -128,9 +128,9 @@ export default function Iniciativas() {
       <PageHeader title="Iniciativas" />
 
       {/* linha de filtros + ação, sempre na mesma linha */}
-      <div className="mb-4 flex items-end gap-3">
-        <div className="flex flex-1 flex-wrap items-end gap-3">
-          <FilterField label="Workspace" className="min-w-[150px] flex-1">
+      <div className="mb-4 flex items-end gap-3 overflow-x-auto pb-1">
+        <div className="flex flex-nowrap items-end gap-3">
+          <FilterField label="Workspace" className="w-[170px] shrink-0">
             <input
               value={fWorkspace}
               onChange={(e) => setFWorkspace(e.target.value)}
@@ -180,7 +180,7 @@ export default function Iniciativas() {
               ))}
             </select>
           </FilterField>
-          <FilterField label="Procurar" className="min-w-[180px] flex-1">
+          <FilterField label="Procurar" className="w-[200px] shrink-0">
             <div className="relative">
               <Icon.Search
                 width={16}
@@ -199,7 +199,7 @@ export default function Iniciativas() {
 
         <button
           onClick={() => navigate('/iniciativas/nova')}
-          className="flex h-9 shrink-0 items-center gap-2 rounded-md bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-dark"
+          className="ml-auto flex h-9 shrink-0 items-center gap-2 rounded-md bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-dark"
         >
           <Icon.Plus width={16} height={16} /> Nova solicitação
         </button>
