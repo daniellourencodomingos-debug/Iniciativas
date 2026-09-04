@@ -116,7 +116,13 @@ export default function ContasField({
         {open && (
           <div className="absolute left-0 top-[calc(100%+4px)] z-20 flex w-[420px] overflow-hidden rounded-md border border-hairline bg-white shadow-lg">
             {/* coluna de provedores */}
-            <div className="w-[160px] shrink-0 border-r border-hairline bg-gray-50 py-1">
+            <div className="flex w-[160px] shrink-0 flex-col border-r border-hairline bg-gray-50">
+              <div className="border-b border-hairline px-3 py-2">
+                <span className="text-[13px] font-semibold text-brand">
+                  Provedores
+                </span>
+              </div>
+              <div className="py-1">
               {providers.map((prov, idx) => {
                 const ProvIcon = PROVIDER_ICONS[idx % PROVIDER_ICONS.length]
                 const active = prov === activeProvider
@@ -145,12 +151,13 @@ export default function ContasField({
                   </button>
                 )
               })}
+              </div>
             </div>
 
             {/* coluna de contas de faturamento */}
             <div className="flex flex-1 flex-col">
               <div className="border-b border-hairline px-3 py-2">
-                <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                <span className="text-[13px] font-semibold text-brand">
                   Provedor / Contas de faturamento
                 </span>
               </div>
