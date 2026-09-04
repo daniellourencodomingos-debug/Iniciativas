@@ -77,15 +77,17 @@ export default function ContasField({
   }
 
   return (
-    <label className={`flex flex-col gap-1 ${className}`}>
-      <span className="text-[11px] font-medium uppercase tracking-wide text-gray-500">
-        {label}
-      </span>
-      <div className="relative" ref={ref}>
+    <div className={className} ref={ref}>
+      <div className="relative rounded border border-gray-300 bg-white transition focus-within:border-brand focus-within:ring-1 focus-within:ring-brand/30">
+        {label && (
+          <span className="pointer-events-none absolute -top-[7px] left-2.5 z-10 bg-white px-1 text-[11px] font-medium leading-none text-gray-500">
+            {label}
+          </span>
+        )}
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
-          className="flex min-h-9 w-full flex-wrap items-center gap-1 rounded-md border border-hairline bg-white px-2 py-1 text-left text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
+          className="flex min-h-9 w-full flex-wrap items-center gap-1 rounded border-none bg-transparent px-2 py-1.5 text-left text-sm outline-none"
         >
           {value.length === 0 && <span className="px-1 text-gray-400">Todas</span>}
           {value.map((id) => (
@@ -196,6 +198,6 @@ export default function ContasField({
           </div>
         )}
       </div>
-    </label>
+    </div>
   )
 }
