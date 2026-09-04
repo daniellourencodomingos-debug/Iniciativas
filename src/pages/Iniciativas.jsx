@@ -217,43 +217,7 @@ export default function Iniciativas() {
       {/* linha de filtros + ação, sempre na mesma linha */}
       <div className="mb-4 flex items-end gap-3 overflow-x-auto pb-1">
         <div className="flex flex-nowrap items-end gap-3">
-          <MultiSelectField
-            label="Centro de custo"
-            options={centroOpts}
-            selected={fCentros}
-            onChange={setFCentros}
-            className="w-[190px] shrink-0"
-          />
-          <MultiSelectField
-            label="Workspace"
-            options={workspaceOpts}
-            selected={fWorkspaces}
-            onChange={setFWorkspaces}
-            className="w-[190px] shrink-0"
-          />
-          <ContasField
-            label="Contas"
-            providers={PROVEDORES}
-            contasPorProvedor={CONTAS_FATURAMENTO}
-            value={fContas}
-            onChange={setFContas}
-            className="w-[190px] shrink-0"
-          />
-          <FilterField label="Responsável">
-            <select
-              value={fResponsavel}
-              onChange={(e) => setFResponsavel(e.target.value)}
-              className={ctl}
-            >
-              <option value="todos">Todos</option>
-              {responsavelOpts.map((r) => (
-                <option key={r} value={r}>
-                  {r}
-                </option>
-              ))}
-            </select>
-          </FilterField>
-          <FilterField label="Procurar" className="w-[200px] shrink-0">
+          <FilterField label="Procurar" className="w-[170px] shrink-0">
             <div className="relative">
               <Icon.Search
                 width={16}
@@ -267,6 +231,42 @@ export default function Iniciativas() {
                 className={`${ctl} w-full pl-9`}
               />
             </div>
+          </FilterField>
+          <MultiSelectField
+            label="Workspace"
+            options={workspaceOpts}
+            selected={fWorkspaces}
+            onChange={setFWorkspaces}
+            className="w-[150px] shrink-0"
+          />
+          <ContasField
+            label="Contas"
+            providers={PROVEDORES}
+            contasPorProvedor={CONTAS_FATURAMENTO}
+            value={fContas}
+            onChange={setFContas}
+            className="w-[150px] shrink-0"
+          />
+          <MultiSelectField
+            label="Centro de custo"
+            options={centroOpts}
+            selected={fCentros}
+            onChange={setFCentros}
+            className="w-[150px] shrink-0"
+          />
+          <FilterField label="Responsável" className="w-[140px] shrink-0">
+            <select
+              value={fResponsavel}
+              onChange={(e) => setFResponsavel(e.target.value)}
+              className={`${ctl} w-full`}
+            >
+              <option value="todos">Todos</option>
+              {responsavelOpts.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </select>
           </FilterField>
         </div>
 
