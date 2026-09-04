@@ -1,3 +1,5 @@
+import { Icon } from './icons.jsx'
+
 /**
  * Stepper da plataforma: UMA barra contínua, sem espaço entre as etapas.
  * Cada segmento tem formato de seta/chevron (borda reta à esquerda encaixando
@@ -5,9 +7,10 @@
  * setas apontando para a direita. As pontas do primeiro e do último segmento
  * são levemente arredondadas.
  *
- * Dois estados apenas:
- * - atual   → fundo azul #3468A4, texto branco em negrito
- * - qualquer outra (passada ou futura) → fundo cinza #E8E8E8, texto cinza escuro
+ * Fiel ao componente Stepper do design system (Figma), com três estados:
+ * - concluída → fundo #F5F5F5, texto #616161, ícone de check verde antes do label
+ * - atual     → fundo azul #3468A4 (brand), texto branco
+ * - futura    → fundo #F5F5F5, texto #9E9E9E (desabilitado), sem ícone
  *
  * props: steps (string[]), current (índice 0-based)
  */
@@ -54,6 +57,7 @@ export default function Stepper({ steps, current }) {
     <div className="overflow-x-auto py-1">
       <ol className="flex w-full min-w-max">
         {steps.map((label, i) => {
+          const done = i < current
           const active = i === current
           const first = i === 0
           const last = i === steps.length - 1
@@ -64,18 +68,26 @@ export default function Stepper({ steps, current }) {
               key={label}
               aria-current={active ? 'step' : undefined}
               className={[
-                'flex flex-1 items-center justify-center whitespace-nowrap px-5 py-2.5 text-[13px]',
-                active ? 'font-bold text-white' : 'text-[#3D3D3D]',
+                'flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap px-5 py-2.5 text-[13px] font-medium tracking-[0.2px]',
+                active ? 'text-white' : done ? 'text-[#616161]' : 'text-[#9E9E9E]',
               ].join(' ')}
               style={{
                 position: 'relative',
-                background: active ? '#3468A4' : '#E8E8E8',
+                background: active ? '#3468A4' : '#F5F5F5',
                 clipPath: clip,
                 marginLeft: first ? 0 : -N,
                 paddingLeft: first ? undefined : 20 + N,
                 zIndex: active ? 2 : 1,
               }}
             >
+              {done && (
+                <Icon.Check
+                  width={14}
+                  height={14}
+                  strokeWidth={2.5}
+                  style={{ color: '#2E7D32', flexShrink: 0 }}
+                />
+              )}
               {label}
             </li>
           )
