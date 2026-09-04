@@ -170,4 +170,9 @@ export const Icon = {
       <path d="M14 2v6h6" />
     </svg>
   ),
+  Filter: (p) => (
+    <svg {...base} {...p}>
+      <path d="M4 5h16l-6.5 7.5V19l-3 1.5v-8z" />
+    </svg>
+  ),
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { PageHeader } from '../components/Layout.jsx'
-import FormCard, { Field, TextInput, Select } from '../components/FormCard.jsx'
+import FormCard, { Field, TextInput, TextArea, Select } from '../components/FormCard.jsx'
 import AttentionBanner from '../components/AttentionBanner.jsx'
 import Stepper from '../components/Stepper.jsx'
 import Toast from '../components/Toast.jsx'
@@ -9,8 +9,6 @@ import EmailChipsInput from '../components/EmailChipsInput.jsx'
 import { Icon } from '../components/icons.jsx'
 import { useApp } from '../store/AppContext.jsx'
 import {
-  currency,
-  somaOrcamentos,
   SLUG_RE,
   novoVinculo,
   PROVEDORES,
@@ -42,6 +40,7 @@ export default function IniciativaForm() {
 
   const [step, setStep] = useState(0)
   const [slug, setSlug] = useState(existing?.slug ?? '')
+  const [descricao, setDescricao] = useState(existing?.descricao ?? '')
   const [vinculos, setVinculos] = useState(() => {
     if (editing && existing) {
       const atuais = vinculosDaIniciativa(id).map((v) => {
@@ -104,11 +103,6 @@ export default function IniciativaForm() {
     const c = centros.find((x) => x.id === v.centroId)
     return c ? gerenteById(c.gerenteId) : null
   }
-
-  const totalPreview = vinculos.reduce(
-    (s, v) => s + somaOrcamentos(v.orcamentos),
-    0,
-  )
 
   const enviar = () => {
     let iniciativaId = id
@@ -216,13 +210,23 @@ export default function IniciativaForm() {
                   placeholder="aceleracao-de-agentes-ia"
                 />
               </Field>
-              <Field label="Orçamento total da iniciativa (prévia)">
-                <TextInput
-                  readOnly
-                  value={currency(totalPreview)}
-                  className="font-bold"
+              <Field label="Descrição (Opcional)">
+                <TextArea
+                  value={descricao}
+                  onChange={(e) => setDescricao(e.target.value.slice(0, 200))}
+                  maxLength={200}
+                  rows={4}
+                  placeholder="Descreva o objetivo desta iniciativa..."
                 />
+                <span className="mt-1 block text-right text-[11px] text-gray-400">
+                  {descricao.length}/200
+                </span>
               </Field>
+              <AttentionBanner>
+                Verifique periodicamente o status desta iniciativa e exclua-a
+                quando ela não for mais necessária — isso ajuda a manter os
+                custos de nuvem sob controle.
+              </AttentionBanner>
             </div>
           )}
 

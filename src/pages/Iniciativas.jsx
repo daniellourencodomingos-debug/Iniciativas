@@ -3,8 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { PageHeader } from '../components/Layout.jsx'
 import { Icon } from '../components/icons.jsx'
 import AttentionBanner from '../components/AttentionBanner.jsx'
+import MultiSelectField from '../components/MultiSelectField.jsx'
+import ContasField from '../components/ContasField.jsx'
+import FilterChipsBar from '../components/FilterChipsBar.jsx'
 import { useApp } from '../store/AppContext.jsx'
-import { currency, PROVEDORES } from '../data/mock.js'
+import { currency, PROVEDORES, WORKSPACES, CONTAS_FATURAMENTO } from '../data/mock.js'
 
 const PER_PAGE_OPTS = [5, 10, 20]
 
@@ -34,9 +37,9 @@ export default function Iniciativas() {
   } = useApp()
   const navigate = useNavigate()
 
-  const [fWorkspace, setFWorkspace] = useState('')
-  const [fProvedor, setFProvedor] = useState('todos')
-  const [fCentro, setFCentro] = useState('todos')
+  const [fWorkspaces, setFWorkspaces] = useState([])
+  const [fContas, setFContas] = useState([])
+  const [fCentros, setFCentros] = useState([])
   const [fResponsavel, setFResponsavel] = useState('todos')
   const [q, setQ] = useState('')
   const [sort, setSort] = useState({ col: 'iniciativa', dir: 'asc' })
@@ -46,7 +49,7 @@ export default function Iniciativas() {
 
   useEffect(() => {
     setPage(0)
-  }, [fWorkspace, fProvedor, fCentro, fResponsavel, q, perPage])
+  }, [fWorkspaces, fContas, fCentros, fResponsavel, q, perPage])
 
   const provedoresDe = (id) =>
     new Set(
@@ -56,6 +59,8 @@ export default function Iniciativas() {
     )
   const responsaveisDe = (id) =>
     new Set(vinculosDaIniciativa(id).flatMap((v) => v.emails ?? []))
+  const workspacesDaIniciativa = (id) =>
+    new Set(vinculosDaIniciativa(id).map((v) => v.workspace).filter(Boolean))
   const workspacesDe = (i) => i.workspaces ?? vinculosDaIniciativa(i.id).length
 
   const responsavelOpts = useMemo(
@@ -63,14 +68,39 @@ export default function Iniciativas() {
     [vinculos],
   )
 
+  const centroOpts = useMemo(
+    () => centros.map((c) => ({ value: c.id, label: c.nome })),
+    [centros],
+  )
+  const workspaceOpts = useMemo(
+    () => WORKSPACES.map((w) => ({ value: w, label: w })),
+    [],
+  )
+
+  // provedores selecionados a partir das contas escolhidas (id = "provedor::conta")
+  const provedoresSelecionados = useMemo(
+    () => new Set(fContas.map((id) => id.split('::')[0])),
+    [fContas],
+  )
+
   const filtered = useMemo(() => {
     const list = iniciativas.filter((i) => {
       const slug = i.slug.toLowerCase()
-      if (fWorkspace && !slug.includes(fWorkspace.toLowerCase())) return false
       if (q && !slug.includes(q.toLowerCase())) return false
-      if (fProvedor !== 'todos' && !provedoresDe(i.id).has(fProvedor))
+      if (
+        fWorkspaces.length > 0 &&
+        ![...workspacesDaIniciativa(i.id)].some((w) => fWorkspaces.includes(w))
+      )
         return false
-      if (fCentro !== 'todos' && !centrosDaIniciativa(i.id).includes(fCentro))
+      if (
+        fContas.length > 0 &&
+        ![...provedoresDe(i.id)].some((p) => provedoresSelecionados.has(p))
+      )
+        return false
+      if (
+        fCentros.length > 0 &&
+        !centrosDaIniciativa(i.id).some((cid) => fCentros.includes(cid))
+      )
         return false
       if (fResponsavel !== 'todos' && !responsaveisDe(i.id).has(fResponsavel))
         return false
@@ -85,7 +115,17 @@ export default function Iniciativas() {
     })
     return list
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [iniciativas, vinculos, fWorkspace, q, fProvedor, fCentro, fResponsavel, sort])
+  }, [
+    iniciativas,
+    vinculos,
+    fWorkspaces,
+    fContas,
+    provedoresSelecionados,
+    q,
+    fCentros,
+    fResponsavel,
+    sort,
+  ])
 
   const total = filtered.length
   const totalPages = Math.max(1, Math.ceil(total / perPage))
@@ -100,6 +140,53 @@ export default function Iniciativas() {
         ? { col, dir: s.dir === 'asc' ? 'desc' : 'asc' }
         : { col, dir: 'asc' },
     )
+
+  const clearAllFilters = () => {
+    setFWorkspaces([])
+    setFContas([])
+    setFCentros([])
+    setFResponsavel('todos')
+    setQ('')
+  }
+
+  const filterChips = useMemo(() => {
+    const chips = []
+    fCentros.forEach((cid) =>
+      chips.push({
+        key: `centro-${cid}`,
+        label: `Centro de custo: ${centroById(cid)?.nome ?? cid}`,
+        onRemove: () => setFCentros((s) => s.filter((v) => v !== cid)),
+      }),
+    )
+    fWorkspaces.forEach((w) =>
+      chips.push({
+        key: `ws-${w}`,
+        label: `Workspace: ${w}`,
+        onRemove: () => setFWorkspaces((s) => s.filter((v) => v !== w)),
+      }),
+    )
+    fContas.forEach((id) => {
+      const [provedor, conta] = id.split('::')
+      chips.push({
+        key: `conta-${id}`,
+        label: `Conta: ${conta} (${provedor})`,
+        onRemove: () => setFContas((s) => s.filter((v) => v !== id)),
+      })
+    })
+    if (fResponsavel !== 'todos')
+      chips.push({
+        key: 'responsavel',
+        label: `Responsável: ${fResponsavel}`,
+        onRemove: () => setFResponsavel('todos'),
+      })
+    if (q)
+      chips.push({
+        key: 'q',
+        label: `Procurar: ${q}`,
+        onRemove: () => setQ(''),
+      })
+    return chips
+  }, [fCentros, fWorkspaces, fContas, fResponsavel, q, centroById])
 
   const SortHeader = ({ col, children }) => (
     <th className="px-4 py-3 text-left font-semibold">
@@ -130,42 +217,28 @@ export default function Iniciativas() {
       {/* linha de filtros + ação, sempre na mesma linha */}
       <div className="mb-4 flex items-end gap-3 overflow-x-auto pb-1">
         <div className="flex flex-nowrap items-end gap-3">
-          <FilterField label="Workspace" className="w-[170px] shrink-0">
-            <input
-              value={fWorkspace}
-              onChange={(e) => setFWorkspace(e.target.value)}
-              placeholder="Buscar workspace"
-              className={ctl}
-            />
-          </FilterField>
-          <FilterField label="Provedor">
-            <select
-              value={fProvedor}
-              onChange={(e) => setFProvedor(e.target.value)}
-              className={ctl}
-            >
-              <option value="todos">Todos</option>
-              {PROVEDORES.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
-          </FilterField>
-          <FilterField label="Centro de custo">
-            <select
-              value={fCentro}
-              onChange={(e) => setFCentro(e.target.value)}
-              className={ctl}
-            >
-              <option value="todos">Todos</option>
-              {centros.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.nome}
-                </option>
-              ))}
-            </select>
-          </FilterField>
+          <MultiSelectField
+            label="Centro de custo"
+            options={centroOpts}
+            selected={fCentros}
+            onChange={setFCentros}
+            className="w-[190px] shrink-0"
+          />
+          <MultiSelectField
+            label="Workspace"
+            options={workspaceOpts}
+            selected={fWorkspaces}
+            onChange={setFWorkspaces}
+            className="w-[190px] shrink-0"
+          />
+          <ContasField
+            label="Contas"
+            providers={PROVEDORES}
+            contasPorProvedor={CONTAS_FATURAMENTO}
+            value={fContas}
+            onChange={setFContas}
+            className="w-[190px] shrink-0"
+          />
           <FilterField label="Responsável">
             <select
               value={fResponsavel}
@@ -204,6 +277,8 @@ export default function Iniciativas() {
           <Icon.Plus width={16} height={16} /> Nova solicitação
         </button>
       </div>
+
+      <FilterChipsBar chips={filterChips} onClearAll={clearAllFilters} />
 
       {!bannerAck && (
         <div className="mb-4">

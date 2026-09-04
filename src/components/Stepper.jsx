@@ -17,20 +17,21 @@ import { Icon } from './icons.jsx'
 const N = 15 // profundidade do chevron
 const RC = 5 // raio (bevel) das quinas externas da barra
 
-// ponta arredondada (aproximação de arco com raio ~6px em vez de vértice reto)
+// ponta arredondada (aproximação de arco com raio ~10px em vez de vértice reto —
+// bem mais arredondada que a versão anterior)
 const TIP_RIGHT = `
-  calc(100% - 3.2px) calc(50% - 3.84px),
-  calc(100% - 2.17px) calc(50% - 2.05px),
-  calc(100% - 1.81px) 50%,
-  calc(100% - 2.17px) calc(50% + 2.05px),
-  calc(100% - 3.2px) calc(50% + 3.84px)`
+  calc(100% - 5.32px) calc(50% - 6.4px),
+  calc(100% - 3.62px) calc(50% - 3.42px),
+  calc(100% - 3.02px) 50%,
+  calc(100% - 3.62px) calc(50% + 3.42px),
+  calc(100% - 5.32px) calc(50% + 6.4px)`
 
 const NOTCH_LEFT = `
-  3.2px calc(50% + 3.84px),
-  2.17px calc(50% + 2.05px),
-  1.81px 50%,
-  2.17px calc(50% - 2.05px),
-  3.2px calc(50% - 3.84px)`
+  5.32px calc(50% + 6.4px),
+  3.62px calc(50% + 3.42px),
+  3.02px 50%,
+  3.62px calc(50% - 3.42px),
+  5.32px calc(50% - 6.4px)`
 
 // primeiro segmento: canto sup-esq / inf-esq arredondados; ponta arredondada à direita
 const clipFirst = `polygon(

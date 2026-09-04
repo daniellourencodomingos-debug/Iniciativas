@@ -1,6 +1,14 @@
 // Provedores de cloud com rótulos 100% genéricos (sem marcas reais).
 export const PROVEDORES = ['Provedor A', 'Provedor B', 'Provedor C', 'Provedor D']
 
+// Contas de faturamento fictícias por provedor (para o seletor "Contas").
+export const CONTAS_FATURAMENTO = {
+  'Provedor A': ['conta-financas-01', 'conta-financas-02', 'conta-marketing-01'],
+  'Provedor B': ['conta-produto-01', 'conta-dados-02'],
+  'Provedor C': ['conta-seguranca-01', 'conta-seguranca-02', 'conta-infra-03'],
+  'Provedor D': ['conta-infra-01', 'conta-backup-02'],
+}
+
 // Workspaces e serviços genéricos para o Vínculo (Provedor/Conta, Workspace, Serviço).
 export const WORKSPACES = [
   'workspace-produto-01',
@@ -58,6 +66,7 @@ export const VINCULOS_INICIAIS = [
     id: 'v-1',
     iniciativaId: 'ini-1',
     centroId: 'cc-1',
+    workspace: 'workspace-produto-01',
     orcamentos: [
       { id: 'o-1', provedor: 'Provedor A', valor: 120000 },
       { id: 'o-2', provedor: 'Provedor B', valor: 45000 },
@@ -69,6 +78,7 @@ export const VINCULOS_INICIAIS = [
     id: 'v-2',
     iniciativaId: 'ini-1',
     centroId: 'cc-2',
+    workspace: 'workspace-dados-02',
     orcamentos: [{ id: 'o-1', provedor: 'Provedor C', valor: 30000 }],
     alerta: 'padrao',
     emails: ['bruno.carvalho@exemplo.com', 'time-produto@exemplo.com'],
@@ -77,6 +87,7 @@ export const VINCULOS_INICIAIS = [
     id: 'v-3',
     iniciativaId: 'ini-2',
     centroId: 'cc-1',
+    workspace: 'workspace-seguranca-03',
     orcamentos: [
       { id: 'o-1', provedor: 'Provedor A', valor: 80000 },
       { id: 'o-2', provedor: 'Provedor D', valor: 22000 },
@@ -88,6 +99,7 @@ export const VINCULOS_INICIAIS = [
     id: 'v-4',
     iniciativaId: 'ini-3',
     centroId: 'cc-4',
+    workspace: 'workspace-infra-04',
     orcamentos: [
       { id: 'o-1', provedor: 'Provedor C', valor: 55000 },
       { id: 'o-2', provedor: 'Provedor B', valor: 15000 },
@@ -99,6 +111,7 @@ export const VINCULOS_INICIAIS = [
     id: 'v-5',
     iniciativaId: 'ini-4',
     centroId: 'cc-4',
+    workspace: 'workspace-produto-01',
     orcamentos: [{ id: 'o-1', provedor: 'Provedor A', valor: 18000 }],
     alerta: 'padrao',
     emails: ['diego.nunes@exemplo.com', 'finops@exemplo.com'],
