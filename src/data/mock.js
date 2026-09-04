@@ -129,6 +129,16 @@ export const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 export const somaOrcamentos = (orcamentos = []) =>
   orcamentos.reduce((s, o) => s + (Number(o.valor) || 0), 0)
 
+/**
+ * Valor de um Vínculo para fins de total: usa o orçamento direcionado à
+ * iniciativa quando definido (novo fluxo); cai para a soma dos orçamentos
+ * por provedor como fallback (dados semente antigos).
+ */
+export const valorVinculo = (v) =>
+  v.orcamentoDirecionado != null
+    ? Number(v.orcamentoDirecionado) || 0
+    : somaOrcamentos(v.orcamentos)
+
 /** Cria os dados de um Vínculo em branco. */
 export const novoVinculo = (uid, centroId = '') => ({
   id: uid('v'),
@@ -137,6 +147,8 @@ export const novoVinculo = (uid, centroId = '') => ({
   contas: [],
   // workspaces selecionados (pode ter mais de um)
   workspaces: [],
+  // orçamento (R$) direcionado a esta iniciativa a partir do centro de custo pagador
+  orcamentoDirecionado: 0,
   servico: '',
   // limites de alerta de consumo (%). O primeiro é o teto fixo do sistema.
   alertas: [

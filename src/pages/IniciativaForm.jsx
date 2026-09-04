@@ -11,6 +11,7 @@ import ContasField from '../components/ContasField.jsx'
 import { Icon } from '../components/icons.jsx'
 import { useApp } from '../store/AppContext.jsx'
 import {
+  currency,
   SLUG_RE,
   novoVinculo,
   orcamentosDeContas,
@@ -34,6 +35,7 @@ export default function IniciativaForm() {
     iniciativaById,
     vinculosDaIniciativa,
     gerenteById,
+    centroTotal,
   } = useApp()
 
   const editing = Boolean(id)
@@ -56,6 +58,8 @@ export default function IniciativaForm() {
             : v.workspace
               ? [v.workspace]
               : base.workspaces,
+          orcamentoDirecionado:
+            v.orcamentoDirecionado ?? base.orcamentoDirecionado,
           servico: v.servico ?? base.servico,
           alertas: v.alertas ?? base.alertas,
           emailsAlerta: v.emailsAlerta ?? v.emails ?? [],
@@ -129,6 +133,7 @@ export default function IniciativaForm() {
       centroId: v.centroId,
       contas: v.contas,
       workspaces: v.workspaces,
+      orcamentoDirecionado: Number(v.orcamentoDirecionado) || 0,
       servico: v.servico,
       alertas: v.alertas,
       emailsAlerta: v.emailsAlerta,
@@ -272,6 +277,40 @@ export default function IniciativaForm() {
                             ? `${gestor.email} (somente leitura)`
                             : 'gestor@exemplo.com (somente leitura)'
                         }
+                      />
+                    </Field>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-x-4 gap-y-4 md:grid-cols-2">
+                    <Field label="Orçamento total do centro de custo">
+                      <TextInput
+                        readOnly
+                        value={
+                          v.centroId
+                            ? currency(centroTotal(v.centroId))
+                            : 'Selecione um centro de custo'
+                        }
+                        className="font-bold"
+                      />
+                    </Field>
+
+                    <Field
+                      label="Orçamento direcionado para a iniciativa"
+                      required
+                      hint="Valor do orçamento do centro de custo reservado para esta iniciativa."
+                    >
+                      <TextInput
+                        type="number"
+                        min={0}
+                        step="0.01"
+                        value={v.orcamentoDirecionado ?? 0}
+                        onChange={(e) =>
+                          setVinculo(v.id, {
+                            ...v,
+                            orcamentoDirecionado: e.target.value,
+                          })
+                        }
+                        placeholder="0,00"
                       />
                     </Field>
                   </div>

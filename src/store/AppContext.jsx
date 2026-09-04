@@ -4,7 +4,7 @@ import {
   INICIATIVAS_INICIAIS,
   VINCULOS_INICIAIS,
   GERENTES,
-  somaOrcamentos,
+  valorVinculo,
 } from '../data/mock.js'
 
 const AppContext = createContext(null)
@@ -101,13 +101,10 @@ export function AppProvider({ children }) {
       vinculosDoCentro,
       vinculosDaIniciativa,
       centroTotal: (centroId) =>
-        vinculosDoCentro(centroId).reduce(
-          (s, v) => s + somaOrcamentos(v.orcamentos),
-          0,
-        ),
+        vinculosDoCentro(centroId).reduce((s, v) => s + valorVinculo(v), 0),
       iniciativaTotal: (iniciativaId) =>
         vinculosDaIniciativa(iniciativaId).reduce(
-          (s, v) => s + somaOrcamentos(v.orcamentos),
+          (s, v) => s + valorVinculo(v),
           0,
         ),
       centrosDaIniciativa: (iniciativaId) => [
