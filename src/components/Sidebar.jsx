@@ -62,7 +62,7 @@ export default function Sidebar({ open = true }) {
             />
             <SidebarItem
               to="/iniciativas"
-              icon={Icon.Rocket}
+              icon={Icon.Target}
               label="Iniciativas"
               subtitle="Listagem / cadastro"
               badge="novo"

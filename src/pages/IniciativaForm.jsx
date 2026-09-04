@@ -6,22 +6,23 @@ import AttentionBanner from '../components/AttentionBanner.jsx'
 import Stepper from '../components/Stepper.jsx'
 import Toast from '../components/Toast.jsx'
 import EmailChipsInput from '../components/EmailChipsInput.jsx'
+import MultiSelectField from '../components/MultiSelectField.jsx'
+import ContasField from '../components/ContasField.jsx'
 import { Icon } from '../components/icons.jsx'
 import { useApp } from '../store/AppContext.jsx'
 import {
   SLUG_RE,
   novoVinculo,
+  orcamentosDeContas,
   PROVEDORES,
   WORKSPACES,
   SERVICOS,
+  CONTAS_FATURAMENTO,
 } from '../data/mock.js'
 
-const STEPS = [
-  'Instruções',
-  'Dados da Iniciativa',
-  'Vínculo com Centro de Custo',
-  'Responsáveis',
-]
+const STEPS = ['Instruções', 'Dados da Iniciativa', 'Vínculo', 'Responsáveis']
+
+const WORKSPACE_OPTS = WORKSPACES.map((w) => ({ value: w, label: w }))
 
 export default function IniciativaForm() {
   const { id } = useParams()
@@ -49,12 +50,16 @@ export default function IniciativaForm() {
           ...base,
           id: v.id,
           centroId: v.centroId,
-          provedor: v.provedor ?? base.provedor,
-          workspace: v.workspace ?? base.workspace,
+          contas: v.contas ?? base.contas,
+          workspaces: v.workspaces?.length
+            ? v.workspaces
+            : v.workspace
+              ? [v.workspace]
+              : base.workspaces,
           servico: v.servico ?? base.servico,
           alertas: v.alertas ?? base.alertas,
           emailsAlerta: v.emailsAlerta ?? v.emails ?? [],
-          orcamentos: v.orcamentos.map((o) => ({ ...o })),
+          orcamentos: (v.orcamentos ?? []).map((o) => ({ ...o })),
         }
       })
       return atuais.length ? [atuais[0]] : [novoVinculo(uid)]
@@ -72,7 +77,13 @@ export default function IniciativaForm() {
   const slugValido = SLUG_RE.test(slug)
   const vinculosOk =
     vinculos.length > 0 &&
-    vinculos.every((v) => v.centroId && v.provedor && v.workspace && v.servico)
+    vinculos.every(
+      (v) =>
+        v.centroId &&
+        v.contas?.length > 0 &&
+        v.workspaces?.length > 0 &&
+        v.servico,
+    )
   const emailsOk = emails.length >= 2
 
   const podeAvancar =
@@ -116,12 +127,12 @@ export default function IniciativaForm() {
       id: v.id,
       iniciativaId,
       centroId: v.centroId,
-      provedor: v.provedor,
-      workspace: v.workspace,
+      contas: v.contas,
+      workspaces: v.workspaces,
       servico: v.servico,
       alertas: v.alertas,
       emailsAlerta: v.emailsAlerta,
-      orcamentos: v.orcamentos,
+      orcamentos: orcamentosDeContas(uid, v.contas),
       emails,
     }))
     if (editing) {
@@ -265,36 +276,23 @@ export default function IniciativaForm() {
                     </Field>
                   </div>
 
-                  <Field label="Provedor / Conta">
-                    <Select
-                      value={v.provedor}
-                      onChange={(e) =>
-                        setVinculo(v.id, { ...v, provedor: e.target.value })
-                      }
-                    >
-                      {PROVEDORES.map((p) => (
-                        <option key={p} value={p}>
-                          {p}
-                        </option>
-                      ))}
-                    </Select>
-                  </Field>
+                  <ContasField
+                    label="Contas"
+                    providers={PROVEDORES}
+                    contasPorProvedor={CONTAS_FATURAMENTO}
+                    value={v.contas}
+                    onChange={(contas) => setVinculo(v.id, { ...v, contas })}
+                  />
 
-                  <Field label="Workspace">
-                    <Select
-                      value={v.workspace}
-                      onChange={(e) =>
-                        setVinculo(v.id, { ...v, workspace: e.target.value })
-                      }
-                    >
-                      <option value="">Selecione o workspace</option>
-                      {WORKSPACES.map((w) => (
-                        <option key={w} value={w}>
-                          {w}
-                        </option>
-                      ))}
-                    </Select>
-                  </Field>
+                  <MultiSelectField
+                    label="Workspace"
+                    options={WORKSPACE_OPTS}
+                    selected={v.workspaces}
+                    onChange={(workspaces) =>
+                      setVinculo(v.id, { ...v, workspaces })
+                    }
+                    placeholder="Selecione o(s) workspace(s)"
+                  />
 
                   <Field label="Serviço">
                     <Select

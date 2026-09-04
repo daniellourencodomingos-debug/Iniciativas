@@ -60,7 +60,11 @@ export default function Iniciativas() {
   const responsaveisDe = (id) =>
     new Set(vinculosDaIniciativa(id).flatMap((v) => v.emails ?? []))
   const workspacesDaIniciativa = (id) =>
-    new Set(vinculosDaIniciativa(id).map((v) => v.workspace).filter(Boolean))
+    new Set(
+      vinculosDaIniciativa(id).flatMap((v) =>
+        v.workspaces?.length ? v.workspaces : v.workspace ? [v.workspace] : [],
+      ),
+    )
   const workspacesDe = (i) => i.workspaces ?? vinculosDaIniciativa(i.id).length
 
   const responsavelOpts = useMemo(

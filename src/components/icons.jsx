@@ -175,4 +175,11 @@ export const Icon = {
       <path d="M4 5h16l-6.5 7.5V19l-3 1.5v-8z" />
     </svg>
   ),
+  Target: (p) => (
+    <svg {...base} {...p}>
+      <circle cx="12" cy="12" r="8.5" />
+      <circle cx="12" cy="12" r="5" />
+      <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
+    </svg>
+  ),
 }

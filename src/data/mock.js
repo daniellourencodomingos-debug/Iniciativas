@@ -133,8 +133,10 @@ export const somaOrcamentos = (orcamentos = []) =>
 export const novoVinculo = (uid, centroId = '') => ({
   id: uid('v'),
   centroId,
-  provedor: 'Provedor A',
-  workspace: '',
+  // contas de faturamento selecionadas, id = "Provedor::conta" (pode ter mais de um provedor)
+  contas: [],
+  // workspaces selecionados (pode ter mais de um)
+  workspaces: [],
   servico: '',
   // limites de alerta de consumo (%). O primeiro é o teto fixo do sistema.
   alertas: [
@@ -142,7 +144,13 @@ export const novoVinculo = (uid, centroId = '') => ({
     { id: uid('a'), valor: 70, fixo: false },
   ],
   emailsAlerta: [],
-  orcamentos: [{ id: uid('o'), provedor: 'Provedor A', valor: 0 }],
+  orcamentos: [],
   alerta: 'padrao',
   emails: [],
 })
+
+/** Deriva a lista de orçamentos (por provedor) a partir das contas selecionadas no Vínculo. */
+export const orcamentosDeContas = (uid, contas = []) => {
+  const provedores = [...new Set(contas.map((c) => c.split('::')[0]))]
+  return provedores.map((provedor) => ({ id: uid('o'), provedor, valor: 0 }))
+}
