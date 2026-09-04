@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { PageHeader } from '../components/Layout.jsx'
 import FormCard, { Field, TextInput, Select } from '../components/FormCard.jsx'
@@ -14,7 +14,8 @@ import {
   SLUG_RE,
   novoVinculo,
   PROVEDORES,
-  ALERTA_OPCOES,
+  WORKSPACES,
+  SERVICOS,
 } from '../data/mock.js'
 
 const STEPS = [
@@ -43,13 +44,21 @@ export default function IniciativaForm() {
   const [slug, setSlug] = useState(existing?.slug ?? '')
   const [vinculos, setVinculos] = useState(() => {
     if (editing && existing) {
-      const atuais = vinculosDaIniciativa(id).map((v) => ({
-        id: v.id,
-        centroId: v.centroId,
-        orcamentos: v.orcamentos.map((o) => ({ ...o })),
-        alerta: v.alerta ?? 'padrao',
-      }))
-      return atuais.length ? atuais : [novoVinculo(uid)]
+      const atuais = vinculosDaIniciativa(id).map((v) => {
+        const base = novoVinculo(uid, v.centroId)
+        return {
+          ...base,
+          id: v.id,
+          centroId: v.centroId,
+          provedor: v.provedor ?? base.provedor,
+          workspace: v.workspace ?? base.workspace,
+          servico: v.servico ?? base.servico,
+          alertas: v.alertas ?? base.alertas,
+          emailsAlerta: v.emailsAlerta ?? v.emails ?? [],
+          orcamentos: v.orcamentos.map((o) => ({ ...o })),
+        }
+      })
+      return atuais.length ? [atuais[0]] : [novoVinculo(uid)]
     }
     return [novoVinculo(uid)]
   })
@@ -64,7 +73,7 @@ export default function IniciativaForm() {
   const slugValido = SLUG_RE.test(slug)
   const vinculosOk =
     vinculos.length > 0 &&
-    vinculos.every((v) => v.centroId && v.orcamentos.length > 0)
+    vinculos.every((v) => v.centroId && v.provedor && v.workspace && v.servico)
   const emailsOk = emails.length >= 2
 
   const podeAvancar =
@@ -73,36 +82,28 @@ export default function IniciativaForm() {
   const setVinculo = (vid, next) =>
     setVinculos((l) => l.map((v) => (v.id === vid ? next : v)))
 
-  const setOrc = (v, oid, patch) =>
+  const setAlerta = (v, aid, valor) =>
     setVinculo(v.id, {
       ...v,
-      orcamentos: v.orcamentos.map((o) =>
-        o.id === oid ? { ...o, ...patch } : o,
+      alertas: v.alertas.map((a) =>
+        a.id === aid ? { ...a, valor: Math.min(100, Math.max(0, valor)) } : a,
       ),
     })
-  const addOrc = (v) =>
+  const addAlerta = (v) =>
     setVinculo(v.id, {
       ...v,
-      orcamentos: [
-        ...v.orcamentos,
-        { id: uid('o'), provedor: 'Provedor A', valor: 0 },
-      ],
+      alertas: [...v.alertas, { id: uid('a'), valor: 50, fixo: false }],
     })
-  const removeOrc = (v, oid) =>
+  const removeAlerta = (v, aid) =>
     setVinculo(v.id, {
       ...v,
-      orcamentos: v.orcamentos.filter((o) => o.id !== oid),
+      alertas: v.alertas.filter((a) => a.id !== aid),
     })
 
   const gestorDoVinculo = (v) => {
     const c = centros.find((x) => x.id === v.centroId)
     return c ? gerenteById(c.gerenteId) : null
   }
-
-  const centrosDisponiveis = (vid) =>
-    centros.filter(
-      (c) => !vinculos.some((v) => v.id !== vid && v.centroId === c.id),
-    )
 
   const totalPreview = vinculos.reduce(
     (s, v) => s + somaOrcamentos(v.orcamentos),
@@ -121,8 +122,12 @@ export default function IniciativaForm() {
       id: v.id,
       iniciativaId,
       centroId: v.centroId,
+      provedor: v.provedor,
+      workspace: v.workspace,
+      servico: v.servico,
+      alertas: v.alertas,
+      emailsAlerta: v.emailsAlerta,
       orcamentos: v.orcamentos,
-      alerta: v.alerta,
       emails,
     }))
     if (editing) {
@@ -173,18 +178,13 @@ export default function IniciativaForm() {
               </h2>
               <p className="text-sm text-gray-600">
                 Uma iniciativa agrupa o investimento em nuvem de um objetivo de
-                negócio e se conecta a um ou mais Centros de Custo por meio de um{' '}
+                negócio e se conecta a um Centro de Custo por meio de um{' '}
                 <strong>Vínculo</strong>.
               </p>
               <ul className="list-disc space-y-1 pl-5 text-sm text-gray-600">
                 <li>
-                  O <strong>orçamento por cloud</strong> e o{' '}
-                  <strong>alerta de consumo</strong> ficam no Vínculo — o Centro
-                  de Custo apenas agrega a soma.
-                </li>
-                <li>
-                  Você pode criar mais de um Vínculo, um para cada Centro de
-                  Custo participante.
+                  O <strong>Provedor/Conta, Workspace e Serviço</strong> e o{' '}
+                  <strong>alerta de consumo</strong> ficam no Vínculo.
                 </li>
                 <li>
                   Ao final, a solicitação é enviada para aprovação antes de
@@ -226,161 +226,191 @@ export default function IniciativaForm() {
             </div>
           )}
 
-          {step === 2 && (
-            <div className="space-y-5">
-              {vinculos.map((v, idx) => {
-                const gestor = gestorDoVinculo(v)
-                return (
-                  <div
-                    key={v.id}
-                    className="space-y-4 rounded-md border border-hairline p-4"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-gray-900">
-                        Vínculo {idx + 1}
-                      </span>
-                      {vinculos.length > 1 && (
-                        <button
-                          onClick={() =>
-                            setVinculos((l) => l.filter((x) => x.id !== v.id))
-                          }
-                          className="flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-red-500"
-                        >
-                          <Icon.Trash width={14} height={14} /> Remover
-                        </button>
-                      )}
-                    </div>
+          {step === 2 &&
+            vinculos.map((v) => {
+              const gestor = gestorDoVinculo(v)
+              return (
+                <div key={v.id} className="space-y-5">
+                  <div className="grid grid-cols-1 gap-x-4 gap-y-4 md:grid-cols-2">
+                    <Field label="Centro de Custo pagador" required>
+                      <Select
+                        leftIcon={Icon.Search}
+                        value={v.centroId}
+                        onChange={(e) =>
+                          setVinculo(v.id, { ...v, centroId: e.target.value })
+                        }
+                      >
+                        <option value="">Selecione o centro de custo</option>
+                        {centros.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.nome} ({c.codigo})
+                          </option>
+                        ))}
+                      </Select>
+                    </Field>
 
-                    <div className="grid grid-cols-1 gap-x-4 gap-y-4 md:grid-cols-2">
-                      {/* col. esquerda — topo */}
-                      <Field label="Centro de Custo pagador" required>
-                        <Select
-                          leftIcon={Icon.Search}
-                          value={v.centroId}
-                          onChange={(e) =>
-                            setVinculo(v.id, { ...v, centroId: e.target.value })
-                          }
-                        >
-                          <option value="">Selecione um centro de custo</option>
-                          {centrosDisponiveis(v.id).map((c) => (
-                            <option key={c.id} value={c.id}>
-                              {c.nome} ({c.codigo})
-                            </option>
-                          ))}
-                        </Select>
-                      </Field>
+                    <Field label="Gestor do centro de custo">
+                      <TextInput
+                        readOnly
+                        value={
+                          gestor
+                            ? `${gestor.email} (somente leitura)`
+                            : 'gestor@exemplo.com (somente leitura)'
+                        }
+                      />
+                    </Field>
+                  </div>
 
-                      {/* col. direita — topo */}
-                      <Field label="Gestor do centro de custo">
-                        <TextInput
-                          readOnly
-                          value={
-                            gestor ? `${gestor.nome} — ${gestor.email}` : '—'
-                          }
-                        />
-                      </Field>
+                  <Field label="Provedor / Conta">
+                    <Select
+                      value={v.provedor}
+                      onChange={(e) =>
+                        setVinculo(v.id, { ...v, provedor: e.target.value })
+                      }
+                    >
+                      {PROVEDORES.map((p) => (
+                        <option key={p} value={p}>
+                          {p}
+                        </option>
+                      ))}
+                    </Select>
+                  </Field>
 
-                      {/* linhas de orçamento: Provedor (esq.) + Orçamento mensal (dir.) */}
-                      {v.orcamentos.map((o) => (
-                        <Fragment key={o.id}>
-                          <Field label="Provedor">
-                            <Select
-                              value={o.provedor}
+                  <Field label="Workspace">
+                    <Select
+                      value={v.workspace}
+                      onChange={(e) =>
+                        setVinculo(v.id, { ...v, workspace: e.target.value })
+                      }
+                    >
+                      <option value="">Selecione o workspace</option>
+                      {WORKSPACES.map((w) => (
+                        <option key={w} value={w}>
+                          {w}
+                        </option>
+                      ))}
+                    </Select>
+                  </Field>
+
+                  <Field label="Serviço">
+                    <Select
+                      value={v.servico}
+                      onChange={(e) =>
+                        setVinculo(v.id, { ...v, servico: e.target.value })
+                      }
+                    >
+                      <option value="">Selecione o serviço</option>
+                      {SERVICOS.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </Select>
+                  </Field>
+
+                  <div>
+                    <p className="mb-1 text-sm font-semibold text-gray-900">
+                      Alerta de consumo
+                    </p>
+                    <p className="mb-4 text-sm text-gray-600">
+                      Escolha o percentual de consumo para ser notificado por
+                      email:
+                    </p>
+
+                    <div className="space-y-5">
+                      {v.alertas.map((a) => (
+                        <div key={a.id} className="flex items-start gap-3">
+                          <div className="flex-1 pt-1">
+                            <input
+                              type="range"
+                              min={0}
+                              max={100}
+                              value={a.valor}
+                              disabled={a.fixo}
                               onChange={(e) =>
-                                setOrc(v, o.id, { provedor: e.target.value })
+                                setAlerta(v, a.id, Number(e.target.value))
                               }
-                            >
-                              {PROVEDORES.map((p) => (
-                                <option key={p} value={p}>
-                                  {p}
-                                </option>
-                              ))}
-                            </Select>
-                          </Field>
-                          <div className="flex items-start gap-2">
-                            <Field
-                              label="Orçamento mensal"
-                              className="flex-1"
-                            >
-                              <TextInput
-                                type="number"
-                                min={0}
-                                value={o.valor}
-                                onChange={(e) =>
-                                  setOrc(v, o.id, {
-                                    valor: Number(e.target.value),
-                                  })
-                                }
-                              />
-                            </Field>
-                            {v.orcamentos.length > 1 && (
-                              <button
-                                type="button"
-                                onClick={() => removeOrc(v, o.id)}
-                                title="Remover"
-                                className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded border border-gray-300 text-gray-400 hover:text-red-500"
-                              >
-                                <Icon.Trash width={16} height={16} />
-                              </button>
-                            )}
+                              className="brand-range w-full disabled:opacity-50"
+                            />
+                            <div className="mt-1 flex justify-between text-xs text-gray-400">
+                              <span>0%</span>
+                              <span>100%</span>
+                            </div>
                           </div>
-                        </Fragment>
+
+                          <div className="w-20 shrink-0">
+                            <Field>
+                              <div className="flex items-center">
+                                <TextInput
+                                  type="number"
+                                  min={0}
+                                  max={100}
+                                  disabled={a.fixo}
+                                  value={a.valor}
+                                  onChange={(e) =>
+                                    setAlerta(v, a.id, Number(e.target.value))
+                                  }
+                                  className="text-center"
+                                />
+                                <span className="pr-2 text-sm text-gray-400">
+                                  %
+                                </span>
+                              </div>
+                            </Field>
+                          </div>
+
+                          <p className="w-52 shrink-0 pt-1 text-xs text-gray-400">
+                            Espaço acima de 99GB em disco disponível para o
+                            sistema raiz dos node.
+                          </p>
+
+                          {!a.fixo && (
+                            <button
+                              type="button"
+                              onClick={() => removeAlerta(v, a.id)}
+                              title="Remover"
+                              className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded border border-gray-300 text-gray-400 hover:text-red-500"
+                            >
+                              <Icon.Trash width={16} height={16} />
+                            </button>
+                          )}
+                        </div>
                       ))}
 
-                      {/* col. esquerda — link adicionar */}
-                      <div>
-                        <button
-                          type="button"
-                          onClick={() => addOrc(v)}
-                          className="flex items-center gap-1 text-sm font-semibold text-brand hover:text-brand-dark"
-                        >
-                          <Icon.Plus width={15} height={15} /> Adicionar orçamento
-                          por cloud
-                        </button>
-                      </div>
-                      <div className="hidden md:block" />
-
-                      {/* col. esquerda — alerta */}
-                      <Field label="Alerta de consumo">
-                        <Select
-                          value={v.alerta ?? 'padrao'}
-                          onChange={(e) =>
-                            setVinculo(v.id, { ...v, alerta: e.target.value })
-                          }
-                        >
-                          {ALERTA_OPCOES.map((op) => (
-                            <option key={op.value} value={op.value}>
-                              {op.label}
-                            </option>
-                          ))}
-                        </Select>
-                      </Field>
-                      <div className="hidden md:block" />
+                      <button
+                        type="button"
+                        onClick={() => addAlerta(v)}
+                        title="Adicionar limite de alerta"
+                        className="flex h-9 w-9 items-center justify-center rounded-full border border-brand text-brand hover:bg-brand-light"
+                      >
+                        <Icon.Plus width={16} height={16} />
+                      </button>
                     </div>
                   </div>
-                )
-              })}
 
-              <button
-                type="button"
-                onClick={() => setVinculos((l) => [...l, novoVinculo(uid)])}
-                className="flex items-center gap-1 rounded-md border border-brand px-3 py-2 text-sm font-semibold text-brand hover:bg-brand-light"
-              >
-                <Icon.Plus width={15} height={15} /> Associar outro centro de custo
-              </button>
+                  {!ack24h && (
+                    <AttentionBanner
+                      actionLabel="Entendi"
+                      onAction={() => setAck24h(true)}
+                    >
+                      Os alertas serão enviados em até 24 horas, devido ao
+                      tempo necessário para sincronização desses dados com os
+                      provedores.
+                    </AttentionBanner>
+                  )}
 
-              {!ack24h && (
-                <AttentionBanner
-                  variant="importante"
-                  actionLabel="Entendi"
-                  onAction={() => setAck24h(true)}
-                >
-                  Os alertas serão enviados em até 24 horas, devido ao tempo
-                  necessário para sincronização desses dados com os provedores.
-                </AttentionBanner>
-              )}
-            </div>
-          )}
+                  <Field label="Adicione os membros que irão receber as notificações de alertas">
+                    <EmailChipsInput
+                      value={v.emailsAlerta}
+                      onChange={(list) =>
+                        setVinculo(v.id, { ...v, emailsAlerta: list })
+                      }
+                      placeholder="Adicionar usuários"
+                    />
+                  </Field>
+                </div>
+              )
+            })}
 
           {step === 3 && (
             <div className="space-y-5">
@@ -388,6 +418,14 @@ export default function IniciativaForm() {
                 Informe pelo menos 2 e-mails que receberão as notificações de
                 consumo e o resultado da aprovação.
               </p>
+
+              <AttentionBanner variant="importante">
+                Esta solicitação passa por <strong>duas etapas de aprovação</strong>:
+                o time FinOps e o gestor responsável pelo centro de custo. Por
+                isso, informe no mínimo 2 e-mails — cada aprovador é notificado
+                na etapa correspondente.
+              </AttentionBanner>
+
               <Field
                 label="Responsáveis técnicos"
                 required
@@ -415,14 +453,13 @@ export default function IniciativaForm() {
                   Iniciativa: <strong>{slug || '—'}</strong>
                 </p>
                 <p>
-                  Vínculos:{' '}
+                  Vínculo:{' '}
                   <strong>
-                    {vinculos.length} centro
-                    {vinculos.length > 1 ? 's' : ''} de custo
+                    {vinculos[0]?.centroId
+                      ? centros.find((c) => c.id === vinculos[0].centroId)
+                          ?.nome
+                      : '—'}
                   </strong>
-                </p>
-                <p>
-                  Orçamento total: <strong>{currency(totalPreview)}</strong>
                 </p>
               </div>
             </div>

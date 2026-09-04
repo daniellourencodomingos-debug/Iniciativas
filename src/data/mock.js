@@ -1,6 +1,22 @@
 // Provedores de cloud com rótulos 100% genéricos (sem marcas reais).
 export const PROVEDORES = ['Provedor A', 'Provedor B', 'Provedor C', 'Provedor D']
 
+// Workspaces e serviços genéricos para o Vínculo (Provedor/Conta, Workspace, Serviço).
+export const WORKSPACES = [
+  'workspace-produto-01',
+  'workspace-dados-02',
+  'workspace-seguranca-03',
+  'workspace-infra-04',
+]
+
+export const SERVICOS = [
+  'Computação',
+  'Armazenamento',
+  'Banco de Dados',
+  'Rede',
+  'Observabilidade',
+]
+
 export const GERENTES = [
   { id: 'g1', nome: 'Ana Ribeiro', email: 'ana.ribeiro@exemplo.com' },
   { id: 'g2', nome: 'Bruno Carvalho', email: 'bruno.carvalho@exemplo.com' },
@@ -104,6 +120,15 @@ export const somaOrcamentos = (orcamentos = []) =>
 export const novoVinculo = (uid, centroId = '') => ({
   id: uid('v'),
   centroId,
+  provedor: 'Provedor A',
+  workspace: '',
+  servico: '',
+  // limites de alerta de consumo (%). O primeiro é o teto fixo do sistema.
+  alertas: [
+    { id: uid('a'), valor: 100, fixo: true },
+    { id: uid('a'), valor: 70, fixo: false },
+  ],
+  emailsAlerta: [],
   orcamentos: [{ id: uid('o'), provedor: 'Provedor A', valor: 0 }],
   alerta: 'padrao',
   emails: [],

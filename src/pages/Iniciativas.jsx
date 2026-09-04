@@ -127,77 +127,79 @@ export default function Iniciativas() {
     <>
       <PageHeader title="Iniciativas" />
 
-      {/* linha de filtros */}
-      <div className="mb-4 flex flex-wrap items-end gap-3">
-        <FilterField label="Workspace" className="min-w-[150px] flex-1">
-          <input
-            value={fWorkspace}
-            onChange={(e) => setFWorkspace(e.target.value)}
-            placeholder="Buscar workspace"
-            className={ctl}
-          />
-        </FilterField>
-        <FilterField label="Provedor">
-          <select
-            value={fProvedor}
-            onChange={(e) => setFProvedor(e.target.value)}
-            className={ctl}
-          >
-            <option value="todos">Todos</option>
-            {PROVEDORES.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </select>
-        </FilterField>
-        <FilterField label="Centro de custo">
-          <select
-            value={fCentro}
-            onChange={(e) => setFCentro(e.target.value)}
-            className={ctl}
-          >
-            <option value="todos">Todos</option>
-            {centros.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.nome}
-              </option>
-            ))}
-          </select>
-        </FilterField>
-        <FilterField label="Responsável">
-          <select
-            value={fResponsavel}
-            onChange={(e) => setFResponsavel(e.target.value)}
-            className={ctl}
-          >
-            <option value="todos">Todos</option>
-            {responsavelOpts.map((r) => (
-              <option key={r} value={r}>
-                {r}
-              </option>
-            ))}
-          </select>
-        </FilterField>
-        <FilterField label="Procurar" className="min-w-[180px] flex-1">
-          <div className="relative">
-            <Icon.Search
-              width={16}
-              height={16}
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            />
+      {/* linha de filtros + ação, sempre na mesma linha */}
+      <div className="mb-4 flex items-end gap-3">
+        <div className="flex flex-1 flex-wrap items-end gap-3">
+          <FilterField label="Workspace" className="min-w-[150px] flex-1">
             <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Iniciativa"
-              className={`${ctl} w-full pl-9`}
+              value={fWorkspace}
+              onChange={(e) => setFWorkspace(e.target.value)}
+              placeholder="Buscar workspace"
+              className={ctl}
             />
-          </div>
-        </FilterField>
+          </FilterField>
+          <FilterField label="Provedor">
+            <select
+              value={fProvedor}
+              onChange={(e) => setFProvedor(e.target.value)}
+              className={ctl}
+            >
+              <option value="todos">Todos</option>
+              {PROVEDORES.map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+          </FilterField>
+          <FilterField label="Centro de custo">
+            <select
+              value={fCentro}
+              onChange={(e) => setFCentro(e.target.value)}
+              className={ctl}
+            >
+              <option value="todos">Todos</option>
+              {centros.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.nome}
+                </option>
+              ))}
+            </select>
+          </FilterField>
+          <FilterField label="Responsável">
+            <select
+              value={fResponsavel}
+              onChange={(e) => setFResponsavel(e.target.value)}
+              className={ctl}
+            >
+              <option value="todos">Todos</option>
+              {responsavelOpts.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </select>
+          </FilterField>
+          <FilterField label="Procurar" className="min-w-[180px] flex-1">
+            <div className="relative">
+              <Icon.Search
+                width={16}
+                height={16}
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              />
+              <input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Iniciativa"
+                className={`${ctl} w-full pl-9`}
+              />
+            </div>
+          </FilterField>
+        </div>
 
         <button
           onClick={() => navigate('/iniciativas/nova')}
-          className="ml-auto flex h-9 items-center gap-2 rounded-md bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-dark"
+          className="flex h-9 shrink-0 items-center gap-2 rounded-md bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-dark"
         >
           <Icon.Plus width={16} height={16} /> Nova solicitação
         </button>
@@ -238,13 +240,8 @@ export default function Iniciativas() {
                   <td className="px-4 py-3">
                     <button
                       onClick={() => navigate(`/iniciativas/${i.id}/editar`)}
-                      className="flex items-center gap-2 text-left"
+                      className="text-left"
                     >
-                      <Icon.Rocket
-                        width={15}
-                        height={15}
-                        className="text-brand"
-                      />
                       <span className="font-semibold text-gray-900">
                         {i.slug}
                       </span>

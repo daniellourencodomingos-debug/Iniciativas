@@ -4,8 +4,7 @@ import { Icon } from './icons.jsx'
  * Stepper da plataforma: UMA barra contínua, sem espaço entre as etapas.
  * Cada segmento tem formato de seta/chevron (borda reta à esquerda encaixando
  * no segmento anterior, ponta em ângulo saindo pela direita) — uma trilha de
- * setas apontando para a direita. As pontas do primeiro e do último segmento
- * são levemente arredondadas.
+ * setas apontando para a direita, com as pontas ARREDONDADAS (não pontiagudas).
  *
  * Fiel ao componente Stepper do design system (Figma), com três estados:
  * - concluída → fundo #F5F5F5, texto #616161, ícone de check verde antes do label
@@ -18,39 +17,43 @@ import { Icon } from './icons.jsx'
 const N = 15 // profundidade do chevron
 const RC = 5 // raio (bevel) das quinas externas da barra
 
-// primeiro segmento: canto sup-esq / inf-esq levemente arredondados; ponta à direita
+// ponta arredondada (aproximação de arco com raio ~6px em vez de vértice reto)
+const TIP_RIGHT = `
+  calc(100% - 3.2px) calc(50% - 3.84px),
+  calc(100% - 2.17px) calc(50% - 2.05px),
+  calc(100% - 1.81px) 50%,
+  calc(100% - 2.17px) calc(50% + 2.05px),
+  calc(100% - 3.2px) calc(50% + 3.84px)`
+
+const NOTCH_LEFT = `
+  3.2px calc(50% + 3.84px),
+  2.17px calc(50% + 2.05px),
+  1.81px 50%,
+  2.17px calc(50% - 2.05px),
+  3.2px calc(50% - 3.84px)`
+
+// primeiro segmento: canto sup-esq / inf-esq arredondados; ponta arredondada à direita
 const clipFirst = `polygon(
   ${RC}px 0%,
   calc(100% - ${N}px) 0%,
-  100% 50%,
+  ${TIP_RIGHT},
   calc(100% - ${N}px) 100%,
   ${RC}px 100%,
   0% calc(100% - ${RC}px),
   0% ${RC}px
 )`
 
-// último segmento: encaixe à esquerda; ponta à direita levemente arredondada
-const clipLast = `polygon(
-  0% 0%,
-  calc(100% - ${N}px) 0%,
-  calc(100% - 3px) calc(50% - 4px),
-  100% calc(50% - 1px),
-  100% calc(50% + 1px),
-  calc(100% - 3px) calc(50% + 4px),
-  calc(100% - ${N}px) 100%,
-  0% 100%,
-  ${N}px 50%
-)`
-
-// segmento do meio: encaixe à esquerda; ponta reta à direita
+// segmento do meio / último: encaixe arredondado à esquerda; ponta arredondada à direita
 const clipMiddle = `polygon(
   0% 0%,
   calc(100% - ${N}px) 0%,
-  100% 50%,
+  ${TIP_RIGHT},
   calc(100% - ${N}px) 100%,
   0% 100%,
-  ${N}px 50%
+  ${NOTCH_LEFT}
 )`
+
+const clipLast = clipMiddle
 
 export default function Stepper({ steps, current }) {
   return (
