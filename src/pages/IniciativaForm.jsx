@@ -358,30 +358,20 @@ export default function IniciativaForm() {
                       email:
                     </p>
 
-                    <div className="space-y-5">
+                    <div className="space-y-3">
                       {v.alertas.map((a) => (
-                        <div key={a.id} className="flex items-start gap-3">
-                          <div className="flex-1 pt-1">
-                            <input
-                              type="range"
-                              min={0}
-                              max={100}
-                              value={a.valor}
-                              disabled={a.fixo}
-                              onChange={(e) =>
-                                setAlerta(v, a.id, Number(e.target.value))
-                              }
-                              className="brand-range w-full disabled:opacity-50"
-                            />
-                            <div className="mt-1 flex justify-between text-xs text-gray-400">
-                              <span>0%</span>
-                              <span>100%</span>
-                            </div>
-                          </div>
-
-                          <div className="w-20 shrink-0">
-                            <Field>
-                              <div className="flex items-center">
+                        <div
+                          key={a.id}
+                          className="rounded-md border border-hairline p-3"
+                        >
+                          <div className="mb-2 flex items-center justify-between gap-3">
+                            <span className="text-sm font-medium text-gray-700">
+                              {a.fixo
+                                ? 'Limite máximo (teto do sistema)'
+                                : 'Notificar ao atingir'}
+                            </span>
+                            <div className="flex shrink-0 items-center gap-2">
+                              <div className="flex w-24 items-center rounded border border-gray-300 bg-white">
                                 <TextInput
                                   type="number"
                                   min={0}
@@ -397,24 +387,39 @@ export default function IniciativaForm() {
                                   %
                                 </span>
                               </div>
-                            </Field>
+                              {!a.fixo && (
+                                <button
+                                  type="button"
+                                  onClick={() => removeAlerta(v, a.id)}
+                                  title="Remover"
+                                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded border border-gray-300 text-gray-400 hover:text-red-500"
+                                >
+                                  <Icon.Trash width={16} height={16} />
+                                </button>
+                              )}
+                            </div>
                           </div>
 
-                          <p className="w-52 shrink-0 pt-1 text-xs text-gray-400">
-                            Espaço acima de 99GB em disco disponível para o
-                            sistema raiz dos node.
+                          <input
+                            type="range"
+                            min={0}
+                            max={100}
+                            value={a.valor}
+                            disabled={a.fixo}
+                            onChange={(e) =>
+                              setAlerta(v, a.id, Number(e.target.value))
+                            }
+                            className="brand-range w-full disabled:opacity-50"
+                          />
+                          <div className="mt-1 flex justify-between text-xs text-gray-400">
+                            <span>0%</span>
+                            <span>100%</span>
+                          </div>
+                          <p className="mt-2 text-xs text-gray-400">
+                            {a.fixo
+                              ? 'Teto de consumo do sistema — não pode ser removido.'
+                              : 'Você será notificado por e-mail ao atingir esse percentual do orçamento.'}
                           </p>
-
-                          {!a.fixo && (
-                            <button
-                              type="button"
-                              onClick={() => removeAlerta(v, a.id)}
-                              title="Remover"
-                              className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded border border-gray-300 text-gray-400 hover:text-red-500"
-                            >
-                              <Icon.Trash width={16} height={16} />
-                            </button>
-                          )}
                         </div>
                       ))}
 

@@ -219,7 +219,7 @@ export default function Iniciativas() {
       <PageHeader title="Iniciativas" />
 
       {/* linha de filtros + ação, sempre na mesma linha */}
-      <div className="relative z-10 mb-4 flex flex-wrap items-end gap-3 pb-1">
+      <div className="relative z-10 mb-4 flex items-end gap-3 pb-1">
         <div className="flex flex-nowrap items-end gap-3">
           <FilterField label="Procurar" className="w-[170px] shrink-0">
             <div className="relative">
