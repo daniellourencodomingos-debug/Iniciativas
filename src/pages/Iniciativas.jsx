@@ -7,7 +7,7 @@ import MultiSelectField from '../components/MultiSelectField.jsx'
 import ContasField from '../components/ContasField.jsx'
 import FilterChipsBar from '../components/FilterChipsBar.jsx'
 import { useApp } from '../store/AppContext.jsx'
-import { currency, PROVEDORES, WORKSPACES, CONTAS_FATURAMENTO } from '../data/mock.js'
+import { currency, PROVEDORES, WORKSPACES, CONTAS_FATURAMENTO, statusIniciativaInfo } from '../data/mock.js'
 
 const PER_PAGE_OPTS = [5, 10, 20]
 
@@ -302,9 +302,11 @@ export default function Iniciativas() {
           <thead>
             <tr className="border-b border-hairline bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
               <SortHeader col="iniciativa">Iniciativa</SortHeader>
-              <SortHeader col="workspaces">Workspace / ID</SortHeader>
+              <th className="px-4 py-3 font-semibold">Centro de Custo</th>
+              <SortHeader col="workspaces">Workspace</SortHeader>
               <th className="px-4 py-3 font-semibold">Provedores</th>
-              <th className="px-4 py-3 font-semibold">Orçamento total</th>
+              <th className="px-4 py-3 font-semibold">Orçamento Anual</th>
+              <th className="px-4 py-3 font-semibold">Status</th>
               <th className="px-4 py-3 text-right font-semibold">Ação</th>
             </tr>
           </thead>
@@ -325,27 +327,32 @@ export default function Iniciativas() {
                         {i.slug}
                       </span>
                     </button>
-                    {centrosI.length > 0 && (
-                      <span className="mt-1 block text-[11px] text-gray-400">
-                        {centrosI
-                          .map((cid) => centroById(cid)?.nome ?? cid)
-                          .join(', ')}
-                      </span>
-                    )}
                   </td>
-                  <td className="px-4 py-3">
-                    <span className="font-bold text-gray-900">
-                      {workspacesDe(i)}
-                    </span>
-                    <span className="ml-1 text-xs text-gray-400">
-                      workspace{workspacesDe(i) === 1 ? '' : 's'}
-                    </span>
+                  <td className="px-4 py-3 font-bold text-gray-900">
+                    {centrosI.length}
+                  </td>
+                  <td className="px-4 py-3 font-bold text-gray-900">
+                    {workspacesDe(i)}
                   </td>
                   <td className="px-4 py-3 font-bold text-gray-900">
                     {provedoresDe(i.id).size}
                   </td>
                   <td className="px-4 py-3 font-bold text-gray-900">
                     {currency(iniciativaTotal(i.id))}
+                  </td>
+                  <td className="px-4 py-3">
+                    {(() => {
+                      const s = statusIniciativaInfo(i.status)
+                      return (
+                        <span className="inline-flex items-center gap-2">
+                          <span
+                            className="inline-block h-2 w-2 rounded-full"
+                            style={{ backgroundColor: s.color }}
+                          />
+                          <span className="text-gray-900">{s.label}</span>
+                        </span>
+                      )
+                    })()}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <button
@@ -362,7 +369,7 @@ export default function Iniciativas() {
             {pageRows.length === 0 && (
               <tr>
                 <td
-                  colSpan={5}
+                  colSpan={7}
                   className="px-4 py-10 text-center text-gray-400"
                 >
                   Nenhuma iniciativa encontrada.

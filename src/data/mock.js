@@ -53,11 +53,20 @@ export const CENTROS_INICIAIS = [
 // Iniciativa é só identidade (nome/slug) + contagem de workspaces vinculados
 // (só número — a jornada de Workspaces vive no produto real, fora do escopo).
 // Vínculos carregam orçamento e alerta.
+export const STATUS_INICIATIVA = {
+  ativa: { label: 'Ativa', color: '#2e7d32' },
+  pausada: { label: 'Pausada', color: '#f9a825' },
+  encerrada: { label: 'Encerrada', color: '#9e9e9e' },
+}
+
+export const statusIniciativaInfo = (status) =>
+  STATUS_INICIATIVA[status] ?? STATUS_INICIATIVA.ativa
+
 export const INICIATIVAS_INICIAIS = [
-  { id: 'ini-1', slug: 'aceleracao-de-agentes-ia', workspaces: 4 },
-  { id: 'ini-2', slug: 'migracao-lakehouse', workspaces: 2 },
-  { id: 'ini-3', slug: 'observabilidade-unificada', workspaces: 3 },
-  { id: 'ini-4', slug: 'reducao-de-custo-storage', workspaces: 1 },
+  { id: 'ini-1', slug: 'aceleracao-de-agentes-ia', workspaces: 4, status: 'ativa' },
+  { id: 'ini-2', slug: 'migracao-lakehouse', workspaces: 2, status: 'ativa' },
+  { id: 'ini-3', slug: 'observabilidade-unificada', workspaces: 3, status: 'pausada' },
+  { id: 'ini-4', slug: 'reducao-de-custo-storage', workspaces: 1, status: 'encerrada' },
 ]
 
 // Vínculo = Iniciativa + Centro de Custo + (Cloud → Orçamento) + alerta + e-mails.
