@@ -323,21 +323,21 @@ export default function Iniciativas() {
                       onClick={() => navigate(`/iniciativas/${i.id}/editar`)}
                       className="text-left"
                     >
-                      <span className="font-semibold text-gray-900">
+                      <span className="text-gray-900">
                         {i.slug}
                       </span>
                     </button>
                   </td>
-                  <td className="px-4 py-3 font-bold text-gray-900">
+                  <td className="px-4 py-3 text-gray-900">
                     {centrosI.length}
                   </td>
-                  <td className="px-4 py-3 font-bold text-gray-900">
+                  <td className="px-4 py-3 text-gray-900">
                     {workspacesDe(i)}
                   </td>
-                  <td className="px-4 py-3 font-bold text-gray-900">
+                  <td className="px-4 py-3 text-gray-900">
                     {provedoresDe(i.id).size}
                   </td>
-                  <td className="px-4 py-3 font-bold text-gray-900">
+                  <td className="px-4 py-3 text-gray-900">
                     {currency(iniciativaTotal(i.id))}
                   </td>
                   <td className="px-4 py-3">
