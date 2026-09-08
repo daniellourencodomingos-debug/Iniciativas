@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { PageHeader } from '../components/Layout.jsx'
-import FormCard, { Field, TextInput, TextArea, Select } from '../components/FormCard.jsx'
+import FormCard, { Field, TextInput, TextArea } from '../components/FormCard.jsx'
 import AttentionBanner from '../components/AttentionBanner.jsx'
 import Stepper from '../components/Stepper.jsx'
 import Toast from '../components/Toast.jsx'
@@ -34,7 +34,6 @@ export default function IniciativaForm() {
     iniciativaById,
     vinculosDaIniciativa,
     gerenteById,
-    centroTotal,
   } = useApp()
 
   const editing = Boolean(id)
@@ -67,9 +66,9 @@ export default function IniciativaForm() {
       })
       // mostra todos os vínculos existentes (uma iniciativa pode estar associada
       // a mais de um centro de custo, cada um com seu próprio orçamento)
-      return atuais.length ? atuais : [novoVinculo(uid)]
+      return atuais.length ? atuais : []
     }
-    return [novoVinculo(uid)]
+    return []
   })
   const [emails, setEmails] = useState(() =>
     editing && existing
@@ -102,10 +101,12 @@ export default function IniciativaForm() {
   const setVinculo = (vid, next) =>
     setVinculos((l) => l.map((v) => (v.id === vid ? next : v)))
 
-  const addVinculo = () => setVinculos((l) => [...l, novoVinculo(uid)])
-
-  const removeVinculo = (vid) =>
-    setVinculos((l) => (l.length > 1 ? l.filter((v) => v.id !== vid) : l))
+  const toggleCentro = (centroId) =>
+    setVinculos((l) => {
+      const existente = l.find((v) => v.centroId === centroId)
+      if (existente) return l.filter((v) => v.id !== existente.id)
+      return [...l, novoVinculo(uid, centroId)]
+    })
 
   const setAlerta = (v, aid, valor) =>
     setVinculo(v.id, {
@@ -266,81 +267,71 @@ export default function IniciativaForm() {
 
           {step === 2 && (
             <div className="space-y-8">
+              <div className="space-y-3">
+                <p className="text-sm font-semibold text-gray-900">
+                  Centro(s) de Custo
+                </p>
+                <p className="text-sm text-gray-600">
+                  Selecione um ou mais centros de custo para vincular a esta
+                  iniciativa. Cada centro de custo tem seu próprio orçamento.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {centros.map((c) => {
+                    const selecionado = vinculos.some(
+                      (v) => v.centroId === c.id,
+                    )
+                    return (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => toggleCentro(c.id)}
+                        className={
+                          selecionado
+                            ? 'rounded-full border border-brand bg-brand-light px-3 py-1.5 text-sm font-semibold text-brand'
+                            : 'rounded-full border border-hairline bg-white px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50'
+                        }
+                      >
+                        {c.nome} ({c.codigo})
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {vinculos.length === 0 && (
+                <p className="text-sm text-gray-400">
+                  Selecione ao menos um centro de custo acima para continuar.
+                </p>
+              )}
+
               {vinculos.map((v) => {
               const gestor = gestorDoVinculo(v)
               return (
                 <div key={v.id} className="space-y-5">
-                  {vinculos.length > 1 && (
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-semibold text-gray-900">
-                        Vínculo {vinculos.indexOf(v) + 1}
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => removeVinculo(v.id)}
-                        className="flex items-center gap-1 text-xs font-semibold text-red-500 hover:text-red-600"
-                      >
-                        <Icon.Trash width={14} height={14} /> Remover vínculo
-                      </button>
-                    </div>
-                  )}
-                  <div className="grid grid-cols-1 gap-x-4 gap-y-4 md:grid-cols-2">
-                    <Field label="Centro de Custo pagador" required>
-                      <Select
-                        leftIcon={Icon.Search}
-                        value={v.centroId}
-                        onChange={(e) =>
-                          setVinculo(v.id, { ...v, centroId: e.target.value })
-                        }
-                      >
-                        <option value="">Selecione o centro de custo</option>
-                        {centros.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.nome} ({c.codigo})
-                          </option>
-                        ))}
-                      </Select>
-                    </Field>
-
-                    <Field label="Gestor do centro de custo">
-                      <TextInput
-                        readOnly
-                        value={
-                          gestor
-                            ? `${gestor.email} (somente leitura)`
-                            : 'gestor@exemplo.com (somente leitura)'
-                        }
-                      />
-                    </Field>
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-semibold text-gray-900">
+                      Centro de Custo:{' '}
+                      {centros.find((c) => c.id === v.centroId)?.nome ?? '—'}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => toggleCentro(v.centroId)}
+                      className="flex items-center gap-1 text-xs font-semibold text-red-500 hover:text-red-600"
+                    >
+                      <Icon.Trash width={14} height={14} /> Remover
+                    </button>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-x-4 gap-y-4 md:grid-cols-2">
-                    <Field
-                      label="Orçamento total do centro de custo"
-                      hint="Referência: soma de todos os vínculos deste centro de custo."
-                    >
-                      <TextInput
-                        readOnly
-                        value={
-                          v.centroId
-                            ? currency(centroTotal(v.centroId))
-                            : 'Selecione um centro de custo'
-                        }
-                        className="font-bold"
-                      />
-                    </Field>
-
-                    <Field
-                      label="Orçamento deste vínculo"
-                      hint="Soma dos orçamentos por provedor definidos abaixo."
-                    >
-                      <TextInput
-                        readOnly
-                        value={currency(somaOrcamentos(v.orcamentos))}
-                        className="font-bold"
-                      />
-                    </Field>
-                  </div>
+                  <Field label="Gestor do centro de custo">
+                    <TextInput
+                      readOnly
+                      value={
+                        gestor
+                          ? `${gestor.email} (somente leitura)`
+                          : 'gestor@exemplo.com (somente leitura)'
+                      }
+                    />
+                  </Field>
 
                   <ContasField
                     label="Workspace"
@@ -401,6 +392,17 @@ export default function IniciativaForm() {
                       </div>
                     </div>
                   )}
+
+                  <Field
+                    label="Orçamento desta iniciativa neste centro de custo"
+                    hint="Soma dos orçamentos por provedor acima — este é o orçamento total desta iniciativa para este centro de custo."
+                  >
+                    <TextInput
+                      readOnly
+                      value={currency(somaOrcamentos(v.orcamentos))}
+                      className="font-bold"
+                    />
+                  </Field>
 
                   <div>
                     <p className="mb-1 text-sm font-semibold text-gray-900">
@@ -510,14 +512,6 @@ export default function IniciativaForm() {
                 </div>
               )
               })}
-              <button
-                type="button"
-                onClick={addVinculo}
-                className="flex items-center gap-1.5 text-sm font-semibold text-brand hover:text-brand-dark"
-              >
-                <Icon.Plus width={16} height={16} /> Adicionar outro Centro de
-                Custo
-              </button>
             </div>
           )}
 
