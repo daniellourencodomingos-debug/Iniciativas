@@ -22,6 +22,24 @@ function FilterField({ label, children, className = '' }) {
   )
 }
 
+// Mostra a contagem e, no hover, um tooltip com até 2 nomes + "+N" para o restante.
+function CountTooltip({ count, items = [] }) {
+  if (items.length === 0) {
+    return <span className="text-gray-900">{count}</span>
+  }
+  const shown = items.slice(0, 2).join(', ')
+  const label = items.length > 2 ? `${shown} +${items.length - 2}` : shown
+  return (
+    <span className="group relative inline-block">
+      <span className="cursor-default text-gray-900">{count}</span>
+      <span className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-1.5 w-max max-w-[240px] -translate-x-1/2 whitespace-normal rounded-md bg-gray-800 px-2 py-1 text-center text-xs text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+        {label}
+        <span className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-gray-800" />
+      </span>
+    </span>
+  )
+}
+
 const ctl =
   'h-9 rounded-md border border-hairline bg-white px-3 text-sm text-gray-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/20'
 
@@ -65,7 +83,7 @@ export default function Iniciativas() {
         v.workspaces?.length ? v.workspaces : v.workspace ? [v.workspace] : [],
       ),
     )
-  const workspacesDe = (i) => i.workspaces ?? vinculosDaIniciativa(i.id).length
+  const workspacesDe = (i) => workspacesDaIniciativa(i.id).size
 
   const responsavelOpts = useMemo(
     () => [...new Set(vinculos.flatMap((v) => v.emails ?? []))].sort(),
@@ -328,14 +346,23 @@ export default function Iniciativas() {
                       </span>
                     </button>
                   </td>
-                  <td className="px-4 py-3 text-gray-900">
-                    {centrosI.length}
+                  <td className="px-4 py-3">
+                    <CountTooltip
+                      count={centrosI.length}
+                      items={centrosI.map((cid) => centroById(cid)?.nome ?? cid)}
+                    />
                   </td>
-                  <td className="px-4 py-3 text-gray-900">
-                    {workspacesDe(i)}
+                  <td className="px-4 py-3">
+                    <CountTooltip
+                      count={workspacesDe(i)}
+                      items={[...workspacesDaIniciativa(i.id)]}
+                    />
                   </td>
-                  <td className="px-4 py-3 text-gray-900">
-                    {provedoresDe(i.id).size}
+                  <td className="px-4 py-3">
+                    <CountTooltip
+                      count={provedoresDe(i.id).size}
+                      items={[...provedoresDe(i.id)]}
+                    />
                   </td>
                   <td className="px-4 py-3 text-gray-900">
                     {currency(iniciativaTotal(i.id))}
