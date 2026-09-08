@@ -6,7 +6,6 @@ import AttentionBanner from '../components/AttentionBanner.jsx'
 import Stepper from '../components/Stepper.jsx'
 import Toast from '../components/Toast.jsx'
 import EmailChipsInput from '../components/EmailChipsInput.jsx'
-import MultiSelectField from '../components/MultiSelectField.jsx'
 import ContasField from '../components/ContasField.jsx'
 import { Icon } from '../components/icons.jsx'
 import { useApp } from '../store/AppContext.jsx'
@@ -14,22 +13,22 @@ import {
   currency,
   SLUG_RE,
   novoVinculo,
-  orcamentosDeContas,
+  somaOrcamentos,
+  provedoresDeWorkspaces,
+  sincronizarOrcamentos,
+  setOrcamentoProvedor,
   PROVEDORES,
-  WORKSPACES,
-  SERVICOS,
-  CONTAS_FATURAMENTO,
+  WORKSPACES_POR_PROVEDOR,
 } from '../data/mock.js'
 
 const STEPS = ['Instruções', 'Dados da Iniciativa', 'Vínculo', 'Responsáveis']
-
-const WORKSPACE_OPTS = WORKSPACES.map((w) => ({ value: w, label: w }))
 
 export default function IniciativaForm() {
   const { id } = useParams()
   const navigate = useNavigate()
   const {
     centros,
+    iniciativas,
     dispatch,
     uid,
     iniciativaById,
@@ -52,21 +51,23 @@ export default function IniciativaForm() {
           ...base,
           id: v.id,
           centroId: v.centroId,
-          contas: v.contas ?? base.contas,
           workspaces: v.workspaces?.length
             ? v.workspaces
             : v.workspace
               ? [v.workspace]
               : base.workspaces,
-          orcamentoDirecionado:
-            v.orcamentoDirecionado ?? base.orcamentoDirecionado,
-          servico: v.servico ?? base.servico,
           alertas: v.alertas ?? base.alertas,
-          emailsAlerta: v.emailsAlerta ?? v.emails ?? [],
+          emailsAlerta: v.emailsAlerta?.length
+            ? v.emailsAlerta
+            : v.emails?.length
+              ? v.emails
+              : base.emailsAlerta,
           orcamentos: (v.orcamentos ?? []).map((o) => ({ ...o })),
         }
       })
-      return atuais.length ? [atuais[0]] : [novoVinculo(uid)]
+      // mostra todos os vínculos existentes (uma iniciativa pode estar associada
+      // a mais de um centro de custo, cada um com seu próprio orçamento)
+      return atuais.length ? atuais : [novoVinculo(uid)]
     }
     return [novoVinculo(uid)]
   })
@@ -84,17 +85,27 @@ export default function IniciativaForm() {
     vinculos.every(
       (v) =>
         v.centroId &&
-        v.contas?.length > 0 &&
         v.workspaces?.length > 0 &&
-        v.servico,
+        v.orcamentos.length > 0 &&
+        v.orcamentos.every((o) => Number(o.valor) > 0),
     )
   const emailsOk = emails.length >= 2
 
+  const nomeDuplicado =
+    slugValido && iniciativas.some((i) => i.slug === slug && i.id !== id)
+
   const podeAvancar =
-    step === 0 || (step === 1 && slugValido) || (step === 2 && vinculosOk)
+    step === 0 ||
+    (step === 1 && slugValido && !nomeDuplicado) ||
+    (step === 2 && vinculosOk)
 
   const setVinculo = (vid, next) =>
     setVinculos((l) => l.map((v) => (v.id === vid ? next : v)))
+
+  const addVinculo = () => setVinculos((l) => [...l, novoVinculo(uid)])
+
+  const removeVinculo = (vid) =>
+    setVinculos((l) => (l.length > 1 ? l.filter((v) => v.id !== vid) : l))
 
   const setAlerta = (v, aid, valor) =>
     setVinculo(v.id, {
@@ -131,13 +142,10 @@ export default function IniciativaForm() {
       id: v.id,
       iniciativaId,
       centroId: v.centroId,
-      contas: v.contas,
       workspaces: v.workspaces,
-      orcamentoDirecionado: Number(v.orcamentoDirecionado) || 0,
-      servico: v.servico,
       alertas: v.alertas,
       emailsAlerta: v.emailsAlerta,
-      orcamentos: orcamentosDeContas(uid, v.contas),
+      orcamentos: v.orcamentos,
       emails,
     }))
     if (editing) {
@@ -193,8 +201,12 @@ export default function IniciativaForm() {
               </p>
               <ul className="list-disc space-y-1 pl-5 text-sm text-gray-600">
                 <li>
-                  O <strong>Provedor/Conta, Workspace e Serviço</strong> e o{' '}
-                  <strong>alerta de consumo</strong> ficam no Vínculo.
+                  O <strong>Workspace</strong> (com orçamento por provedor) e
+                  o <strong>alerta de consumo</strong> ficam no Vínculo.
+                </li>
+                <li>
+                  Uma iniciativa pode ter mais de um Vínculo — um por Centro
+                  de Custo — cada um com seu próprio orçamento.
                 </li>
                 <li>
                   Ao final, a solicitação é enviada para aprovação antes de
@@ -218,7 +230,13 @@ export default function IniciativaForm() {
                 label="Nome da iniciativa"
                 required
                 hint='minúsculas, números e hífen. Ex.: "aceleracao-de-agentes-ia"'
-                error={slug && !slugValido ? 'Formato de slug inválido.' : ''}
+                error={
+                  slug && !slugValido
+                    ? 'Formato de slug inválido.'
+                    : nomeDuplicado
+                      ? 'Já existe uma iniciativa com este nome.'
+                      : ''
+                }
               >
                 <TextInput
                   value={slug}
@@ -246,11 +264,26 @@ export default function IniciativaForm() {
             </div>
           )}
 
-          {step === 2 &&
-            vinculos.map((v) => {
+          {step === 2 && (
+            <div className="space-y-8">
+              {vinculos.map((v) => {
               const gestor = gestorDoVinculo(v)
               return (
                 <div key={v.id} className="space-y-5">
+                  {vinculos.length > 1 && (
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-semibold text-gray-900">
+                        Vínculo {vinculos.indexOf(v) + 1}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => removeVinculo(v.id)}
+                        className="flex items-center gap-1 text-xs font-semibold text-red-500 hover:text-red-600"
+                      >
+                        <Icon.Trash width={14} height={14} /> Remover vínculo
+                      </button>
+                    </div>
+                  )}
                   <div className="grid grid-cols-1 gap-x-4 gap-y-4 md:grid-cols-2">
                     <Field label="Centro de Custo pagador" required>
                       <Select
@@ -282,7 +315,10 @@ export default function IniciativaForm() {
                   </div>
 
                   <div className="grid grid-cols-1 gap-x-4 gap-y-4 md:grid-cols-2">
-                    <Field label="Orçamento total do centro de custo">
+                    <Field
+                      label="Orçamento total do centro de custo"
+                      hint="Referência: soma de todos os vínculos deste centro de custo."
+                    >
                       <TextInput
                         readOnly
                         value={
@@ -295,59 +331,76 @@ export default function IniciativaForm() {
                     </Field>
 
                     <Field
-                      label="Orçamento direcionado para a iniciativa"
-                      required
-                      hint="Valor do orçamento do centro de custo reservado para esta iniciativa."
+                      label="Orçamento deste vínculo"
+                      hint="Soma dos orçamentos por provedor definidos abaixo."
                     >
                       <TextInput
-                        type="number"
-                        min={0}
-                        step="0.01"
-                        value={v.orcamentoDirecionado ?? 0}
-                        onChange={(e) =>
-                          setVinculo(v.id, {
-                            ...v,
-                            orcamentoDirecionado: e.target.value,
-                          })
-                        }
-                        placeholder="0,00"
+                        readOnly
+                        value={currency(somaOrcamentos(v.orcamentos))}
+                        className="font-bold"
                       />
                     </Field>
                   </div>
 
                   <ContasField
-                    label="Contas"
-                    providers={PROVEDORES}
-                    contasPorProvedor={CONTAS_FATURAMENTO}
-                    value={v.contas}
-                    onChange={(contas) => setVinculo(v.id, { ...v, contas })}
-                  />
-
-                  <MultiSelectField
                     label="Workspace"
-                    options={WORKSPACE_OPTS}
-                    selected={v.workspaces}
+                    providers={PROVEDORES}
+                    contasPorProvedor={WORKSPACES_POR_PROVEDOR}
+                    value={v.workspaces}
                     onChange={(workspaces) =>
-                      setVinculo(v.id, { ...v, workspaces })
+                      setVinculo(v.id, {
+                        ...v,
+                        workspaces,
+                        orcamentos: sincronizarOrcamentos(
+                          uid,
+                          v.orcamentos,
+                          workspaces,
+                        ),
+                      })
                     }
-                    placeholder="Selecione o(s) workspace(s)"
+                    itemsColumnLabel="Provedor / Workspaces"
+                    emptyItemsLabel="Nenhum workspace para este provedor."
                   />
 
-                  <Field label="Serviço">
-                    <Select
-                      value={v.servico}
-                      onChange={(e) =>
-                        setVinculo(v.id, { ...v, servico: e.target.value })
-                      }
-                    >
-                      <option value="">Selecione o serviço</option>
-                      {SERVICOS.map((s) => (
-                        <option key={s} value={s}>
-                          {s}
-                        </option>
-                      ))}
-                    </Select>
-                  </Field>
+                  {provedoresDeWorkspaces(v.workspaces).length > 0 && (
+                    <div className="space-y-4">
+                      <p className="text-sm font-semibold text-gray-900">
+                        Orçamento desta iniciativa por provedor
+                      </p>
+                      <div className="grid grid-cols-1 gap-x-4 gap-y-4 md:grid-cols-2">
+                        {provedoresDeWorkspaces(v.workspaces).map((provedor) => {
+                          const orc = v.orcamentos.find(
+                            (o) => o.provedor === provedor,
+                          )
+                          return (
+                            <Field
+                              key={provedor}
+                              label={`Orçamento em ${provedor}`}
+                              required
+                            >
+                              <TextInput
+                                type="number"
+                                min={0}
+                                step="0.01"
+                                value={orc?.valor ?? 0}
+                                onChange={(e) =>
+                                  setVinculo(v.id, {
+                                    ...v,
+                                    orcamentos: setOrcamentoProvedor(
+                                      v.orcamentos,
+                                      provedor,
+                                      e.target.value,
+                                    ),
+                                  })
+                                }
+                                placeholder="0,00"
+                              />
+                            </Field>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
 
                   <div>
                     <p className="mb-1 text-sm font-semibold text-gray-900">
@@ -456,7 +509,17 @@ export default function IniciativaForm() {
                   </Field>
                 </div>
               )
-            })}
+              })}
+              <button
+                type="button"
+                onClick={addVinculo}
+                className="flex items-center gap-1.5 text-sm font-semibold text-brand hover:text-brand-dark"
+              >
+                <Icon.Plus width={16} height={16} /> Adicionar outro Centro de
+                Custo
+              </button>
+            </div>
+          )}
 
           {step === 3 && (
             <div className="space-y-5">
@@ -498,15 +561,17 @@ export default function IniciativaForm() {
                 <p>
                   Iniciativa: <strong>{slug || '—'}</strong>
                 </p>
-                <p>
-                  Vínculo:{' '}
-                  <strong>
-                    {vinculos[0]?.centroId
-                      ? centros.find((c) => c.id === vinculos[0].centroId)
-                          ?.nome
-                      : '—'}
-                  </strong>
-                </p>
+                {vinculos.map((v) => (
+                  <p key={v.id}>
+                    Vínculo:{' '}
+                    <strong>
+                      {v.centroId
+                        ? centros.find((c) => c.id === v.centroId)?.nome
+                        : '—'}
+                    </strong>{' '}
+                    — {currency(somaOrcamentos(v.orcamentos))}
+                  </p>
+                ))}
               </div>
             </div>
           )}

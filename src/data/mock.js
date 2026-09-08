@@ -1,7 +1,7 @@
 // Provedores de cloud com rótulos 100% genéricos (sem marcas reais).
 export const PROVEDORES = ['Provedor A', 'Provedor B', 'Provedor C', 'Provedor D']
 
-// Contas de faturamento fictícias por provedor (para o seletor "Contas").
+// Contas de faturamento fictícias por provedor (usadas no filtro "Contas" da listagem).
 export const CONTAS_FATURAMENTO = {
   'Provedor A': ['conta-financas-01', 'conta-financas-02', 'conta-marketing-01'],
   'Provedor B': ['conta-produto-01', 'conta-dados-02'],
@@ -9,21 +9,17 @@ export const CONTAS_FATURAMENTO = {
   'Provedor D': ['conta-infra-01', 'conta-backup-02'],
 }
 
-// Workspaces e serviços genéricos para o Vínculo (Provedor/Conta, Workspace, Serviço).
-export const WORKSPACES = [
-  'workspace-produto-01',
-  'workspace-dados-02',
-  'workspace-seguranca-03',
-  'workspace-infra-04',
-]
+// Workspaces genéricos, agrupados por provedor — usados no cadastro do Vínculo
+// (o cadastro seleciona só workspaces; o provedor fica implícito no grupo).
+export const WORKSPACES_POR_PROVEDOR = {
+  'Provedor A': ['workspace-produto-01', 'workspace-marketing-05'],
+  'Provedor B': ['workspace-dados-02', 'workspace-analytics-06'],
+  'Provedor C': ['workspace-seguranca-03', 'workspace-compliance-07'],
+  'Provedor D': ['workspace-infra-04', 'workspace-backup-08'],
+}
 
-export const SERVICOS = [
-  'Computação',
-  'Armazenamento',
-  'Banco de Dados',
-  'Rede',
-  'Observabilidade',
-]
+// Lista achatada de todos os workspaces (usada no filtro da listagem).
+export const WORKSPACES = Object.values(WORKSPACES_POR_PROVEDOR).flat()
 
 export const GERENTES = [
   { id: 'g1', nome: 'Ana Ribeiro', email: 'ana.ribeiro@exemplo.com' },
@@ -32,6 +28,9 @@ export const GERENTES = [
   { id: 'g4', nome: 'Diego Nunes', email: 'diego.nunes@exemplo.com' },
   { id: 'g5', nome: 'Elaine Prado', email: 'elaine.prado@exemplo.com' },
 ]
+
+// E-mail padrão sugerido para receber alertas de consumo (pode ser editado/removido).
+export const EMAIL_ALERTA_PADRAO = 'finops@exemplo.com'
 
 // Opções do select "Alerta de consumo" em cada Vínculo.
 export const ALERTA_OPCOES = [
@@ -50,9 +49,6 @@ export const CENTROS_INICIAIS = [
   { id: 'cc-4', nome: 'Operações de Nuvem', codigo: 'CLOUD-OPS-004', gerenteId: 'g4' },
 ]
 
-// Iniciativa é só identidade (nome/slug) + contagem de workspaces vinculados
-// (só número — a jornada de Workspaces vive no produto real, fora do escopo).
-// Vínculos carregam orçamento e alerta.
 export const STATUS_INICIATIVA = {
   ativa: { label: 'Ativa', color: '#2e7d32' },
   pausada: { label: 'Pausada', color: '#f9a825' },
@@ -62,67 +58,76 @@ export const STATUS_INICIATIVA = {
 export const statusIniciativaInfo = (status) =>
   STATUS_INICIATIVA[status] ?? STATUS_INICIATIVA.ativa
 
+// Iniciativa é só identidade (nome/slug); orçamento e workspaces vivem nos Vínculos.
 export const INICIATIVAS_INICIAIS = [
-  { id: 'ini-1', slug: 'aceleracao-de-agentes-ia', workspaces: 4, status: 'ativa' },
-  { id: 'ini-2', slug: 'migracao-lakehouse', workspaces: 2, status: 'ativa' },
-  { id: 'ini-3', slug: 'observabilidade-unificada', workspaces: 3, status: 'pausada' },
-  { id: 'ini-4', slug: 'reducao-de-custo-storage', workspaces: 1, status: 'encerrada' },
+  { id: 'ini-1', slug: 'aceleracao-de-agentes-ia', status: 'ativa' },
+  { id: 'ini-2', slug: 'migracao-lakehouse', status: 'ativa' },
+  { id: 'ini-3', slug: 'observabilidade-unificada', status: 'pausada' },
+  { id: 'ini-4', slug: 'reducao-de-custo-storage', status: 'encerrada' },
 ]
 
-// Vínculo = Iniciativa + Centro de Custo + (Cloud → Orçamento) + alerta + e-mails.
+// Vínculo = Iniciativa + Centro de Custo. Dentro de um Vínculo, o orçamento é
+// aberto por provedor (orcamentos: [{provedor, valor}]) — os workspaces
+// selecionados de cada provedor consomem o orçamento daquele provedor.
+// Total do Vínculo = soma dos orçamentos por provedor (somaOrcamentos).
 export const VINCULOS_INICIAIS = [
   {
     id: 'v-1',
     iniciativaId: 'ini-1',
     centroId: 'cc-1',
-    workspace: 'workspace-produto-01',
+    workspaces: ['Provedor A::workspace-produto-01', 'Provedor B::workspace-dados-02'],
     orcamentos: [
       { id: 'o-1', provedor: 'Provedor A', valor: 120000 },
       { id: 'o-2', provedor: 'Provedor B', valor: 45000 },
     ],
     alerta: 'padrao',
+    emailsAlerta: ['ana.ribeiro@exemplo.com', 'time-dados@exemplo.com'],
     emails: ['ana.ribeiro@exemplo.com', 'time-dados@exemplo.com'],
   },
   {
     id: 'v-2',
     iniciativaId: 'ini-1',
     centroId: 'cc-2',
-    workspace: 'workspace-dados-02',
+    workspaces: ['Provedor C::workspace-seguranca-03'],
     orcamentos: [{ id: 'o-1', provedor: 'Provedor C', valor: 30000 }],
     alerta: 'padrao',
+    emailsAlerta: ['bruno.carvalho@exemplo.com', 'time-produto@exemplo.com'],
     emails: ['bruno.carvalho@exemplo.com', 'time-produto@exemplo.com'],
   },
   {
     id: 'v-3',
     iniciativaId: 'ini-2',
     centroId: 'cc-1',
-    workspace: 'workspace-seguranca-03',
+    workspaces: ['Provedor A::workspace-marketing-05', 'Provedor D::workspace-infra-04'],
     orcamentos: [
       { id: 'o-1', provedor: 'Provedor A', valor: 80000 },
       { id: 'o-2', provedor: 'Provedor D', valor: 22000 },
     ],
     alerta: 'padrao',
+    emailsAlerta: ['camila.fontes@exemplo.com', 'ana.ribeiro@exemplo.com'],
     emails: ['camila.fontes@exemplo.com', 'ana.ribeiro@exemplo.com'],
   },
   {
     id: 'v-4',
     iniciativaId: 'ini-3',
     centroId: 'cc-4',
-    workspace: 'workspace-infra-04',
+    workspaces: ['Provedor C::workspace-compliance-07', 'Provedor B::workspace-analytics-06'],
     orcamentos: [
       { id: 'o-1', provedor: 'Provedor C', valor: 55000 },
       { id: 'o-2', provedor: 'Provedor B', valor: 15000 },
     ],
     alerta: 'nenhum',
+    emailsAlerta: ['diego.nunes@exemplo.com', 'observabilidade@exemplo.com'],
     emails: ['diego.nunes@exemplo.com', 'observabilidade@exemplo.com'],
   },
   {
     id: 'v-5',
     iniciativaId: 'ini-4',
     centroId: 'cc-4',
-    workspace: 'workspace-produto-01',
+    workspaces: ['Provedor A::workspace-produto-01'],
     orcamentos: [{ id: 'o-1', provedor: 'Provedor A', valor: 18000 }],
     alerta: 'padrao',
+    emailsAlerta: ['diego.nunes@exemplo.com', 'finops@exemplo.com'],
     emails: ['diego.nunes@exemplo.com', 'finops@exemplo.com'],
   },
 ]
@@ -138,40 +143,47 @@ export const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 export const somaOrcamentos = (orcamentos = []) =>
   orcamentos.reduce((s, o) => s + (Number(o.valor) || 0), 0)
 
+/** Valor total de um Vínculo: soma dos orçamentos por provedor. */
+export const valorVinculo = (v) => somaOrcamentos(v.orcamentos)
+
+/** Provedores presentes numa lista de workspaces selecionados ("Provedor::workspace"). */
+export const provedoresDeWorkspaces = (workspaces = []) => [
+  ...new Set(workspaces.map((w) => w.split('::')[0])),
+]
+
 /**
- * Valor de um Vínculo para fins de total: usa o orçamento direcionado à
- * iniciativa quando definido (novo fluxo); cai para a soma dos orçamentos
- * por provedor como fallback (dados semente antigos).
+ * Mantém a lista de orçamentos por provedor sincronizada com os workspaces
+ * selecionados: adiciona uma linha (valor 0) pra provedor novo e remove a
+ * linha de provedor que não tem mais nenhum workspace selecionado —
+ * preservando o valor já digitado nos provedores que continuam.
  */
-export const valorVinculo = (v) =>
-  v.orcamentoDirecionado != null
-    ? Number(v.orcamentoDirecionado) || 0
-    : somaOrcamentos(v.orcamentos)
+export const sincronizarOrcamentos = (uid, orcamentos = [], workspaces = []) => {
+  const provedores = provedoresDeWorkspaces(workspaces)
+  const mantidos = orcamentos.filter((o) => provedores.includes(o.provedor))
+  const novos = provedores
+    .filter((p) => !mantidos.some((o) => o.provedor === p))
+    .map((provedor) => ({ id: uid('o'), provedor, valor: 0 }))
+  return [...mantidos, ...novos]
+}
+
+export const setOrcamentoProvedor = (orcamentos = [], provedor, valor) =>
+  orcamentos.map((o) => (o.provedor === provedor ? { ...o, valor } : o))
 
 /** Cria os dados de um Vínculo em branco. */
 export const novoVinculo = (uid, centroId = '') => ({
   id: uid('v'),
   centroId,
-  // contas de faturamento selecionadas, id = "Provedor::conta" (pode ter mais de um provedor)
-  contas: [],
-  // workspaces selecionados (pode ter mais de um)
+  // workspaces selecionados, id = "Provedor::workspace" (pode ter mais de um provedor)
   workspaces: [],
-  // orçamento (R$) direcionado a esta iniciativa a partir do centro de custo pagador
-  orcamentoDirecionado: 0,
-  servico: '',
+  // orçamento (R$) aberto por provedor, sincronizado com os workspaces selecionados
+  orcamentos: [],
   // limites de alerta de consumo (%). O primeiro é o teto fixo do sistema.
   alertas: [
     { id: uid('a'), valor: 100, fixo: true },
     { id: uid('a'), valor: 70, fixo: false },
   ],
-  emailsAlerta: [],
-  orcamentos: [],
+  // já vem com um destinatário padrão sugerido; o usuário pode trocar/adicionar
+  emailsAlerta: [EMAIL_ALERTA_PADRAO],
   alerta: 'padrao',
   emails: [],
 })
-
-/** Deriva a lista de orçamentos (por provedor) a partir das contas selecionadas no Vínculo. */
-export const orcamentosDeContas = (uid, contas = []) => {
-  const provedores = [...new Set(contas.map((c) => c.split('::')[0]))]
-  return provedores.map((provedor) => ({ id: uid('o'), provedor, valor: 0 }))
-}

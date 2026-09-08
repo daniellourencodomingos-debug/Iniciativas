@@ -7,7 +7,7 @@ import MultiSelectField from '../components/MultiSelectField.jsx'
 import ContasField from '../components/ContasField.jsx'
 import FilterChipsBar from '../components/FilterChipsBar.jsx'
 import { useApp } from '../store/AppContext.jsx'
-import { currency, PROVEDORES, WORKSPACES, CONTAS_FATURAMENTO, statusIniciativaInfo } from '../data/mock.js'
+import { PROVEDORES, WORKSPACES, CONTAS_FATURAMENTO, statusIniciativaInfo } from '../data/mock.js'
 
 const PER_PAGE_OPTS = [5, 10, 20]
 
@@ -50,7 +50,6 @@ export default function Iniciativas() {
     vinculos,
     centroById,
     centrosDaIniciativa,
-    iniciativaTotal,
     vinculosDaIniciativa,
   } = useApp()
   const navigate = useNavigate()
@@ -80,7 +79,7 @@ export default function Iniciativas() {
   const workspacesDaIniciativa = (id) =>
     new Set(
       vinculosDaIniciativa(id).flatMap((v) =>
-        v.workspaces?.length ? v.workspaces : v.workspace ? [v.workspace] : [],
+        (v.workspaces ?? []).map((w) => w.split('::')[1] ?? w),
       ),
     )
   const workspacesDe = (i) => workspacesDaIniciativa(i.id).size
@@ -323,7 +322,6 @@ export default function Iniciativas() {
               <th className="px-4 py-3 font-semibold">Centro de Custo</th>
               <SortHeader col="workspaces">Workspace</SortHeader>
               <th className="px-4 py-3 font-semibold">Provedores</th>
-              <th className="px-4 py-3 font-semibold">Orçamento Anual</th>
               <th className="px-4 py-3 font-semibold">Status</th>
               <th className="px-4 py-3 text-right font-semibold">Ação</th>
             </tr>
@@ -364,9 +362,6 @@ export default function Iniciativas() {
                       items={[...provedoresDe(i.id)]}
                     />
                   </td>
-                  <td className="px-4 py-3 text-gray-900">
-                    {currency(iniciativaTotal(i.id))}
-                  </td>
                   <td className="px-4 py-3">
                     {(() => {
                       const s = statusIniciativaInfo(i.status)
@@ -396,7 +391,7 @@ export default function Iniciativas() {
             {pageRows.length === 0 && (
               <tr>
                 <td
-                  colSpan={7}
+                  colSpan={6}
                   className="px-4 py-10 text-center text-gray-400"
                 >
                   Nenhuma iniciativa encontrada.
