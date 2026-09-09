@@ -146,7 +146,9 @@ export default function IniciativaForm() {
     setVinculo(v.id, {
       ...v,
       orcamentoAnual: valor,
-      orcamentoMensal: distribuirIgualmente(v.orcamentoMensal, valor),
+      orcamentoMensal: v.distribuicaoAutomatica
+        ? distribuirIgualmente(v.orcamentoMensal, valor)
+        : v.orcamentoMensal,
     })
 
   const setAlerta = (v, aid, valor) =>
@@ -422,6 +424,21 @@ export default function IniciativaForm() {
                       </button>
                     </div>
 
+                    <Field
+                      label="Orçamento anual desta iniciativa"
+                      required
+                      hint="Valor total do ano — depois você escolhe como distribuir pelos 12 meses abaixo."
+                    >
+                      <TextInput
+                        type="number"
+                        min={0}
+                        step="0.01"
+                        value={v.orcamentoAnual}
+                        onChange={(e) => setOrcamentoAnual(v, e.target.value)}
+                        placeholder="0,00"
+                      />
+                    </Field>
+
                     <div className="flex items-center justify-between rounded-md border border-hairline p-3">
                       <div>
                         <p className="text-sm font-semibold text-gray-900">
@@ -429,7 +446,8 @@ export default function IniciativaForm() {
                         </p>
                         <p className="text-xs text-gray-500">
                           Divide o orçamento anual igualmente pelos 12 meses
-                          abaixo — cada mês continua editável depois.
+                          abaixo — cada mês continua editável depois. Desligado,
+                          você preenche cada mês manualmente.
                         </p>
                       </div>
                       <button
@@ -458,22 +476,7 @@ export default function IniciativaForm() {
                       </AttentionBanner>
                     )}
 
-                    {v.distribuicaoAutomatica ? (
-                      <Field
-                        label="Orçamento anual (R$)"
-                        required
-                        hint="Este valor é a soma — dividido igualmente pelos 12 meses abaixo."
-                      >
-                        <TextInput
-                          type="number"
-                          min={0}
-                          step="0.01"
-                          value={v.orcamentoAnual}
-                          onChange={(e) => setOrcamentoAnual(v, e.target.value)}
-                          placeholder="0,00"
-                        />
-                      </Field>
-                    ) : (
+                    {!v.distribuicaoAutomatica && (
                       <Field
                         label="Total definido"
                         hint="Soma dos 12 meses preenchidos manualmente abaixo."
