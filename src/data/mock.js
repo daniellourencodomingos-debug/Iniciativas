@@ -186,10 +186,21 @@ export const provedoresDeWorkspaces = (workspaces = []) => [
   ...new Set(workspaces.map((w) => w.split('::')[0])),
 ]
 
-/** Divide um valor anual igualmente pelos 12 meses (modo "Distribuir automaticamente"). */
+/**
+ * Divide um valor anual igualmente pelos 12 meses (modo "Distribuir automaticamente").
+ * Trabalha em centavos e distribui o resto (de arredondar 1/12) nos primeiros
+ * meses, para que a soma dos 12 meses bata exatamente com o valor anual —
+ * em vez de arredondar 1/12 e repetir, o que deixaria a soma alguns
+ * centavos a mais ou a menos que o valor informado.
+ */
 export const distribuirIgualmente = (orcamentoMensal = [], valorAnual) => {
-  const porMes = Math.round(((Number(valorAnual) || 0) / 12) * 100) / 100
-  return orcamentoMensal.map((m) => ({ ...m, valor: porMes }))
+  const totalCentavos = Math.round((Number(valorAnual) || 0) * 100)
+  const baseCentavos = Math.floor(totalCentavos / 12)
+  const resto = totalCentavos - baseCentavos * 12
+  return orcamentoMensal.map((m, i) => ({
+    ...m,
+    valor: (baseCentavos + (i < resto ? 1 : 0)) / 100,
+  }))
 }
 
 /** Atualiza o valor de um mês específico na grade de distribuição. */

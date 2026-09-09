@@ -1,4 +1,4 @@
-export { Field, TextInput, TextArea, Select, SearchInput } from './fields.jsx'
+export { Field, TextInput, TextArea, Select, SearchInput, CurrencyInput } from './fields.jsx'
 
 /**
  * Card de formulário reutilizável.

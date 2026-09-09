@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Icon } from './icons.jsx'
 
 /**
@@ -42,6 +43,48 @@ export function TextInput({ className = '', ...props }) {
 
 export function TextArea({ className = '', ...props }) {
   return <textarea {...props} className={`${CTRL} resize-none ${className}`} />
+}
+
+/**
+ * Campo de valor monetário no formato usado em FinOps/BR: separador de
+ * milhar "." e decimal ",", ex. "20.000,00". Trabalha por dígitos (como um
+ * caixa eletrônico): cada tecla digitada entra nos centavos, sem depender
+ * do formato de número nativo do navegador. `value`/`onChange` continuam em
+ * número puro (reais), como os demais campos numéricos do formulário.
+ */
+export function CurrencyInput({ value, onChange, className = '', ...props }) {
+  const digitsFromValue = (v) => String(Math.round((Number(v) || 0) * 100))
+  const formatDigits = (digits) =>
+    ((Number(digits || '0') || 0) / 100).toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })
+
+  const [display, setDisplay] = useState(() => formatDigits(digitsFromValue(value)))
+
+  // Mantém o campo em sincronia quando o valor muda de fora (ex.: distribuição
+  // automática recalculando os meses), sem perder o que o usuário está digitando.
+  useEffect(() => {
+    setDisplay(formatDigits(digitsFromValue(value)))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value])
+
+  const handleChange = (e) => {
+    const digits = e.target.value.replace(/\D/g, '')
+    setDisplay(formatDigits(digits))
+    onChange((Number(digits || '0') || 0) / 100)
+  }
+
+  return (
+    <input
+      {...props}
+      type="text"
+      inputMode="decimal"
+      value={display}
+      onChange={handleChange}
+      className={`${CTRL} ${className}`}
+    />
+  )
 }
 
 export function Select({ className = '', children, leftIcon: LeftIcon, ...props }) {

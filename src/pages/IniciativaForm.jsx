@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { PageHeader } from '../components/Layout.jsx'
-import FormCard, { Field, TextInput, TextArea, Select } from '../components/FormCard.jsx'
+import FormCard, { Field, TextInput, TextArea, Select, CurrencyInput } from '../components/FormCard.jsx'
 import AttentionBanner from '../components/AttentionBanner.jsx'
 import Stepper from '../components/Stepper.jsx'
 import Toast from '../components/Toast.jsx'
@@ -429,13 +429,9 @@ export default function IniciativaForm() {
                       required
                       hint="Valor total do ano — depois você escolhe como distribuir pelos 12 meses abaixo."
                     >
-                      <TextInput
-                        type="number"
-                        min={0}
-                        step="0.01"
+                      <CurrencyInput
                         value={v.orcamentoAnual}
-                        onChange={(e) => setOrcamentoAnual(v, e.target.value)}
-                        placeholder="0,00"
+                        onChange={(valor) => setOrcamentoAnual(v, valor)}
                       />
                     </Field>
 
@@ -496,22 +492,18 @@ export default function IniciativaForm() {
                       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                         {v.orcamentoMensal.map((m) => (
                           <Field key={m.mes} label={m.mes} hint="Valor (opc)">
-                            <TextInput
-                              type="number"
-                              min={0}
-                              step="0.01"
+                            <CurrencyInput
                               value={m.valor}
-                              onChange={(e) =>
+                              onChange={(valor) =>
                                 setVinculo(v.id, {
                                   ...v,
                                   orcamentoMensal: setValorMes(
                                     v.orcamentoMensal,
                                     m.mes,
-                                    e.target.value,
+                                    valor,
                                   ),
                                 })
                               }
-                              placeholder="0,00"
                             />
                           </Field>
                         ))}
