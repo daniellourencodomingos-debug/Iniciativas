@@ -66,20 +66,26 @@ export const INICIATIVAS_INICIAIS = [
   { id: 'ini-4', slug: 'reducao-de-custo-storage', status: 'encerrada' },
 ]
 
-// Vínculo = Iniciativa + Centro de Custo. Dentro de um Vínculo, o orçamento é
-// aberto por provedor (orcamentos: [{provedor, valor}]) — os workspaces
-// selecionados de cada provedor consomem o orçamento daquele provedor.
-// Total do Vínculo = soma dos orçamentos por provedor (somaOrcamentos).
+// Meses usados na grade de "Distribuição de orçamento" de cada Vínculo.
+export const MESES = [
+  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
+]
+
+// Vínculo = Iniciativa + Centro de Custo. O orçamento é definido como um total
+// anual ("orcamentoAnual") distribuído nos 12 meses ("orcamentoMensal"). Quando
+// "distribuicaoAutomatica" está ligado, o total digitado é dividido igualmente
+// pelos 12 meses (cada mês continua editável manualmente depois). Quando está
+// desligado, o total é a soma dos 12 meses preenchidos manualmente.
 export const VINCULOS_INICIAIS = [
   {
     id: 'v-1',
     iniciativaId: 'ini-1',
     centroId: 'cc-1',
     workspaces: ['Provedor A::workspace-produto-01', 'Provedor B::workspace-dados-02'],
-    orcamentos: [
-      { id: 'o-1', provedor: 'Provedor A', valor: 120000 },
-      { id: 'o-2', provedor: 'Provedor B', valor: 45000 },
-    ],
+    distribuicaoAutomatica: true,
+    orcamentoAnual: 165000,
+    orcamentoMensal: MESES.map((mes) => ({ mes, valor: 13750 })),
     alerta: 'padrao',
     emailsAlerta: ['ana.ribeiro@exemplo.com', 'time-dados@exemplo.com'],
     emails: ['ana.ribeiro@exemplo.com', 'time-dados@exemplo.com'],
@@ -89,7 +95,9 @@ export const VINCULOS_INICIAIS = [
     iniciativaId: 'ini-1',
     centroId: 'cc-2',
     workspaces: ['Provedor C::workspace-seguranca-03'],
-    orcamentos: [{ id: 'o-1', provedor: 'Provedor C', valor: 30000 }],
+    distribuicaoAutomatica: true,
+    orcamentoAnual: 30000,
+    orcamentoMensal: MESES.map((mes) => ({ mes, valor: 2500 })),
     alerta: 'padrao',
     emailsAlerta: ['bruno.carvalho@exemplo.com', 'time-produto@exemplo.com'],
     emails: ['bruno.carvalho@exemplo.com', 'time-produto@exemplo.com'],
@@ -99,10 +107,9 @@ export const VINCULOS_INICIAIS = [
     iniciativaId: 'ini-2',
     centroId: 'cc-1',
     workspaces: ['Provedor A::workspace-marketing-05', 'Provedor D::workspace-infra-04'],
-    orcamentos: [
-      { id: 'o-1', provedor: 'Provedor A', valor: 80000 },
-      { id: 'o-2', provedor: 'Provedor D', valor: 22000 },
-    ],
+    distribuicaoAutomatica: true,
+    orcamentoAnual: 102000,
+    orcamentoMensal: MESES.map((mes) => ({ mes, valor: 8500 })),
     alerta: 'padrao',
     emailsAlerta: ['camila.fontes@exemplo.com', 'ana.ribeiro@exemplo.com'],
     emails: ['camila.fontes@exemplo.com', 'ana.ribeiro@exemplo.com'],
@@ -112,9 +119,21 @@ export const VINCULOS_INICIAIS = [
     iniciativaId: 'ini-3',
     centroId: 'cc-4',
     workspaces: ['Provedor C::workspace-compliance-07', 'Provedor B::workspace-analytics-06'],
-    orcamentos: [
-      { id: 'o-1', provedor: 'Provedor C', valor: 55000 },
-      { id: 'o-2', provedor: 'Provedor B', valor: 15000 },
+    distribuicaoAutomatica: false,
+    orcamentoAnual: 70000,
+    orcamentoMensal: [
+      { mes: 'Janeiro', valor: 15000 },
+      { mes: 'Fevereiro', valor: 15000 },
+      { mes: 'Março', valor: 10000 },
+      { mes: 'Abril', valor: 5000 },
+      { mes: 'Maio', valor: 5000 },
+      { mes: 'Junho', valor: 5000 },
+      { mes: 'Julho', valor: 5000 },
+      { mes: 'Agosto', valor: 2000 },
+      { mes: 'Setembro', valor: 2000 },
+      { mes: 'Outubro', valor: 2000 },
+      { mes: 'Novembro', valor: 2000 },
+      { mes: 'Dezembro', valor: 2000 },
     ],
     alerta: 'nenhum',
     emailsAlerta: ['diego.nunes@exemplo.com', 'observabilidade@exemplo.com'],
@@ -125,7 +144,9 @@ export const VINCULOS_INICIAIS = [
     iniciativaId: 'ini-4',
     centroId: 'cc-4',
     workspaces: ['Provedor A::workspace-produto-01'],
-    orcamentos: [{ id: 'o-1', provedor: 'Provedor A', valor: 18000 }],
+    distribuicaoAutomatica: true,
+    orcamentoAnual: 18000,
+    orcamentoMensal: MESES.map((mes) => ({ mes, valor: 1500 })),
     alerta: 'padrao',
     emailsAlerta: ['diego.nunes@exemplo.com', 'finops@exemplo.com'],
     emails: ['diego.nunes@exemplo.com', 'finops@exemplo.com'],
@@ -140,34 +161,27 @@ export const currency = (n) =>
 
 export const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
-export const somaOrcamentos = (orcamentos = []) =>
-  orcamentos.reduce((s, o) => s + (Number(o.valor) || 0), 0)
+/** Soma os 12 meses de orçamento de um Vínculo. */
+export const somaMensal = (orcamentoMensal = []) =>
+  orcamentoMensal.reduce((s, m) => s + (Number(m.valor) || 0), 0)
 
-/** Valor total de um Vínculo: soma dos orçamentos por provedor. */
-export const valorVinculo = (v) => somaOrcamentos(v.orcamentos)
+/** Valor total de um Vínculo: soma dos 12 meses de orçamento. */
+export const valorVinculo = (v) => somaMensal(v.orcamentoMensal)
 
 /** Provedores presentes numa lista de workspaces selecionados ("Provedor::workspace"). */
 export const provedoresDeWorkspaces = (workspaces = []) => [
   ...new Set(workspaces.map((w) => w.split('::')[0])),
 ]
 
-/**
- * Mantém a lista de orçamentos por provedor sincronizada com os workspaces
- * selecionados: adiciona uma linha (valor 0) pra provedor novo e remove a
- * linha de provedor que não tem mais nenhum workspace selecionado —
- * preservando o valor já digitado nos provedores que continuam.
- */
-export const sincronizarOrcamentos = (uid, orcamentos = [], workspaces = []) => {
-  const provedores = provedoresDeWorkspaces(workspaces)
-  const mantidos = orcamentos.filter((o) => provedores.includes(o.provedor))
-  const novos = provedores
-    .filter((p) => !mantidos.some((o) => o.provedor === p))
-    .map((provedor) => ({ id: uid('o'), provedor, valor: 0 }))
-  return [...mantidos, ...novos]
+/** Divide um valor anual igualmente pelos 12 meses (modo "Distribuir automaticamente"). */
+export const distribuirIgualmente = (orcamentoMensal = [], valorAnual) => {
+  const porMes = Math.round(((Number(valorAnual) || 0) / 12) * 100) / 100
+  return orcamentoMensal.map((m) => ({ ...m, valor: porMes }))
 }
 
-export const setOrcamentoProvedor = (orcamentos = [], provedor, valor) =>
-  orcamentos.map((o) => (o.provedor === provedor ? { ...o, valor } : o))
+/** Atualiza o valor de um mês específico na grade de distribuição. */
+export const setValorMes = (orcamentoMensal = [], mes, valor) =>
+  orcamentoMensal.map((m) => (m.mes === mes ? { ...m, valor } : m))
 
 /** Cria os dados de um Vínculo em branco. */
 export const novoVinculo = (uid, centroId = '') => ({
@@ -175,8 +189,10 @@ export const novoVinculo = (uid, centroId = '') => ({
   centroId,
   // workspaces selecionados, id = "Provedor::workspace" (pode ter mais de um provedor)
   workspaces: [],
-  // orçamento (R$) aberto por provedor, sincronizado com os workspaces selecionados
-  orcamentos: [],
+  // quando true, "orcamentoAnual" divide o valor igualmente pelos 12 meses abaixo
+  distribuicaoAutomatica: false,
+  orcamentoAnual: 0,
+  orcamentoMensal: MESES.map((mes) => ({ mes, valor: 0 })),
   // limites de alerta de consumo (%). O primeiro é o teto fixo do sistema.
   alertas: [
     { id: uid('a'), valor: 100, fixo: true },

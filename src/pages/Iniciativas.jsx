@@ -71,7 +71,7 @@ export default function Iniciativas() {
   const provedoresDe = (id) =>
     new Set(
       vinculosDaIniciativa(id).flatMap((v) =>
-        v.orcamentos.map((o) => o.provedor),
+        (v.workspaces ?? []).map((w) => w.split('::')[0]),
       ),
     )
   const responsaveisDe = (id) =>
