@@ -21,6 +21,19 @@ export const WORKSPACES_POR_PROVEDOR = {
 // Lista achatada de todos os workspaces (usada no filtro da listagem).
 export const WORKSPACES = Object.values(WORKSPACES_POR_PROVEDOR).flat()
 
+// Lista achatada com o provedor de cada workspace — usada na tela "Vincular
+// workspace" (seletor de duas colunas com o Centro de Custo atual de cada um).
+export const TODOS_WORKSPACES = Object.entries(WORKSPACES_POR_PROVEDOR).flatMap(
+  ([provedor, nomes]) => nomes.map((nome) => ({ id: `${provedor}::${nome}`, provedor, nome })),
+)
+
+/** Gera um "ID do workspace" fictício e estável a partir do nome (só cosmético). */
+export const idDoWorkspace = (nome = '') => {
+  let h = 0
+  for (const ch of nome) h = (h * 31 + ch.charCodeAt(0)) >>> 0
+  return `ws-${(h % 900000) + 100000}`
+}
+
 export const GERENTES = [
   { id: 'g1', nome: 'Ana Ribeiro', email: 'ana.ribeiro@exemplo.com' },
   { id: 'g2', nome: 'Bruno Carvalho', email: 'bruno.carvalho@exemplo.com' },

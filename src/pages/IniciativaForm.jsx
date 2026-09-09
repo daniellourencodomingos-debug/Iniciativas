@@ -6,7 +6,7 @@ import AttentionBanner from '../components/AttentionBanner.jsx'
 import Stepper from '../components/Stepper.jsx'
 import Toast from '../components/Toast.jsx'
 import EmailChipsInput from '../components/EmailChipsInput.jsx'
-import ContasField from '../components/ContasField.jsx'
+import VincularWorkspaceModal from '../components/VincularWorkspaceModal.jsx'
 import Avatar from '../components/Avatar.jsx'
 import { Icon } from '../components/icons.jsx'
 import { useApp } from '../store/AppContext.jsx'
@@ -17,8 +17,6 @@ import {
   somaMensal,
   distribuirIgualmente,
   setValorMes,
-  PROVEDORES,
-  WORKSPACES_POR_PROVEDOR,
 } from '../data/mock.js'
 
 const STEPS = ['Instruções', 'Dados da Iniciativa', 'Vínculo', 'Responsáveis']
@@ -94,7 +92,7 @@ export default function IniciativaForm() {
   )
   const [ack24h, setAck24h] = useState(false)
   const [toastOpen, setToastOpen] = useState(false)
-  const [pickersAbertos, setPickersAbertos] = useState({})
+  const [pickerAberto, setPickerAberto] = useState(null)
   const [avisoToggle, setAvisoToggle] = useState({})
   const [zeroAck, setZeroAck] = useState({})
 
@@ -121,9 +119,6 @@ export default function IniciativaForm() {
 
   const removeVinculo = (vid) =>
     setVinculos((l) => (l.length > 1 ? l.filter((v) => v.id !== vid) : l))
-
-  const togglePicker = (vid) =>
-    setPickersAbertos((p) => ({ ...p, [vid]: !p[vid] }))
 
   const aplicarDistribuicao = (v, ligar) => {
     setAvisoToggle((a) => ({ ...a, [v.id]: false }))
@@ -422,26 +417,12 @@ export default function IniciativaForm() {
                       </span>
                       <button
                         type="button"
-                        onClick={() => togglePicker(v.id)}
+                        onClick={() => setPickerAberto(v.id)}
                         className="text-sm font-semibold text-brand hover:text-brand-dark"
                       >
                         Vincular workspace
                       </button>
                     </div>
-
-                    {pickersAbertos[v.id] && (
-                      <ContasField
-                        label="Workspace"
-                        providers={PROVEDORES}
-                        contasPorProvedor={WORKSPACES_POR_PROVEDOR}
-                        value={v.workspaces}
-                        onChange={(workspaces) =>
-                          setVinculo(v.id, { ...v, workspaces })
-                        }
-                        itemsColumnLabel="Provedor / Workspaces"
-                        emptyItemsLabel="Nenhum workspace para este provedor."
-                      />
-                    )}
 
                     <div className="flex items-center justify-between rounded-md border border-hairline p-3">
                       <div>
@@ -656,6 +637,18 @@ export default function IniciativaForm() {
                   </div>
                 )
               })}
+
+              <VincularWorkspaceModal
+                open={Boolean(pickerAberto)}
+                vinculoAtual={vinculos.find((v) => v.id === pickerAberto) ?? null}
+                onClose={() => setPickerAberto(null)}
+                onRegistrar={(workspaces) => {
+                  setVinculo(pickerAberto, {
+                    ...vinculos.find((v) => v.id === pickerAberto),
+                    workspaces,
+                  })
+                }}
+              />
 
               <button
                 type="button"
