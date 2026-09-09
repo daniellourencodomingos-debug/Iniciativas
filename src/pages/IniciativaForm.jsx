@@ -115,8 +115,6 @@ export default function IniciativaForm() {
   const setVinculo = (vid, next) =>
     setVinculos((l) => l.map((v) => (v.id === vid ? next : v)))
 
-  const addVinculo = () => setVinculos((l) => [...l, novoVinculo(uid)])
-
   const removeVinculo = (vid) =>
     setVinculos((l) => (l.length > 1 ? l.filter((v) => v.id !== vid) : l))
 
@@ -650,14 +648,6 @@ export default function IniciativaForm() {
                 }}
               />
 
-              <button
-                type="button"
-                onClick={addVinculo}
-                className="flex items-center gap-1.5 text-sm font-semibold text-brand hover:text-brand-dark"
-              >
-                <Icon.Plus width={16} height={16} /> Adicionar outro Centro de
-                Custo
-              </button>
             </div>
           )}
 

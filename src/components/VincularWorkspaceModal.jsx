@@ -3,7 +3,7 @@ import { Icon } from './icons.jsx'
 import { SearchInput } from './FormCard.jsx'
 import AttentionBanner from './AttentionBanner.jsx'
 import { useApp } from '../store/AppContext.jsx'
-import { TODOS_WORKSPACES, idDoWorkspace } from '../data/mock.js'
+import { TODOS_WORKSPACES, idDoWorkspace, PROVEDORES } from '../data/mock.js'
 
 const toggleSet = (setter, id) =>
   setter((prev) => {
@@ -33,6 +33,8 @@ export default function VincularWorkspaceModal({
   const [buscaEsquerda, setBuscaEsquerda] = useState('')
   const [buscaDireita, setBuscaDireita] = useState('')
   const [confirmado, setConfirmado] = useState(false)
+  const [provedorEsquerda, setProvedorEsquerda] = useState(null)
+  const [provedorDireita, setProvedorDireita] = useState(null)
 
   useEffect(() => {
     if (open) {
@@ -42,6 +44,8 @@ export default function VincularWorkspaceModal({
       setBuscaEsquerda('')
       setBuscaDireita('')
       setConfirmado(false)
+      setProvedorEsquerda(null)
+      setProvedorDireita(null)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, vinculoAtual?.id])
@@ -59,12 +63,14 @@ export default function VincularWorkspaceModal({
   const disponiveis = TODOS_WORKSPACES.filter(
     (w) =>
       !pendentes.includes(w.id) &&
-      w.nome.toLowerCase().includes(buscaEsquerda.toLowerCase()),
+      w.nome.toLowerCase().includes(buscaEsquerda.toLowerCase()) &&
+      (!provedorEsquerda || w.provedor === provedorEsquerda),
   )
   const vinculados = TODOS_WORKSPACES.filter(
     (w) =>
       pendentes.includes(w.id) &&
-      w.nome.toLowerCase().includes(buscaDireita.toLowerCase()),
+      w.nome.toLowerCase().includes(buscaDireita.toLowerCase()) &&
+      (!provedorDireita || w.provedor === provedorDireita),
   )
 
   const conflitos = pendentes.filter((wsId) => {
@@ -99,7 +105,18 @@ export default function VincularWorkspaceModal({
     onClose()
   }
 
-  const Coluna = ({ titulo, itens, busca, onBusca, checked, onToggle, vazio, ladoDireito }) => (
+  const Coluna = ({
+    titulo,
+    itens,
+    busca,
+    onBusca,
+    checked,
+    onToggle,
+    vazio,
+    ladoDireito,
+    provedorAtivo,
+    onProvedor,
+  }) => (
     <div className="rounded-md border border-hairline">
       <div className="border-b border-hairline p-2">
         <p className="px-1 text-xs font-semibold text-gray-500">{titulo}</p>
@@ -109,6 +126,34 @@ export default function VincularWorkspaceModal({
           placeholder="Buscar workspace"
           className="mt-1"
         />
+        <div className="mt-1.5 flex overflow-hidden rounded border border-hairline">
+          <button
+            type="button"
+            onClick={() => onProvedor(null)}
+            className={`flex-1 px-2 py-1 text-[11px] font-semibold ${
+              provedorAtivo === null
+                ? 'bg-brand text-white'
+                : 'bg-white text-gray-500 hover:bg-gray-50'
+            }`}
+          >
+            Todos
+          </button>
+          {PROVEDORES.map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => onProvedor(p)}
+              title={p}
+              className={`flex-1 border-l border-hairline px-2 py-1 text-[11px] font-semibold ${
+                provedorAtivo === p
+                  ? 'bg-brand text-white'
+                  : 'bg-white text-gray-500 hover:bg-gray-50'
+              }`}
+            >
+              {p.replace('Provedor ', '')}
+            </button>
+          ))}
+        </div>
       </div>
       <div className="max-h-72 overflow-y-auto divide-y divide-hairline">
         <div className="grid grid-cols-[auto_1fr_1fr] gap-2 px-2 py-1.5 text-[11px] font-semibold text-gray-400">
@@ -160,7 +205,7 @@ export default function VincularWorkspaceModal({
       <div className="flex max-h-[90vh] w-full max-w-4xl flex-col rounded-card bg-white shadow-xl">
         <div className="border-b border-hairline px-5 py-4">
           <p className="text-xs text-gray-400">
-            Centros de Custo / Nova Iniciativa / Workspace
+            Iniciativas / Nova Iniciativa / Workspace
           </p>
           <h2 className="mt-1 text-base font-semibold text-gray-900">
             Vincular workspace
@@ -178,6 +223,8 @@ export default function VincularWorkspaceModal({
               onToggle={(id) => toggleSet(setCheckedLeft, id)}
               vazio="Nenhum workspace disponível."
               ladoDireito={false}
+              provedorAtivo={provedorEsquerda}
+              onProvedor={setProvedorEsquerda}
             />
 
             <div className="flex flex-row items-center justify-center gap-2 md:flex-col">
@@ -210,6 +257,8 @@ export default function VincularWorkspaceModal({
               onToggle={(id) => toggleSet(setCheckedRight, id)}
               vazio="Não há workspace, selecione os na tabela à esquerda para vincular."
               ladoDireito
+              provedorAtivo={provedorDireita}
+              onProvedor={setProvedorDireita}
             />
           </div>
 
@@ -219,8 +268,8 @@ export default function VincularWorkspaceModal({
               onAction={() => setConfirmado(true)}
             >
               Vincular este(s) workspace(s) selecionado(s) a esse centro de
-              custo removerá o vínculo abaixo com outros centros. Confirme se
-              deseja prosseguir.
+              custo removerá seus vínculos atuais com outros centros. Confirme
+              para prosseguir.
             </AttentionBanner>
           )}
         </div>
