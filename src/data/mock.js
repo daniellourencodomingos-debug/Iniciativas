@@ -64,8 +64,8 @@ export const CENTROS_INICIAIS = [
 
 export const STATUS_INICIATIVA = {
   ativa: { label: 'Ativa', color: '#2e7d32' },
-  pausada: { label: 'Pausada', color: '#f9a825' },
-  encerrada: { label: 'Encerrada', color: '#9e9e9e' },
+  inativa: { label: 'Inativa', color: '#9e9e9e' },
+  naoAssociada: { label: 'Não associada', color: '#ed6c02' },
 }
 
 export const statusIniciativaInfo = (status) =>
@@ -75,8 +75,8 @@ export const statusIniciativaInfo = (status) =>
 export const INICIATIVAS_INICIAIS = [
   { id: 'ini-1', slug: 'aceleracao-de-agentes-ia', status: 'ativa' },
   { id: 'ini-2', slug: 'migracao-lakehouse', status: 'ativa' },
-  { id: 'ini-3', slug: 'observabilidade-unificada', status: 'pausada' },
-  { id: 'ini-4', slug: 'reducao-de-custo-storage', status: 'encerrada' },
+  { id: 'ini-3', slug: 'observabilidade-unificada', status: 'inativa' },
+  { id: 'ini-4', slug: 'reducao-de-custo-storage', status: 'naoAssociada' },
 ]
 
 // Meses usados na grade de "Distribuição de orçamento" de cada Vínculo.
