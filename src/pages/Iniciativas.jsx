@@ -308,8 +308,9 @@ export default function Iniciativas() {
             actionLabel="Entendi"
             onAction={() => setBannerAck(true)}
           >
-            Os orçamentos de iniciativas são feitos anualmente por meio de
-            solicitação.
+            O orçamento é defendido anualmente durante o ciclo
+            orçamentário e os valores são alocados em suas respectivas
+            iniciativas e farão match com as iniciativas dos workloads.
           </AttentionBanner>
         </div>
       )}
