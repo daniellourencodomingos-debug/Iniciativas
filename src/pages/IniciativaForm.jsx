@@ -104,6 +104,7 @@ export default function IniciativaForm() {
   const [avisoProporcional, setAvisoProporcional] = useState({})
   const [zeroAck, setZeroAck] = useState({})
   const [abaProvedor, setAbaProvedor] = useState({})
+  const [orcamentoAberto, setOrcamentoAberto] = useState({})
 
   const slugValido = SLUG_RE.test(slug)
   const vinculosOk =
@@ -250,22 +251,24 @@ export default function IniciativaForm() {
               </h2>
               <p className="text-sm text-gray-600">
                 Uma iniciativa agrupa o investimento em nuvem de um objetivo de
-                negócio e se conecta a um Centro de Custo por meio de um{' '}
-                <strong>Vínculo</strong>.
+                negócio e se relaciona a um ou mais Centros de Custo por meio
+                de <strong>Vínculos</strong>.
               </p>
               <ul className="list-disc space-y-1 pl-5 text-sm text-gray-600">
                 <li>
                   O <strong>Centro de Custo pagador</strong>, o{' '}
-                  <strong>Workspace</strong> e o <strong>orçamento</strong>{' '}
-                  (distribuído pelos 12 meses do ano) ficam no Vínculo.
+                  <strong>Workspace</strong> e o <strong>orçamento</strong>,
+                  distribuído pelos 12 meses do ano, são definidos em cada
+                  Vínculo.
                 </li>
                 <li>
-                  Uma iniciativa pode ter mais de um Vínculo — um por Centro
-                  de Custo — cada um com seu próprio orçamento.
+                  Uma iniciativa pode ter mais de um Vínculo, um para cada
+                  Centro de Custo, e cada Vínculo possui seu próprio
+                  orçamento.
                 </li>
                 <li>
-                  Ao final, a solicitação é enviada para aprovação antes de
-                  passar a valer.
+                  Ao final, a solicitação é enviada para aprovação e, após
+                  aprovada, passa a valer.
                 </li>
               </ul>
               <AttentionBanner
@@ -326,6 +329,7 @@ export default function IniciativaForm() {
                 const centro = centros.find((c) => c.id === v.centroId)
                 const nItens = v.workspaces.length
                 const abaAtiva = abaProvedor[v.id] ?? PROVEDORES[0]
+                const orcamentoExpandido = orcamentoAberto[v.id] ?? true
                 const mesesDaAba = v.orcamentoPorProvedor[abaAtiva]
                 const mesesZeradosAba = mesesDaAba.some(
                   (m) => Number(m.valor) === 0,
@@ -440,9 +444,41 @@ export default function IniciativaForm() {
 
                     <div className="overflow-hidden rounded-md border border-hairline">
                       <div className="flex flex-wrap items-center justify-between gap-3 bg-brand/5 px-3 py-3">
-                        <p className="text-sm font-semibold text-gray-900">
-                          Orçamento por provedores
-                        </p>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            aria-expanded={orcamentoExpandido}
+                            aria-label={
+                              orcamentoExpandido
+                                ? 'Recolher orçamento por provedores'
+                                : 'Expandir orçamento por provedores'
+                            }
+                            onClick={() =>
+                              setOrcamentoAberto((s) => ({
+                                ...s,
+                                [v.id]: !orcamentoExpandido,
+                              }))
+                            }
+                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-gray-500 hover:bg-black/5"
+                          >
+                            <svg
+                              viewBox="0 0 24 24"
+                              className={`h-5 w-5 transition-transform ${
+                                orcamentoExpandido ? 'rotate-0' : 'rotate-180'
+                              }`}
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <polyline points="18 15 12 9 6 15" />
+                            </svg>
+                          </button>
+                          <p className="text-sm font-semibold text-gray-900">
+                            Orçamento por provedores
+                          </p>
+                        </div>
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-medium text-gray-500">
                             Distribuição proporcional automática
@@ -465,6 +501,7 @@ export default function IniciativaForm() {
                         </div>
                       </div>
 
+                      {orcamentoExpandido && (
                       <div className="space-y-4 p-3">
                         {avisoProporcional[v.id] && (
                           <AttentionBanner
@@ -534,6 +571,7 @@ export default function IniciativaForm() {
                           </AttentionBanner>
                         )}
                       </div>
+                      )}
                     </div>
 
                     <Field
