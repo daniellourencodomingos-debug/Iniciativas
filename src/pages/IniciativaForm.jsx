@@ -15,8 +15,10 @@ import {
   SLUG_RE,
   novoVinculo,
   somaMensal,
-  distribuirIgualmente,
+  valorVinculo,
+  distribuirProporcionalPorProvedor,
   setValorMes,
+  PROVEDORES,
 } from '../data/mock.js'
 
 const STEPS = ['Instruções', 'Dados da Iniciativa', 'Vínculo', 'Responsáveis']
@@ -66,11 +68,17 @@ export default function IniciativaForm() {
             : v.workspace
               ? [v.workspace]
               : base.workspaces,
-          distribuicaoAutomatica: v.distribuicaoAutomatica ?? base.distribuicaoAutomatica,
-          orcamentoAnual: v.orcamentoAnual ?? base.orcamentoAnual,
-          orcamentoMensal: v.orcamentoMensal?.length
-            ? v.orcamentoMensal.map((m) => ({ ...m }))
-            : base.orcamentoMensal,
+          distribuicaoProporcional: v.distribuicaoProporcional ?? base.distribuicaoProporcional,
+          orcamentoPorProvedor: v.orcamentoPorProvedor
+            ? Object.fromEntries(
+                PROVEDORES.map((p) => [
+                  p,
+                  v.orcamentoPorProvedor[p]?.length
+                    ? v.orcamentoPorProvedor[p].map((m) => ({ ...m }))
+                    : base.orcamentoPorProvedor[p],
+                ]),
+              )
+            : base.orcamentoPorProvedor,
           alertas: v.alertas ?? base.alertas,
           emailsAlerta: v.emailsAlerta?.length
             ? v.emailsAlerta
@@ -93,14 +101,15 @@ export default function IniciativaForm() {
   const [ack24h, setAck24h] = useState(false)
   const [toastOpen, setToastOpen] = useState(false)
   const [pickerAberto, setPickerAberto] = useState(null)
-  const [avisoToggle, setAvisoToggle] = useState({})
+  const [avisoProporcional, setAvisoProporcional] = useState({})
   const [zeroAck, setZeroAck] = useState({})
+  const [abaProvedor, setAbaProvedor] = useState({})
 
   const slugValido = SLUG_RE.test(slug)
   const vinculosOk =
     vinculos.length > 0 &&
     vinculos.every(
-      (v) => v.centroId && v.workspaces?.length > 0 && somaMensal(v.orcamentoMensal) > 0,
+      (v) => v.centroId && v.workspaces?.length > 0 && valorVinculo(v) > 0,
     )
   const emailsOk = emails.length >= 2
 
@@ -118,37 +127,37 @@ export default function IniciativaForm() {
   const removeVinculo = (vid) =>
     setVinculos((l) => (l.length > 1 ? l.filter((v) => v.id !== vid) : l))
 
-  const aplicarDistribuicao = (v, ligar) => {
-    setAvisoToggle((a) => ({ ...a, [v.id]: false }))
+  const aplicarProporcional = (v, ligar) => {
+    setAvisoProporcional((a) => ({ ...a, [v.id]: false }))
     if (ligar) {
-      const anual = Number(v.orcamentoAnual) || somaMensal(v.orcamentoMensal)
       setVinculo(v.id, {
         ...v,
-        distribuicaoAutomatica: true,
-        orcamentoAnual: anual,
-        orcamentoMensal: distribuirIgualmente(v.orcamentoMensal, anual),
+        distribuicaoProporcional: true,
+        orcamentoPorProvedor: distribuirProporcionalPorProvedor(v),
       })
     } else {
-      setVinculo(v.id, { ...v, distribuicaoAutomatica: false })
+      setVinculo(v.id, { ...v, distribuicaoProporcional: false })
     }
   }
 
-  const onToggleDistribuicao = (v) => {
-    const mesesPreenchidos = v.orcamentoMensal.some((m) => Number(m.valor) > 0)
-    if (!v.distribuicaoAutomatica && mesesPreenchidos) {
-      setAvisoToggle((a) => ({ ...a, [v.id]: true }))
+  const onToggleProporcional = (v) => {
+    const algumPreenchido = PROVEDORES.some((p) =>
+      v.orcamentoPorProvedor[p].some((m) => Number(m.valor) > 0),
+    )
+    if (!v.distribuicaoProporcional && algumPreenchido) {
+      setAvisoProporcional((a) => ({ ...a, [v.id]: true }))
       return
     }
-    aplicarDistribuicao(v, !v.distribuicaoAutomatica)
+    aplicarProporcional(v, !v.distribuicaoProporcional)
   }
 
-  const setOrcamentoAnual = (v, valor) =>
+  const setValorMesProvedor = (v, provedor, mes, valor) =>
     setVinculo(v.id, {
       ...v,
-      orcamentoAnual: valor,
-      orcamentoMensal: v.distribuicaoAutomatica
-        ? distribuirIgualmente(v.orcamentoMensal, valor)
-        : v.orcamentoMensal,
+      orcamentoPorProvedor: {
+        ...v.orcamentoPorProvedor,
+        [provedor]: setValorMes(v.orcamentoPorProvedor[provedor], mes, valor),
+      },
     })
 
   const setAlerta = (v, aid, valor) =>
@@ -187,9 +196,8 @@ export default function IniciativaForm() {
       iniciativaId,
       centroId: v.centroId,
       workspaces: v.workspaces,
-      distribuicaoAutomatica: v.distribuicaoAutomatica,
-      orcamentoAnual: v.orcamentoAnual,
-      orcamentoMensal: v.orcamentoMensal,
+      distribuicaoProporcional: v.distribuicaoProporcional,
+      orcamentoPorProvedor: v.orcamentoPorProvedor,
       alertas: v.alertas,
       emailsAlerta: v.emailsAlerta,
       emails,
@@ -316,11 +324,13 @@ export default function IniciativaForm() {
               {vinculos.map((v) => {
                 const gestor = gestorDoVinculo(v)
                 const centro = centros.find((c) => c.id === v.centroId)
-                const totalMensal = somaMensal(v.orcamentoMensal)
-                const mesesZerados = v.orcamentoMensal.some(
+                const nItens = v.workspaces.length
+                const abaAtiva = abaProvedor[v.id] ?? PROVEDORES[0]
+                const mesesDaAba = v.orcamentoPorProvedor[abaAtiva]
+                const mesesZeradosAba = mesesDaAba.some(
                   (m) => Number(m.valor) === 0,
                 )
-                const nItens = v.workspaces.length
+                const zeroAckKey = `${v.id}:${abaAtiva}`
 
                 return (
                   <div key={v.id} className="space-y-5">
@@ -424,103 +434,118 @@ export default function IniciativaForm() {
                       </button>
                     </div>
 
+                    <p className="text-sm font-semibold text-gray-900">
+                      Distribuição do orçamento:
+                    </p>
+
+                    <div className="overflow-hidden rounded-md border border-hairline">
+                      <div className="flex flex-wrap items-center justify-between gap-3 bg-brand/5 px-3 py-3">
+                        <p className="text-sm font-semibold text-gray-900">
+                          Orçamento por provedores
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-medium text-gray-500">
+                            Distribuição proporcional automática
+                          </span>
+                          <button
+                            type="button"
+                            role="switch"
+                            aria-checked={v.distribuicaoProporcional}
+                            onClick={() => onToggleProporcional(v)}
+                            className={`relative h-6 w-11 shrink-0 rounded-full transition ${
+                              v.distribuicaoProporcional ? 'bg-brand' : 'bg-gray-300'
+                            }`}
+                          >
+                            <span
+                              className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition ${
+                                v.distribuicaoProporcional ? 'left-[22px]' : 'left-0.5'
+                              }`}
+                            />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-4 p-3">
+                        {avisoProporcional[v.id] && (
+                          <AttentionBanner
+                            actionLabel="Substituir valores"
+                            onAction={() => aplicarProporcional(v, true)}
+                          >
+                            Isso vai substituir os valores já preenchidos.
+                          </AttentionBanner>
+                        )}
+
+                        <div className="flex flex-wrap gap-1 border-b border-hairline">
+                          {PROVEDORES.map((p) => (
+                            <button
+                              key={p}
+                              type="button"
+                              onClick={() =>
+                                setAbaProvedor((s) => ({ ...s, [v.id]: p }))
+                              }
+                              className={`-mb-px border-b-2 px-3 py-2 text-sm font-medium transition ${
+                                abaAtiva === p
+                                  ? 'border-brand text-brand'
+                                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                              }`}
+                            >
+                              {p}
+                            </button>
+                          ))}
+                        </div>
+
+                        <p className="text-sm text-gray-600">
+                          Distribuição mensal por provedores:
+                        </p>
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                          {mesesDaAba.map((m) => (
+                            <Field key={m.mes} label={m.mes} hint="Valor (opc)">
+                              <CurrencyInput
+                                value={m.valor}
+                                disabled={v.distribuicaoProporcional}
+                                onChange={(valor) =>
+                                  setValorMesProvedor(v, abaAtiva, m.mes, valor)
+                                }
+                              />
+                            </Field>
+                          ))}
+                        </div>
+
+                        <Field
+                          label="Soma total dos meses"
+                          hint={`Soma dos 12 meses de ${abaAtiva}.`}
+                        >
+                          <TextInput
+                            readOnly
+                            value={currency(somaMensal(mesesDaAba))}
+                            className="font-bold"
+                          />
+                        </Field>
+
+                        {mesesZeradosAba && !zeroAck[zeroAckKey] && (
+                          <AttentionBanner
+                            actionLabel="Prosseguir"
+                            onAction={() =>
+                              setZeroAck((a) => ({ ...a, [zeroAckKey]: true }))
+                            }
+                          >
+                            Orçamento(s) Zerado(s): um ou mais meses estão com
+                            orçamento R$ 0,00. Confirme se deseja prosseguir.
+                          </AttentionBanner>
+                        )}
+                      </div>
+                    </div>
+
                     <Field
-                      label="Orçamento anual desta iniciativa"
-                      required
-                      hint="Valor total do ano — depois você escolhe como distribuir pelos 12 meses abaixo."
+                      label="Soma dos orçamentos"
+                      hint="Soma de todos os provedores deste vínculo."
                     >
-                      <CurrencyInput
-                        value={v.orcamentoAnual}
-                        onChange={(valor) => setOrcamentoAnual(v, valor)}
+                      <TextInput
+                        readOnly
+                        value={currency(valorVinculo(v))}
+                        className="font-bold"
                       />
                     </Field>
-
-                    <div className="flex items-center justify-between rounded-md border border-hairline p-3">
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">
-                          Distribuir automaticamente
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          Divide o orçamento anual igualmente pelos 12 meses
-                          abaixo — cada mês continua editável depois. Desligado,
-                          você preenche cada mês manualmente.
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        role="switch"
-                        aria-checked={v.distribuicaoAutomatica}
-                        onClick={() => onToggleDistribuicao(v)}
-                        className={`relative h-6 w-11 shrink-0 rounded-full transition ${
-                          v.distribuicaoAutomatica ? 'bg-brand' : 'bg-gray-300'
-                        }`}
-                      >
-                        <span
-                          className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition ${
-                            v.distribuicaoAutomatica ? 'left-[22px]' : 'left-0.5'
-                          }`}
-                        />
-                      </button>
-                    </div>
-
-                    {avisoToggle[v.id] && (
-                      <AttentionBanner
-                        actionLabel="Substituir valores"
-                        onAction={() => aplicarDistribuicao(v, true)}
-                      >
-                        Isso vai substituir os valores já preenchidos.
-                      </AttentionBanner>
-                    )}
-
-                    {!v.distribuicaoAutomatica && (
-                      <Field
-                        label="Total definido"
-                        hint="Soma dos 12 meses preenchidos manualmente abaixo."
-                      >
-                        <TextInput
-                          readOnly
-                          value={currency(totalMensal)}
-                          className="font-bold"
-                        />
-                      </Field>
-                    )}
-
-                    <div>
-                      <p className="mb-3 text-sm font-semibold text-gray-900">
-                        Distribuição de orçamento:
-                      </p>
-                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                        {v.orcamentoMensal.map((m) => (
-                          <Field key={m.mes} label={m.mes} hint="Valor (opc)">
-                            <CurrencyInput
-                              value={m.valor}
-                              onChange={(valor) =>
-                                setVinculo(v.id, {
-                                  ...v,
-                                  orcamentoMensal: setValorMes(
-                                    v.orcamentoMensal,
-                                    m.mes,
-                                    valor,
-                                  ),
-                                })
-                              }
-                            />
-                          </Field>
-                        ))}
-                      </div>
-                    </div>
-
-                    {mesesZerados && !zeroAck[v.id] && (
-                      <AttentionBanner
-                        actionLabel="Prosseguir"
-                        onAction={() =>
-                          setZeroAck((a) => ({ ...a, [v.id]: true }))
-                        }
-                      >
-                        Orçamento(s) Zerado(s): um ou mais meses estão com
-                        orçamento R$ 0,00. Confirme se deseja prosseguir.
-                      </AttentionBanner>
-                    )}
 
                     <div>
                       <p className="mb-1 text-sm font-semibold text-gray-900">
@@ -694,7 +719,7 @@ export default function IniciativaForm() {
                         ? centros.find((c) => c.id === v.centroId)?.nome
                         : '—'}
                     </strong>{' '}
-                    — {currency(somaMensal(v.orcamentoMensal))}
+                    — {currency(valorVinculo(v))}
                   </p>
                 ))}
               </div>
