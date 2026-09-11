@@ -10,6 +10,7 @@ export default function SidebarItem({
   label,
   subtitle,
   badge,
+  dot = false,
   collapsed = false,
 }) {
   return (
@@ -44,6 +45,9 @@ export default function SidebarItem({
             <span className="flex-1 leading-tight">
               <span className="flex items-center gap-2">
                 {label}
+                {dot && (
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
+                )}
                 {badge != null && (
                   <span className="rounded bg-brand px-1.5 text-[10px] font-bold text-white">
                     {badge}

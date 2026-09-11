@@ -1,27 +1,11 @@
-import { Icon } from './icons.jsx'
 import Avatar from './Avatar.jsx'
+import { Icon } from './icons.jsx'
 
 const CONTAS = ['Empresa X', 'Empresa Y', 'Empresa Z']
 
-export default function Header({ onToggleMenu }) {
+export default function Header() {
   return (
-    <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between bg-brand px-4 text-white">
-      {/* esquerda: hambúrguer + nome do produto */}
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={onToggleMenu}
-          className="rounded-md p-1.5 hover:bg-white/10"
-          title="Menu"
-        >
-          <Icon.Menu width={22} height={22} />
-        </button>
-        <div className="flex items-center gap-2">
-          <Icon.CloudPlain width={20} height={20} />
-          <span className="text-lg font-bold tracking-tight">NuvemOps</span>
-        </div>
-      </div>
-
+    <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-end bg-brand px-4 text-white">
       {/* direita: grupo "Conta" (borda tracejada) com select + avatar */}
       <div className="flex items-center gap-3">
         <div className="relative rounded-md border border-dashed border-white/50 px-3 py-1.5">

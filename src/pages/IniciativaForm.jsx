@@ -128,6 +128,8 @@ export default function IniciativaForm() {
   const removeVinculo = (vid) =>
     setVinculos((l) => (l.length > 1 ? l.filter((v) => v.id !== vid) : l))
 
+  const addVinculo = () => setVinculos((l) => [...l, novoVinculo(uid)])
+
   const aplicarProporcional = (v, ligar) => {
     setAvisoProporcional((a) => ({ ...a, [v.id]: false }))
     if (ligar) {
@@ -690,6 +692,23 @@ export default function IniciativaForm() {
                         placeholder="Adicionar usuários"
                       />
                     </Field>
+
+                    {vinculos.indexOf(v) === vinculos.length - 1 && (
+                      <div className="pt-1">
+                        <button
+                          type="button"
+                          onClick={addVinculo}
+                          className="text-sm font-semibold text-brand hover:underline"
+                        >
+                          + Adicionar outro centro de custo pagador
+                        </button>
+                        <p className="mt-1 text-xs text-gray-500">
+                          Cada centro de custo mantém seu próprio orçamento e
+                          custos — os valores não são somados nem divididos
+                          entre eles.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )
               })}
