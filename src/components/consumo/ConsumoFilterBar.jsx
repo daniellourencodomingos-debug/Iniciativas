@@ -13,11 +13,12 @@ import { PROVEDORES, CONTAS_FATURAMENTO, WORKSPACES, GERENTES } from '../../data
 /**
  * Barra de filtros da aba Consumo — a peça que estamos evoluindo.
  *
- * Estado recolhido: só o pill "Período" + botão "Filtros".
- * Um clique no pill "Período" OU no botão "Filtros" expande a barra inteira
- * (rateio, Hierarquias, Centros de custo, Gerente, Workspace, Serviço,
- * Contas + exportar); um novo clique no pill "Período" recolhe de volta.
- * Fica expandido até o usuário clicar de novo — não há auto-collapse.
+ * Estado recolhido: só o pill "Período" + botão "Filtros" (funil, neutro).
+ * Um clique no botão "Filtros" expande a barra inteira (rateio, Hierarquias,
+ * Centros de custo, Gerente, Workspace, Serviço, Contas + exportar) — o
+ * próprio botão "Filtros" continua visível, agora ativo/azul, e um novo
+ * clique nele recolhe de volta. Fica expandido até o usuário clicar de
+ * novo — não há auto-collapse.
  */
 export default function ConsumoFilterBar({ centroOpts, selectedCentros, onChangeCentros }) {
   const [expanded, setExpanded] = useState(true)
@@ -33,25 +34,38 @@ export default function ConsumoFilterBar({ centroOpts, selectedCentros, onChange
   const gerenteOpts = GERENTES.map((g) => ({ value: g.id, label: g.nome }))
   const workspaceOpts = WORKSPACES.map((w) => ({ value: w, label: w }))
 
+  const FiltrosToggle = () => (
+    <button
+      type="button"
+      onClick={toggle}
+      title={expanded ? 'Recolher filtros' : 'Expandir filtros'}
+      className={[
+        'flex h-9 items-center gap-1.5 whitespace-nowrap rounded-md border px-3 text-sm font-semibold transition',
+        expanded
+          ? 'border-brand text-brand'
+          : 'border-hairline bg-white text-gray-700 hover:bg-gray-50',
+      ].join(' ')}
+    >
+      <Icon.Filter width={15} height={15} />
+      Filtros
+      <Icon.ChevronDown
+        width={12}
+        height={12}
+        className={`transition-transform ${expanded ? 'rotate-180' : ''}`}
+      />
+    </button>
+  )
+
   if (!expanded) {
     return (
       <div className="mb-4 flex items-center gap-2">
         <button
           type="button"
-          onClick={toggle}
           className="flex h-9 items-center whitespace-nowrap rounded-md border border-brand px-3 text-sm font-semibold text-brand"
         >
           Período: {PERIODO_CONSUMO_PADRAO.replace(' - ', ' – ')}
         </button>
-        <button
-          type="button"
-          onClick={toggle}
-          className="flex h-9 items-center gap-1.5 whitespace-nowrap rounded-md border border-hairline bg-white px-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-        >
-          <Icon.Sliders width={15} height={15} />
-          Filtros
-          <Icon.ChevronDown width={12} height={12} />
-        </button>
+        <FiltrosToggle />
       </div>
     )
   }
@@ -60,14 +74,15 @@ export default function ConsumoFilterBar({ centroOpts, selectedCentros, onChange
     <div className="mb-4 flex flex-wrap items-center gap-2">
       <button
         type="button"
-        onClick={toggle}
-        title="Recolher filtros"
+        title="Período"
         className="flex h-9 items-center gap-1.5 whitespace-nowrap rounded-md border border-brand px-3 text-sm font-semibold text-brand"
       >
         <Icon.Calendar width={15} height={15} />
         {PERIODO_CONSUMO_PADRAO}
         <Icon.ChevronDown width={12} height={12} />
       </button>
+
+      <FiltrosToggle />
 
       <FilterDropdownPill
         icon={Icon.PieClock}
