@@ -9,7 +9,8 @@ export default function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route index element={<Navigate to="/iniciativas" replace />} />
+        {/* Consumo é a home: primeira tela ao abrir a plataforma. */}
+        <Route index element={<Navigate to="/orcamento" replace />} />
 
         <Route path="/iniciativas" element={<Iniciativas />} />
         <Route path="/iniciativas/nova" element={<IniciativaForm />} />
