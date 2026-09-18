@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom'
 import Avatar from './Avatar.jsx'
 import { Icon } from './icons.jsx'
 
@@ -6,17 +5,7 @@ const CONTAS = ['Empresa X', 'Empresa Y', 'Empresa Z']
 
 export default function Header() {
   return (
-    <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between bg-brand px-4 text-white">
-      {/* esquerda: logo — clicar volta pra home (Consumo) */}
-      <Link
-        to="/orcamento"
-        title="Ir para Consumo"
-        className="flex items-center gap-2 rounded-md px-1.5 py-1 text-white/95 transition hover:text-white"
-      >
-        <Icon.CloudPlain width={22} height={22} className="shrink-0" />
-        <span className="text-[15px] font-bold tracking-tight">Devfinops</span>
-      </Link>
-
+    <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-end bg-brand px-4 text-white">
       {/* direita: grupo "Conta" (borda tracejada) com select + avatar */}
       <div className="flex items-center gap-3">
         <div className="relative rounded-md border border-dashed border-white/50 px-3 py-1.5">
