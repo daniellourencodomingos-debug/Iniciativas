@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import Avatar from './Avatar.jsx'
 import { Icon } from './icons.jsx'
 
@@ -5,7 +6,15 @@ const CONTAS = ['Empresa X', 'Empresa Y', 'Empresa Z']
 
 export default function Header() {
   return (
-    <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-end bg-brand px-4 text-white">
+    <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between bg-brand px-4 text-white">
+      {/* esquerda: sem logo — área clicável (invisível) que também leva pra Consumo */}
+      <Link
+        to="/orcamento"
+        title="Ir para Consumo"
+        aria-label="Ir para Consumo"
+        className="h-full w-16 shrink-0 rounded-md transition hover:bg-white/10"
+      />
+
       {/* direita: grupo "Conta" (borda tracejada) com select + avatar */}
       <div className="flex items-center gap-3">
         <div className="relative rounded-md border border-dashed border-white/50 px-3 py-1.5">

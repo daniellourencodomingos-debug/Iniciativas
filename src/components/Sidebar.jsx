@@ -61,7 +61,7 @@ export default function Sidebar() {
               <SidebarItem
                 to="/orcamento"
                 icon={itemIcon(Icon.Chart)}
-                label="Orçamento, consumo e ofensores"
+                label="Consumo"
                 dot
               />
               <SidebarItem
