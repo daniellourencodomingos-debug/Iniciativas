@@ -3,12 +3,14 @@ import Layout from './components/Layout.jsx'
 import Iniciativas from './pages/Iniciativas.jsx'
 import IniciativaForm from './pages/IniciativaForm.jsx'
 import Placeholder from './pages/Placeholder.jsx'
+import Orcamento from './pages/Orcamento.jsx'
 
 export default function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route index element={<Navigate to="/iniciativas" replace />} />
+        {/* Consumo é a home: primeira tela ao abrir a plataforma. */}
+        <Route index element={<Navigate to="/orcamento" replace />} />
 
         <Route path="/iniciativas" element={<Iniciativas />} />
         <Route path="/iniciativas/nova" element={<IniciativaForm />} />
@@ -22,7 +24,7 @@ export default function App() {
 
         <Route path="/central-de-aprovacoes" element={<Placeholder title="Central de Aprovações" />} />
 
-        <Route path="/orcamento" element={<Placeholder title="Orçamento, consumo e ofensores" />} />
+        <Route path="/orcamento" element={<Orcamento />} />
         <Route path="/historico-previsoes" element={<Placeholder title="Histórico de Previsões" />} />
         <Route path="/recomendacoes" element={<Placeholder title="Recomendações" />} />
         <Route path="/estrutura-financeira" element={<Placeholder title="Estrutura financeira" />} />

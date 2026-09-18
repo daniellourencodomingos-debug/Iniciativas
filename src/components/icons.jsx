@@ -195,4 +195,59 @@ export const Icon = {
       <line x1="17" y1="16" x2="23" y2="16" />
     </svg>
   ),
+  Calendar: (p) => (
+    <svg {...base} {...p}>
+      <rect x="3" y="4.5" width="18" height="16.5" rx="2" />
+      <path d="M16 2.5v4M8 2.5v4M3 9.5h18" />
+    </svg>
+  ),
+  PieClock: (p) => (
+    <svg {...base} {...p}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 12V4.5" />
+      <path d="M12 12l6 3.2" />
+    </svg>
+  ),
+  Hierarchy: (p) => (
+    <svg {...base} {...p}>
+      <circle cx="12" cy="5" r="2.3" />
+      <circle cx="5" cy="19" r="2.3" />
+      <circle cx="19" cy="19" r="2.3" />
+      <path d="M12 7.3V12M5 16.7V12h14v4.7" />
+    </svg>
+  ),
+  UserSingle: (p) => (
+    <svg {...base} {...p}>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21c0-4.2 3.6-7 8-7s8 2.8 8 7" />
+    </svg>
+  ),
+  Window: (p) => (
+    <svg {...base} {...p}>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M3 9h18" />
+      <circle cx="6.4" cy="6.5" r="0.6" fill="currentColor" stroke="none" />
+    </svg>
+  ),
+  Bank: (p) => (
+    <svg {...base} {...p}>
+      <path d="M3 10 12 4l9 6" />
+      <path d="M4.5 10v9h15v-9" />
+      <path d="M9 13v4M12 13v4M15 13v4" />
+      <path d="M3 19h18" />
+    </svg>
+  ),
+  Download: (p) => (
+    <svg {...base} {...p}>
+      <path d="M12 3v12" />
+      <path d="m7 11 5 5 5-5" />
+      <path d="M5 19.5h14" />
+    </svg>
+  ),
+  Ranking: (p) => (
+    <svg {...base} {...p}>
+      <path d="M4 6h.01M4 12h.01M4 18h.01" strokeWidth="2.6" />
+      <path d="M9 6h11M9 12h11M9 18h11" />
+    </svg>
+  ),
 }
