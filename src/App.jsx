@@ -25,6 +25,7 @@ export default function App() {
         <Route path="/central-de-aprovacoes" element={<Placeholder title="Central de Aprovações" />} />
 
         <Route path="/orcamento" element={<Orcamento />} />
+        <Route path="/solicitacoes" element={<Placeholder title="Solicitações" />} />
         <Route path="/historico-previsoes" element={<Placeholder title="Histórico de Previsões" />} />
         <Route path="/recomendacoes" element={<Placeholder title="Recomendações" />} />
         <Route path="/estrutura-financeira" element={<Placeholder title="Estrutura financeira" />} />

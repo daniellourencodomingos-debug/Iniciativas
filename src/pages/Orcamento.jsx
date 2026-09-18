@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Icon } from '../components/icons.jsx'
 import { useApp } from '../store/AppContext.jsx'
 import ConsumoFilterBar from '../components/consumo/ConsumoFilterBar.jsx'
@@ -38,8 +39,19 @@ function EmptyTab() {
 
 export default function Orcamento() {
   const { centros, centroById } = useApp()
-  const [tab, setTab] = useState('consumo')
+  const [searchParams, setSearchParams] = useSearchParams()
+  // A aba ativa vem da URL (?tab=...), não de um state próprio — assim,
+  // tanto os links do menu lateral quanto os cliques aqui na página
+  // (que só reescrevem a querystring, sem remontar o componente) mantêm
+  // a tela sempre em sincronia com o link acessado.
+  const tab = TABS.some((t) => t.key === searchParams.get('tab'))
+    ? searchParams.get('tab')
+    : 'consumo'
   const [selectedCentros, setSelectedCentros] = useState([])
+
+  const trocarTab = (key) => {
+    setSearchParams(key === 'consumo' ? {} : { tab: key })
+  }
 
   const centroOpts = useMemo(
     () => centros.map((c) => ({ value: c.id, label: c.nome })),
@@ -71,7 +83,7 @@ export default function Orcamento() {
               <button
                 key={t.key}
                 type="button"
-                onClick={() => setTab(t.key)}
+                onClick={() => trocarTab(t.key)}
                 className={[
                   '-mb-px flex items-center gap-1.5 border-b-2 px-1 pb-3 text-sm font-semibold transition',
                   active
