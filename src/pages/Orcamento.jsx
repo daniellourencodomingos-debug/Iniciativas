@@ -98,12 +98,22 @@ export default function Orcamento() {
           })}
         </nav>
 
-        <div className="pb-2 text-right">
-          <p className="flex items-center justify-end gap-1 text-xs text-gray-500">
-            Exibição por <span className="font-semibold text-brand">Data de uso</span>
-            <Icon.Info width={13} height={13} className="text-gray-400" />
-          </p>
-          <p className="text-[11px] text-gray-400">Última atualização: 8h de hoje</p>
+        <div className="flex items-start gap-3 pb-2">
+          <div className="text-right">
+            <p className="flex items-center justify-end gap-1 text-xs text-gray-500">
+              Exibição por <span className="font-semibold text-brand">Data de uso</span>
+              <Icon.Info width={13} height={13} className="text-gray-400" />
+            </p>
+            <p className="text-[11px] text-gray-400">Última atualização: 8h de hoje</p>
+          </div>
+
+          <button
+            type="button"
+            title="Exportar"
+            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+          >
+            <Icon.Download width={16} height={16} />
+          </button>
         </div>
       </div>
 

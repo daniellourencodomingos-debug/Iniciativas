@@ -126,14 +126,6 @@ export default function ConsumoFilterBar({ centroOpts, selectedCentros, onChange
         onChange={setServicos}
       />
 
-      <button
-        type="button"
-        title="Exportar"
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-      >
-        <Icon.Download width={17} height={17} />
-      </button>
-
       <ConsumoContasPill
         providers={PROVEDORES}
         contasPorProvedor={CONTAS_FATURAMENTO}
