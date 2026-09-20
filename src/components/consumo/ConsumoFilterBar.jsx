@@ -126,27 +126,23 @@ export default function ConsumoFilterBar({ centroOpts, selectedCentros, onChange
         onChange={setServicos}
       />
 
-      {/* Exportar + Contas ficam agrupados num wrapper só, com o ml-auto
-          aqui em vez de no botão sozinho — assim, quando a barra dá wrap
-          em telas mais estreitas, os dois sempre quebram de linha juntos
-          e colados um no outro, em vez do botão ficar flutuando sozinho
-          longe da pill de Contas. */}
-      <div className="ml-auto flex shrink-0 items-center gap-2">
-        <button
-          type="button"
-          title="Exportar"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-        >
-          <Icon.Download width={17} height={17} />
-        </button>
+      {/* Exportar fica no fluxo normal da barra, logo depois de "Serviço" e
+          antes de "Contas" — sem empurrar nada pro canto direito. Segue a
+          mesma sequência dos outros pills, com o mesmo espaçamento. */}
+      <button
+        type="button"
+        title="Exportar"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+      >
+        <Icon.Download width={17} height={17} />
+      </button>
 
-        <ConsumoContasPill
-          providers={PROVEDORES}
-          contasPorProvedor={CONTAS_FATURAMENTO}
-          value={contas}
-          onChange={setContas}
-        />
-      </div>
+      <ConsumoContasPill
+        providers={PROVEDORES}
+        contasPorProvedor={CONTAS_FATURAMENTO}
+        value={contas}
+        onChange={setContas}
+      />
     </div>
   )
 }

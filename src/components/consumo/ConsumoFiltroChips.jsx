@@ -34,11 +34,11 @@ export default function ConsumoFiltroChips({ chips, onClearAll }) {
           aria-label={expandido ? 'Recolher filtrado por' : 'Expandir filtrado por'}
           title={expandido ? 'Recolher' : 'Expandir'}
           onClick={() => setExpandido((v) => !v)}
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-gray-500 transition hover:bg-black/5"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-gray-600 transition hover:bg-black/5"
         >
           <Icon.ChevronDown
-            width={16}
-            height={16}
+            width={20}
+            height={20}
             className={`transition-transform ${expandido ? 'rotate-180' : ''}`}
           />
         </button>
