@@ -65,6 +65,32 @@ export default function ConsumoFilterBar({
     </button>
   )
 
+  // Indicador do "Filtrado por" recolhido — não é mais um pill igual aos
+  // outros: fica isolado na ponta direita da barra (ml-auto) e com um estilo
+  // preenchido (fundo azul sólido, não contorno) que o diferencia de
+  // propósito — é um status, não um filtro que o usuário ainda vai abrir e
+  // escolher opções. Some o botão "Filtros" recolhido ou expandido; some por
+  // completo quando não há nada filtrado. Clicar reabre a caixa "Filtrado
+  // por". Isso segue as heurísticas de Nielsen de visibilidade do status do
+  // sistema (o usuário sempre sabe que há filtro ativo, mesmo com tudo
+  // recolhido) e reconhecimento em vez de memorização (o destaque visual
+  // chama atenção sem o usuário precisar procurar).
+  const FiltradoPorIndicador = () =>
+    chipsCount > 0 &&
+    !chipsAberto && (
+      <button
+        type="button"
+        onClick={onToggleChips}
+        title="Expandir filtrado por"
+        aria-label="Expandir filtrado por"
+        className="ml-auto flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md bg-brand px-3 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-dark"
+      >
+        <Icon.Filter width={14} height={14} />
+        Filtrado por ({chipsCount})
+        <Icon.ChevronDown width={12} height={12} />
+      </button>
+    )
+
   if (!expanded) {
     return (
       <div className="mb-4 flex items-center gap-2">
@@ -75,6 +101,7 @@ export default function ConsumoFilterBar({
           Período: {PERIODO_CONSUMO_PADRAO.replace(' - ', ' – ')}
         </button>
         <FiltrosToggle />
+        <FiltradoPorIndicador />
       </div>
     )
   }
@@ -92,24 +119,6 @@ export default function ConsumoFilterBar({
       </button>
 
       <FiltrosToggle />
-
-      {/* Indicador do "Filtrado por" recolhido — mesma linha do botão
-          "Filtros", só aparece quando há filtro de centro de custo ativo E
-          a caixa está recolhida. Clicar reabre a caixa. Some por completo
-          quando não há nada filtrado (nada pra mostrar ou recolher). */}
-      {chipsCount > 0 && !chipsAberto && (
-        <button
-          type="button"
-          onClick={onToggleChips}
-          title="Expandir filtrado por"
-          aria-label="Expandir filtrado por"
-          className="flex h-9 items-center gap-1.5 whitespace-nowrap rounded-md border border-brand px-3 text-sm font-semibold text-brand"
-        >
-          <Icon.Filter width={14} height={14} />
-          Filtrado por ({chipsCount})
-          <Icon.ChevronDown width={12} height={12} />
-        </button>
-      )}
 
       <FilterDropdownPill
         icon={Icon.PieClock}
@@ -159,6 +168,8 @@ export default function ConsumoFilterBar({
         value={contas}
         onChange={setContas}
       />
+
+      <FiltradoPorIndicador />
     </div>
   )
 }
