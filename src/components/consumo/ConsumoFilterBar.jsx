@@ -153,17 +153,6 @@ export default function ConsumoFilterBar({
         onChange={setServicos}
       />
 
-      {/* Exportar fica no fluxo normal da barra, logo depois de "Serviço" e
-          antes de "Contas" — sem empurrar nada pro canto direito. Segue a
-          mesma sequência dos outros pills, com o mesmo espaçamento. */}
-      <button
-        type="button"
-        title="Exportar"
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-      >
-        <Icon.Download width={17} height={17} />
-      </button>
-
       <ConsumoContasPill
         providers={PROVEDORES}
         contasPorProvedor={CONTAS_FATURAMENTO}
