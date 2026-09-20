@@ -66,7 +66,7 @@ export default function ConsumoFilterBar({
   )
 
   // Indicador do "Filtrado por" recolhido — não é mais um pill igual aos
-  // outros: fica isolado na ponta direita da barra (ml-auto) e com um estilo
+  // outros: fica isolado na ponta direita da barra e com um estilo
   // preenchido (fundo azul sólido, não contorno) que o diferencia de
   // propósito — é um status, não um filtro que o usuário ainda vai abrir e
   // escolher opções. Some o botão "Filtros" recolhido ou expandido; some por
@@ -83,13 +83,32 @@ export default function ConsumoFilterBar({
         onClick={onToggleChips}
         title="Expandir filtrado por"
         aria-label="Expandir filtrado por"
-        className="ml-auto flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md bg-brand px-3 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-dark"
+        className="flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md bg-brand px-3 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-dark"
       >
         <Icon.Filter width={14} height={14} />
         Filtrado por ({chipsCount})
         <Icon.ChevronDown width={12} height={12} />
       </button>
     )
+
+  // Canto direito da barra: botão de exportar + indicador do "Filtrado por"
+  // (quando houver) andam sempre juntos, nessa ordem, num único wrapper com
+  // ml-auto — como é UM item de flex só (não dois soltos), não corre o risco
+  // de se separar num wrap como aconteceu antes quando exportar e Contas
+  // eram dois itens de flex independentes. O exportar fica sempre visível
+  // aqui, mesmo sem filtro ativo.
+  const CantoDireito = () => (
+    <div className="ml-auto flex shrink-0 items-center gap-2">
+      <button
+        type="button"
+        title="Exportar"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+      >
+        <Icon.Download width={17} height={17} />
+      </button>
+      <FiltradoPorIndicador />
+    </div>
+  )
 
   if (!expanded) {
     return (
@@ -101,7 +120,7 @@ export default function ConsumoFilterBar({
           Período: {PERIODO_CONSUMO_PADRAO.replace(' - ', ' – ')}
         </button>
         <FiltrosToggle />
-        <FiltradoPorIndicador />
+        <CantoDireito />
       </div>
     )
   }
@@ -169,7 +188,7 @@ export default function ConsumoFilterBar({
         onChange={setContas}
       />
 
-      <FiltradoPorIndicador />
+      <CantoDireito />
     </div>
   )
 }
