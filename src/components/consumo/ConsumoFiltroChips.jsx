@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Icon } from '../icons.jsx'
 
 /**
@@ -6,14 +5,22 @@ import { Icon } from '../icons.jsx'
  * funil, usada só nesta tela (a FilterChipsBar "solta", sem borda, continua
  * sendo o padrão em Iniciativas). Some quando não há nenhum filtro ativo.
  *
+ * O estado de recolhido/expandido é controlado pelo componente pai
+ * (Orcamento.jsx) — quando recolhido, esta caixa não renderiza nada; em vez
+ * disso, um indicador "Filtrado por (N)" aparece na mesma linha do botão
+ * "Filtros" (dentro de ConsumoFilterBar), com uma opção clara pra reabrir.
+ * Isso segue a heurística de Nielsen de visibilidade do status do sistema
+ * (o usuário sempre sabe que há filtros ativos, mesmo com a caixa fechada)
+ * e controle do usuário (uma ação clara e óbvia pra reverter).
+ *
  * O botão de recolher (círculo + chevron que gira) segue o mesmo padrão de
  * ícone de expandir/recolher já usado em "Orçamento por provedores"
  * (IniciativaForm.jsx) — botão redondo, hover suave, chevron rotacionando.
+ * Fica logo depois do rótulo "Filtrado por:", separado do "Limpar tudo"
+ * (que continua fixo à direita) pra não ficarem os dois colados.
  */
-export default function ConsumoFiltroChips({ chips, onClearAll }) {
-  const [expandido, setExpandido] = useState(true)
-
-  if (chips.length === 0) return null
+export default function ConsumoFiltroChips({ chips, onClearAll, aberto, onToggle }) {
+  if (chips.length === 0 || !aberto) return null
 
   return (
     <div className="mb-4 rounded-md border border-brand bg-white px-4 py-3">
@@ -22,47 +29,41 @@ export default function ConsumoFiltroChips({ chips, onClearAll }) {
         <span className="text-sm font-semibold text-gray-700">Filtrado por:</span>
         <button
           type="button"
+          aria-expanded={aberto}
+          aria-label="Recolher filtrado por"
+          title="Recolher"
+          onClick={onToggle}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-gray-600 transition hover:bg-black/5"
+        >
+          <Icon.ChevronDown width={20} height={20} className="rotate-180 transition-transform" />
+        </button>
+        <button
+          type="button"
           onClick={onClearAll}
           className="ml-auto flex items-center gap-1 text-sm font-semibold text-brand hover:text-brand-dark"
         >
           Limpar tudo
           <Icon.X width={12} height={12} strokeWidth={2.5} />
         </button>
-        <button
-          type="button"
-          aria-expanded={expandido}
-          aria-label={expandido ? 'Recolher filtrado por' : 'Expandir filtrado por'}
-          title={expandido ? 'Recolher' : 'Expandir'}
-          onClick={() => setExpandido((v) => !v)}
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-gray-600 transition hover:bg-black/5"
-        >
-          <Icon.ChevronDown
-            width={20}
-            height={20}
-            className={`transition-transform ${expandido ? 'rotate-180' : ''}`}
-          />
-        </button>
       </div>
-      {expandido && (
-        <div className="mt-2 flex flex-wrap items-center gap-2">
-          {chips.map((chip) => (
-            <span
-              key={chip.key}
-              className="flex items-center gap-1.5 rounded-full border border-hairline bg-white px-3 py-1 text-xs font-medium text-gray-700"
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        {chips.map((chip) => (
+          <span
+            key={chip.key}
+            className="flex items-center gap-1.5 rounded-full border border-hairline bg-white px-3 py-1 text-xs font-medium text-gray-700"
+          >
+            {chip.label}
+            <button
+              type="button"
+              onClick={chip.onRemove}
+              className="rounded-full text-gray-400 hover:text-gray-700"
+              title="Remover filtro"
             >
-              {chip.label}
-              <button
-                type="button"
-                onClick={chip.onRemove}
-                className="rounded-full text-gray-400 hover:text-gray-700"
-                title="Remover filtro"
-              >
-                <Icon.X width={11} height={11} strokeWidth={2.5} />
-              </button>
-            </span>
-          ))}
-        </div>
-      )}
+              <Icon.X width={11} height={11} strokeWidth={2.5} />
+            </button>
+          </span>
+        ))}
+      </div>
     </div>
   )
 }

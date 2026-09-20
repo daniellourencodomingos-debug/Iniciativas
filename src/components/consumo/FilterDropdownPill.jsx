@@ -48,6 +48,11 @@ export default function FilterDropdownPill({ icon: IconCmp, label, options, sele
       >
         {IconCmp && <IconCmp width={15} height={15} className="shrink-0" />}
         {label}
+        {active && (
+          <span className="flex h-4 min-w-[16px] shrink-0 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-semibold leading-none text-white">
+            {selected.length}
+          </span>
+        )}
         <Icon.ChevronDown
           width={12}
           height={12}

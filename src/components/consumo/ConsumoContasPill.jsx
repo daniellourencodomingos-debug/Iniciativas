@@ -46,6 +46,11 @@ export default function ConsumoContasPill({ providers, contasPorProvedor, value,
       >
         <Icon.Bank width={15} height={15} className="shrink-0" />
         Contas
+        {active && (
+          <span className="flex h-4 min-w-[16px] shrink-0 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-semibold leading-none text-white">
+            {value.length}
+          </span>
+        )}
         <Icon.ChevronDown
           width={12}
           height={12}

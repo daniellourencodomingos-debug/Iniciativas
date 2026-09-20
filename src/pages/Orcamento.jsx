@@ -48,6 +48,11 @@ export default function Orcamento() {
     ? searchParams.get('tab')
     : 'consumo'
   const [selectedCentros, setSelectedCentros] = useState([])
+  // Estado de aberto/recolhido da caixa "Filtrado por:" — mora aqui (não
+  // dentro de ConsumoFiltroChips) porque, recolhido, o indicador some da
+  // caixa e reaparece como um pill "Filtrado por (N)" dentro da barra de
+  // filtros (ConsumoFilterBar), na mesma linha do botão "Filtros".
+  const [filtradoPorAberto, setFiltradoPorAberto] = useState(true)
 
   const trocarTab = (key) => {
     setSearchParams(key === 'consumo' ? {} : { tab: key })
@@ -115,9 +120,17 @@ export default function Orcamento() {
             centroOpts={centroOpts}
             selectedCentros={selectedCentros}
             onChangeCentros={setSelectedCentros}
+            chipsCount={filtroChips.length}
+            chipsAberto={filtradoPorAberto}
+            onToggleChips={() => setFiltradoPorAberto((v) => !v)}
           />
 
-          <ConsumoFiltroChips chips={filtroChips} onClearAll={() => setSelectedCentros([])} />
+          <ConsumoFiltroChips
+            chips={filtroChips}
+            onClearAll={() => setSelectedCentros([])}
+            aberto={filtradoPorAberto}
+            onToggle={() => setFiltradoPorAberto((v) => !v)}
+          />
 
           <KpiCards kpi={kpi} />
 

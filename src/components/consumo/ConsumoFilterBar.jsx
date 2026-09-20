@@ -20,12 +20,21 @@ import { PROVEDORES, CONTAS_FATURAMENTO, WORKSPACES, GERENTES } from '../../data
  * clique nele recolhe de volta. Fica expandido até o usuário clicar de
  * novo — não há auto-collapse.
  */
-export default function ConsumoFilterBar({ centroOpts, selectedCentros, onChangeCentros }) {
+export default function ConsumoFilterBar({
+  centroOpts,
+  selectedCentros,
+  onChangeCentros,
+  chipsCount = 0,
+  chipsAberto = true,
+  onToggleChips,
+}) {
   const [expanded, setExpanded] = useState(true)
   const toggle = () => setExpanded((e) => !e)
 
   const [rateio, setRateio] = useState([])
-  const [hierarquia, setHierarquia] = useState(['departamento'])
+  // Sem seleção padrão — o usuário escolhe a hierarquia que quiser, a tela
+  // não vem mais pré-filtrada.
+  const [hierarquia, setHierarquia] = useState([])
   const [gerentes, setGerentes] = useState([])
   const [workspaces, setWorkspaces] = useState([])
   const [servicos, setServicos] = useState([])
@@ -83,6 +92,24 @@ export default function ConsumoFilterBar({ centroOpts, selectedCentros, onChange
       </button>
 
       <FiltrosToggle />
+
+      {/* Indicador do "Filtrado por" recolhido — mesma linha do botão
+          "Filtros", só aparece quando há filtro de centro de custo ativo E
+          a caixa está recolhida. Clicar reabre a caixa. Some por completo
+          quando não há nada filtrado (nada pra mostrar ou recolher). */}
+      {chipsCount > 0 && !chipsAberto && (
+        <button
+          type="button"
+          onClick={onToggleChips}
+          title="Expandir filtrado por"
+          aria-label="Expandir filtrado por"
+          className="flex h-9 items-center gap-1.5 whitespace-nowrap rounded-md border border-brand px-3 text-sm font-semibold text-brand"
+        >
+          <Icon.Filter width={14} height={14} />
+          Filtrado por ({chipsCount})
+          <Icon.ChevronDown width={12} height={12} />
+        </button>
+      )}
 
       <FilterDropdownPill
         icon={Icon.PieClock}
