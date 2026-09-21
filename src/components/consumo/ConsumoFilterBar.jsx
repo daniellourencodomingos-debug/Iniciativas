@@ -92,13 +92,15 @@ export default function ConsumoFilterBar({
     )
 
   // Canto direito da barra: botão de exportar + indicador do "Filtrado por"
-  // (quando houver) andam sempre juntos, nessa ordem, num único wrapper com
-  // ml-auto — como é UM item de flex só (não dois soltos), não corre o risco
-  // de se separar num wrap como aconteceu antes quando exportar e Contas
-  // eram dois itens de flex independentes. O exportar fica sempre visível
-  // aqui, mesmo sem filtro ativo.
+  // (quando houver) andam sempre juntos, nessa ordem. Fica numa LINHA PRÓPRIA,
+  // sempre — separado da linha dos pills de filtro — pra ter um padrão único
+  // em qualquer estado: com poucos pills (tudo cabe numa linha só) ou com
+  // muitos (os pills quebram em duas linhas), o canto direito nunca disputa
+  // linha com sobras de pill (ex.: Serviço/Contas quebrados sozinhos), o que
+  // antes criava um vão feio e uma leitura bagunçada só nesse cenário
+  // específico. O exportar fica sempre visível, mesmo sem filtro ativo.
   const CantoDireito = () => (
-    <div className="ml-auto flex shrink-0 items-center gap-2">
+    <div className="mt-2 flex items-center justify-end gap-2">
       <button
         type="button"
         title="Exportar"
@@ -112,81 +114,85 @@ export default function ConsumoFilterBar({
 
   if (!expanded) {
     return (
-      <div className="mb-4 flex items-center gap-2">
-        <button
-          type="button"
-          className="flex h-9 items-center whitespace-nowrap rounded-md border border-brand px-3 text-sm font-semibold text-brand"
-        >
-          Período: {PERIODO_CONSUMO_PADRAO.replace(' - ', ' – ')}
-        </button>
-        <FiltrosToggle />
+      <div className="mb-4">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className="flex h-9 items-center whitespace-nowrap rounded-md border border-brand px-3 text-sm font-semibold text-brand"
+          >
+            Período: {PERIODO_CONSUMO_PADRAO.replace(' - ', ' – ')}
+          </button>
+          <FiltrosToggle />
+        </div>
         <CantoDireito />
       </div>
     )
   }
 
   return (
-    <div className="mb-4 flex flex-wrap items-center gap-2">
-      <button
-        type="button"
-        title="Período"
-        className="flex h-9 items-center gap-1.5 whitespace-nowrap rounded-md border border-brand px-3 text-sm font-semibold text-brand"
-      >
-        <Icon.Calendar width={15} height={15} />
-        {PERIODO_CONSUMO_PADRAO}
-        <Icon.ChevronDown width={12} height={12} />
-      </button>
+    <div className="mb-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          title="Período"
+          className="flex h-9 items-center gap-1.5 whitespace-nowrap rounded-md border border-brand px-3 text-sm font-semibold text-brand"
+        >
+          <Icon.Calendar width={15} height={15} />
+          {PERIODO_CONSUMO_PADRAO}
+          <Icon.ChevronDown width={12} height={12} />
+        </button>
 
-      <FiltrosToggle />
+        <FiltrosToggle />
 
-      <FilterDropdownPill
-        icon={Icon.PieClock}
-        label="rateio"
-        options={RATEIO_OPCOES}
-        selected={rateio}
-        onChange={setRateio}
-      />
-      <FilterDropdownPill
-        icon={Icon.Hierarchy}
-        label="Hierarquias"
-        options={HIERARQUIA_OPCOES}
-        selected={hierarquia}
-        onChange={setHierarquia}
-      />
-      <FilterDropdownPill
-        icon={Icon.Building}
-        label="Centros de custo"
-        options={centroOpts}
-        selected={selectedCentros}
-        onChange={onChangeCentros}
-      />
-      <FilterDropdownPill
-        icon={Icon.UserSingle}
-        label="Gerente"
-        options={gerenteOpts}
-        selected={gerentes}
-        onChange={setGerentes}
-      />
-      <FilterDropdownPill
-        icon={Icon.Window}
-        label="Workspace"
-        options={workspaceOpts}
-        selected={workspaces}
-        onChange={setWorkspaces}
-      />
-      <FilterDropdownPill
-        label="Serviço"
-        options={SERVICO_OPCOES}
-        selected={servicos}
-        onChange={setServicos}
-      />
+        <FilterDropdownPill
+          icon={Icon.PieClock}
+          label="rateio"
+          options={RATEIO_OPCOES}
+          selected={rateio}
+          onChange={setRateio}
+        />
+        <FilterDropdownPill
+          icon={Icon.Hierarchy}
+          label="Hierarquias"
+          options={HIERARQUIA_OPCOES}
+          selected={hierarquia}
+          onChange={setHierarquia}
+        />
+        <FilterDropdownPill
+          icon={Icon.Building}
+          label="Centros de custo"
+          options={centroOpts}
+          selected={selectedCentros}
+          onChange={onChangeCentros}
+        />
+        <FilterDropdownPill
+          icon={Icon.UserSingle}
+          label="Gerente"
+          options={gerenteOpts}
+          selected={gerentes}
+          onChange={setGerentes}
+        />
+        <FilterDropdownPill
+          icon={Icon.Window}
+          label="Workspace"
+          options={workspaceOpts}
+          selected={workspaces}
+          onChange={setWorkspaces}
+        />
+        <FilterDropdownPill
+          label="Serviço"
+          options={SERVICO_OPCOES}
+          selected={servicos}
+          onChange={setServicos}
+        />
 
-      <ConsumoContasPill
-        providers={PROVEDORES}
-        contasPorProvedor={CONTAS_FATURAMENTO}
-        value={contas}
-        onChange={setContas}
-      />
+        <ConsumoContasPill
+          providers={PROVEDORES}
+          contasPorProvedor={CONTAS_FATURAMENTO}
+          value={contas}
+          onChange={setContas}
+        />
+      </div>
 
       <CantoDireito />
     </div>
