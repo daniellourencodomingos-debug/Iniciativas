@@ -57,11 +57,11 @@ export default function ConsumoFilterBar({
     >
       <Icon.Filter width={15} height={15} />
       Filtros
-      <Icon.ChevronDown
-        width={12}
-        height={12}
-        className={`transition-transform ${expanded ? 'rotate-180' : ''}`}
-      />
+      {expanded ? (
+        <Icon.Collapse width={12} height={12} />
+      ) : (
+        <Icon.Expand width={12} height={12} />
+      )}
     </button>
   )
 
@@ -87,7 +87,7 @@ export default function ConsumoFilterBar({
       >
         <Icon.Filter width={14} height={14} />
         Filtrado por ({chipsCount})
-        <Icon.ChevronDown width={12} height={12} />
+        <Icon.Expand width={12} height={12} />
       </button>
     )
 

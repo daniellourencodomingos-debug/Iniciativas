@@ -250,4 +250,22 @@ export const Icon = {
       <path d="M9 6h11M9 12h11M9 18h11" />
     </svg>
   ),
+  // Ícone de expandir — dois cantos abertos apontando pra fora (padrão
+  // "maximize", o mesmo usado em outras telas pra ações de expandir/mostrar
+  // mais). Usar em vez de seta de dropdown quando a ação é
+  // expandir/recolher um bloco, não abrir uma lista de opções.
+  Expand: (p) => (
+    <svg {...base} {...p}>
+      <path d="M15 3h6v6" />
+      <path d="M9 21H3v-6" />
+    </svg>
+  ),
+  // Par do Expand — cantos apontando pra dentro, pra indicar a ação de
+  // recolher.
+  Collapse: (p) => (
+    <svg {...base} {...p}>
+      <path d="M20 10h-6V4" />
+      <path d="M4 14h6v6" />
+    </svg>
+  ),
 }
