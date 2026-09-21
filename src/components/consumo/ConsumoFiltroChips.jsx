@@ -13,9 +13,11 @@ import { Icon } from '../icons.jsx'
  * (o usuário sempre sabe que há filtros ativos, mesmo com a caixa fechada)
  * e controle do usuário (uma ação clara e óbvia pra reverter).
  *
- * O botão de recolher (círculo + chevron que gira) segue o mesmo padrão de
- * ícone de expandir/recolher já usado em "Orçamento por provedores"
- * (IniciativaForm.jsx) — botão redondo, hover suave, chevron rotacionando.
+ * O botão de recolher (círculo + ícone de cantos) usa o mesmo ícone de
+ * expandir/recolher do botão "Filtros" e do indicador "Filtrado por" (na
+ * ConsumoFilterBar) — padrão único pra essa ação em toda a barra, sem
+ * misturar com a seta de dropdown dos outros pills. Essa caixa só renderiza
+ * quando está aberta, então o botão aqui está sempre no estado "recolher".
  * Fica logo depois do rótulo "Filtrado por:", separado do "Limpar tudo"
  * (que continua fixo à direita) pra não ficarem os dois colados.
  */
@@ -35,7 +37,7 @@ export default function ConsumoFiltroChips({ chips, onClearAll, aberto, onToggle
           onClick={onToggle}
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-gray-600 transition hover:bg-black/5"
         >
-          <Icon.ChevronDown width={20} height={20} className="rotate-180 transition-transform" />
+          <Icon.Collapse width={18} height={18} />
         </button>
         <button
           type="button"
