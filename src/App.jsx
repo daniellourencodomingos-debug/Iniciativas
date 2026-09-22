@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout.jsx'
 import Iniciativas from './pages/Iniciativas.jsx'
+import IniciativasListagem from './pages/IniciativasListagem.jsx'
 import IniciativaForm from './pages/IniciativaForm.jsx'
 import Placeholder from './pages/Placeholder.jsx'
 
@@ -11,6 +12,7 @@ export default function App() {
         <Route index element={<Navigate to="/iniciativas" replace />} />
 
         <Route path="/iniciativas" element={<Iniciativas />} />
+        <Route path="/iniciativas-listagem" element={<IniciativasListagem />} />
         <Route path="/iniciativas/nova" element={<IniciativaForm />} />
         <Route path="/iniciativas/:id/editar" element={<IniciativaForm />} />
 

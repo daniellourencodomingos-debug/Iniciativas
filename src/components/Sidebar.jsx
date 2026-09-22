@@ -87,6 +87,12 @@ export default function Sidebar() {
                 subtitle="Listagem / cadastro"
               />
               <SidebarItem
+                to="/iniciativas-listagem"
+                icon={itemIcon(Icon.List)}
+                label="Iniciativas - Listagem"
+                subtitle="Gerenciamento e match com Workload"
+              />
+              <SidebarItem
                 to="/estrutura-financeira"
                 icon={itemIcon(Icon.Layers)}
                 label="Estrutura financeira"

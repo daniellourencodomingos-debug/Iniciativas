@@ -79,6 +79,26 @@ export const INICIATIVAS_INICIAIS = [
   { id: 'ini-4', slug: 'reducao-de-custo-storage', status: 'naoAssociada' },
 ]
 
+// Status do match Iniciativa <-> Workload (fonte externa via planilha, 1 para 1).
+export const STATUS_MATCH_WORKLOAD = {
+  match: { label: 'Match confirmado', color: '#2e7d32' },
+  divergente: { label: 'Divergente', color: '#ed6c02' },
+  semWorkload: { label: 'Sem workload', color: '#c62828' },
+}
+
+export const statusMatchInfo = (status) =>
+  STATUS_MATCH_WORKLOAD[status] ?? STATUS_MATCH_WORKLOAD.semWorkload
+
+// Vínculo 1:1 entre Iniciativa (visão de negócio) e Workload (visão técnica de
+// cloud), consolidado a partir da planilha importada. Somente leitura aqui —
+// o gerenciamento não recadastra a iniciativa, só acompanha o match.
+export const MATCH_WORKLOAD = {
+  'ini-1': { workload: 'wkl-agentes-ia-prod', status: 'match', atualizadoEm: '2026-09-10' },
+  'ini-2': { workload: 'wkl-lakehouse-core', status: 'match', atualizadoEm: '2026-09-10' },
+  'ini-3': { workload: 'wkl-observabilidade-01', status: 'divergente', atualizadoEm: '2026-09-08' },
+  'ini-4': { workload: null, status: 'semWorkload', atualizadoEm: '2026-09-08' },
+}
+
 // Meses usados na grade de "Distribuição do orçamento" de cada Vínculo.
 export const MESES = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
