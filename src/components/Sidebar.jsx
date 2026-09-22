@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import SidebarItem from './SidebarItem.jsx'
 import { Icon } from './icons.jsx'
 
@@ -17,8 +18,17 @@ export default function Sidebar() {
   const [devfinopsOpen, setDevfinopsOpen] = useState(true)
   const [iamOpen, setIamOpen] = useState(true)
   const [mostrarIcones, setMostrarIcones] = useState(false)
+  const location = useLocation()
 
   const itemIcon = (IconCmp) => (mostrarIcones ? IconCmp : undefined)
+
+  // /orcamento tem 2 itens de menu apontando pro mesmo pathname
+  // (Consumo e Orçamento vs Consumo), diferenciados só pela querystring —
+  // por isso calculamos a aba ativa manualmente aqui.
+  const orcamentoTabAtiva =
+    location.pathname === '/orcamento'
+      ? new URLSearchParams(location.search).get('tab') || 'consumo'
+      : null
 
   return (
     <aside
@@ -60,9 +70,21 @@ export default function Sidebar() {
             <nav className="mt-2 space-y-1">
               <SidebarItem
                 to="/orcamento"
-                icon={itemIcon(Icon.Chart)}
-                label="Orçamento, consumo e ofensores"
+                icon={itemIcon(Icon.Wallet)}
+                label="Consumo"
                 dot
+                forceActive={orcamentoTabAtiva === 'consumo'}
+              />
+              <SidebarItem
+                to="/orcamento?tab=orcamento-vs-consumo"
+                icon={itemIcon(Icon.Chart)}
+                label="Orçamento vs Consumo"
+                forceActive={orcamentoTabAtiva === 'orcamento-vs-consumo'}
+              />
+              <SidebarItem
+                to="/solicitacoes"
+                icon={itemIcon(Icon.Bell)}
+                label="Solicitações"
               />
               <SidebarItem
                 to="/historico-previsoes"

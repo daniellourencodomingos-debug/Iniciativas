@@ -2,7 +2,12 @@ import { NavLink } from 'react-router-dom'
 
 /**
  * Item de menu lateral com estado ativo/hover.
- * props: to, icon, label, subtitle, badge, collapsed
+ * props: to, icon, label, subtitle, badge, collapsed, forceActive
+ *
+ * forceActive: quando informado (true/false), substitui o cálculo padrão
+ * de "ativo" do NavLink — necessário para itens que apontam pro mesmo
+ * pathname mas com querystrings diferentes (ex: /orcamento?tab=...), caso
+ * em que o NavLink por si só não diferencia.
  */
 export default function SidebarItem({
   to,
@@ -12,22 +17,26 @@ export default function SidebarItem({
   badge,
   dot = false,
   collapsed = false,
+  forceActive,
 }) {
   return (
     <NavLink
       to={to}
       title={collapsed ? label : undefined}
-      className={({ isActive }) =>
-        [
+      className={({ isActive }) => {
+        const active = forceActive ?? isActive
+        return [
           'relative flex items-start rounded-md text-sm transition-colors',
           collapsed ? 'justify-center px-2 py-2.5' : 'gap-3 px-3 py-2',
-          isActive
+          active
             ? 'bg-brand-light font-semibold text-brand'
             : 'text-gray-600 hover:bg-gray-100',
         ].join(' ')
-      }
+      }}
     >
-      {({ isActive }) => (
+      {({ isActive: navIsActive }) => {
+        const isActive = forceActive ?? navIsActive
+        return (
         <>
           {isActive && (
             <span className="absolute left-0 top-1 bottom-1 w-1 rounded-r bg-brand" />
@@ -65,7 +74,8 @@ export default function SidebarItem({
             <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-brand" />
           )}
         </>
-      )}
+        )
+      }}
     </NavLink>
   )
 }
