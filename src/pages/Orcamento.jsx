@@ -38,7 +38,7 @@ function EmptyTab() {
 }
 
 export default function Orcamento() {
-  const { centros, centroById } = useApp()
+  const { centros, centroById, iniciativas } = useApp()
   const [searchParams, setSearchParams] = useSearchParams()
   // A aba ativa vem da URL (?tab=...), não de um state próprio — assim,
   // tanto os links do menu lateral quanto os cliques aqui na página
@@ -48,6 +48,7 @@ export default function Orcamento() {
     ? searchParams.get('tab')
     : 'consumo'
   const [selectedCentros, setSelectedCentros] = useState([])
+  const [selectedIniciativas, setSelectedIniciativas] = useState([])
   // Estado de aberto/recolhido da caixa "Filtrado por:" — mora aqui (não
   // dentro de ConsumoFiltroChips) porque, recolhido, o indicador some da
   // caixa e reaparece como um pill "Filtrado por (N)" dentro da barra de
@@ -63,6 +64,11 @@ export default function Orcamento() {
     [centros],
   )
 
+  const iniciativaOpts = useMemo(
+    () => iniciativas.map((i) => ({ value: i.id, label: i.slug })),
+    [iniciativas],
+  )
+
   const kpi = useMemo(() => {
     const fator =
       selectedCentros.length === 0
@@ -72,11 +78,20 @@ export default function Orcamento() {
     return { ...base, total: kpiTotal(base) }
   }, [selectedCentros])
 
-  const filtroChips = selectedCentros.map((id) => ({
-    key: id,
-    label: `Centro de custo: ${(centroById(id)?.nome ?? id).toUpperCase()}`,
-    onRemove: () => setSelectedCentros((s) => s.filter((v) => v !== id)),
-  }))
+  const iniciativaById = (id) => iniciativas.find((i) => i.id === id)
+
+  const filtroChips = [
+    ...selectedCentros.map((id) => ({
+      key: `centro-${id}`,
+      label: `Centro de custo: ${(centroById(id)?.nome ?? id).toUpperCase()}`,
+      onRemove: () => setSelectedCentros((s) => s.filter((v) => v !== id)),
+    })),
+    ...selectedIniciativas.map((id) => ({
+      key: `iniciativa-${id}`,
+      label: `Iniciativa: ${iniciativaById(id)?.slug ?? id}`,
+      onRemove: () => setSelectedIniciativas((s) => s.filter((v) => v !== id)),
+    })),
+  ]
 
   return (
     <>
@@ -120,6 +135,9 @@ export default function Orcamento() {
             centroOpts={centroOpts}
             selectedCentros={selectedCentros}
             onChangeCentros={setSelectedCentros}
+            iniciativaOpts={iniciativaOpts}
+            selectedIniciativas={selectedIniciativas}
+            onChangeIniciativas={setSelectedIniciativas}
             chipsCount={filtroChips.length}
             chipsAberto={filtradoPorAberto}
             onToggleChips={() => setFiltradoPorAberto((v) => !v)}
@@ -127,7 +145,10 @@ export default function Orcamento() {
 
           <ConsumoFiltroChips
             chips={filtroChips}
-            onClearAll={() => setSelectedCentros([])}
+            onClearAll={() => {
+              setSelectedCentros([])
+              setSelectedIniciativas([])
+            }}
             aberto={filtradoPorAberto}
             onToggle={() => setFiltradoPorAberto((v) => !v)}
           />

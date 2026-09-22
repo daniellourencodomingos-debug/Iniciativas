@@ -24,6 +24,9 @@ export default function ConsumoFilterBar({
   centroOpts,
   selectedCentros,
   onChangeCentros,
+  iniciativaOpts,
+  selectedIniciativas,
+  onChangeIniciativas,
   chipsCount = 0,
   chipsAberto = true,
   onToggleChips,
@@ -164,6 +167,13 @@ export default function ConsumoFilterBar({
           options={centroOpts}
           selected={selectedCentros}
           onChange={onChangeCentros}
+        />
+        <FilterDropdownPill
+          icon={Icon.Target}
+          label="Iniciativa"
+          options={iniciativaOpts}
+          selected={selectedIniciativas}
+          onChange={onChangeIniciativas}
         />
         <FilterDropdownPill
           icon={Icon.UserSingle}
