@@ -284,4 +284,14 @@ export const Icon = {
       <path d="M4 14h6v6" />
     </svg>
   ),
+  // Tomada — usado no item "Vínculo automático" do menu lateral (vínculo
+  // automático de Centro de Custo + Iniciativa via API externa).
+  Plug: (p) => (
+    <svg {...base} {...p}>
+      <path d="M9 2v6" />
+      <path d="M15 2v6" />
+      <path d="M6 8h12v3a6 6 0 0 1-6 6 6 6 0 0 1-6-6V8Z" />
+      <path d="M12 17v5" />
+    </svg>
+  ),
 }

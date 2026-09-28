@@ -322,3 +322,86 @@ export const novoVinculo = (uid, centroId = '') => ({
   alerta: 'padrao',
   emails: [],
 })
+
+// ---------------------------------------------------------------------------
+// Vínculo automático de Centro de Custo + Iniciativa (via API externa)
+// ---------------------------------------------------------------------------
+
+export const METODOS_HTTP = ['GET', 'POST', 'PUT', 'PATCH']
+export const CONTENT_TYPES = ['application/json', 'application/x-www-form-urlencoded']
+
+/** Endpoint de busca em branco (etapa "Busca de vínculo"). */
+export const novoEndpointVinculo = (uid) => ({
+  id: uid('ep'),
+  nome: 'Endpoint 01',
+  organizacao: '',
+  url: '',
+  metodo: 'GET',
+  contentType: 'application/json',
+  headersAdicionais: [],
+  body: '{\n  \n}',
+  // Mapeamento (JSON Path) — Centro de Custo e Workspace.
+  caminhoLista: '',
+  caminhoCentroId: '',
+  caminhoCentroNome: '',
+  caminhoWorkspace: '',
+  // Mapeamento de Iniciativa (opcional) — mesma origem, campos extras.
+  caminhoIniciativaId: '',
+  caminhoIniciativaNome: '',
+  // Paginação (opcional).
+  caminhoPaginacaoToken: '',
+  paginacaoQueryParam: '',
+})
+
+/** Autenticação em branco (etapa "Busca de Autenticação"). */
+export const novaAutenticacaoVinculo = () => ({
+  url: '',
+  metodo: 'POST',
+  contentType: 'application/json',
+  headersAdicionais: [],
+  body: '{\n  \n}',
+  caminhoToken: '',
+  headerDestino: 'Authorization',
+  formatoToken: 'Bearer {token}',
+})
+
+/**
+ * Config já salva, usada para demonstrar a jornada de EDIÇÃO — mesmos dados
+ * do exemplo "Revisar" do Figma. Inclui o mapeamento de Iniciativa (que o
+ * fluxo original do Figma esquece de exibir na etapa Revisar — corrigido
+ * aqui e na tela).
+ */
+export const VINCULO_AUTOMATICO_INICIAL = {
+  apiPrivada: true,
+  endpoints: [
+    {
+      id: 'ep-1',
+      nome: 'Endpoint 01',
+      organizacao: 'Omnicloud',
+      url: 'https://api.internal-tools.io/v2/finops/workspaces/mapping',
+      metodo: 'GET',
+      contentType: 'application/json',
+      headersAdicionais: [{ key: 'X-App-Source', value: 'omnicloud-platform' }],
+      body: '{\n  "client_id": "omnicloud_finops_prod_01",\n  "client_secret": "sk_live_51Nx...z79a",\n  "grant_type": "client_credentials"\n}',
+      caminhoLista: 'data',
+      caminhoCentroId: 'data.cost_center.code',
+      caminhoCentroNome: 'data.cost_center_name.code',
+      caminhoWorkspace: 'data.workspace.uuid',
+      caminhoIniciativaId: 'data.initiative.code',
+      caminhoIniciativaNome: 'data.initiative_name.code',
+      caminhoPaginacaoToken: 'pagination.next_page',
+      paginacaoQueryParam: 'page',
+    },
+  ],
+  autenticacao: {
+    url: 'https://auth.internal-tools.io/oauth/token',
+    metodo: 'POST',
+    contentType: 'application/json',
+    headersAdicionais: [{ key: 'X-App-Source', value: 'omnicloud-platform' }],
+    body: '{\n  "client_id": "omnicloud_finops_prod_01",\n  "client_secret": "sk_live_51Nx...z79a",\n  "grant_type": "client_credentials"\n}',
+    caminhoToken: 'access_token',
+    headerDestino: 'Authorization',
+    formatoToken: 'Bearer {token}',
+  },
+  atualizadoEm: '2026-09-20',
+}

@@ -4,6 +4,7 @@ import {
   INICIATIVAS_INICIAIS,
   VINCULOS_INICIAIS,
   GERENTES,
+  VINCULO_AUTOMATICO_INICIAL,
   valorVinculo,
 } from '../data/mock.js'
 
@@ -17,6 +18,9 @@ const initialState = {
   iniciativas: INICIATIVAS_INICIAIS,
   vinculos: VINCULOS_INICIAIS,
   gerentes: GERENTES,
+  // Config do vínculo automático de Centro de Custo + Iniciativa via API
+  // externa (null = nunca configurado, cai na jornada "Novo vínculo").
+  vinculoAutomatico: VINCULO_AUTOMATICO_INICIAL,
 }
 
 function reducer(state, action) {
@@ -74,6 +78,9 @@ function reducer(state, action) {
 
     case 'DELETE_VINCULO':
       return { ...state, vinculos: state.vinculos.filter((v) => v.id !== action.id) }
+
+    case 'SAVE_VINCULO_AUTOMATICO':
+      return { ...state, vinculoAutomatico: action.payload }
 
     // Substitui todos os vínculos de uma iniciativa pela lista informada.
     case 'SYNC_INICIATIVA_VINCULOS': {

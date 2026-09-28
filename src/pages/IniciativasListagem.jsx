@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { PageHeader } from '../components/Layout.jsx'
 import { Icon } from '../components/icons.jsx'
 import AttentionBanner from '../components/AttentionBanner.jsx'
@@ -68,6 +69,7 @@ export default function IniciativasListagem() {
     centrosDaIniciativa,
     vinculosDaIniciativa,
   } = useApp()
+  const navigate = useNavigate()
 
   const [fWorkspaces, setFWorkspaces] = useState([])
   const [fContas, setFContas] = useState([])
@@ -303,6 +305,7 @@ export default function IniciativasListagem() {
               <th className="px-4 py-3 font-semibold">Provedores</th>
               <th className="px-4 py-3 font-semibold">Workload</th>
               <th className="px-4 py-3 font-semibold">Match workload</th>
+              <th className="px-4 py-3 text-right font-semibold">Ação</th>
             </tr>
           </thead>
           <tbody>
@@ -348,12 +351,21 @@ export default function IniciativasListagem() {
                       <span className="text-gray-900">{s.label}</span>
                     </span>
                   </td>
+                  <td className="px-4 py-3 text-right">
+                    <button
+                      onClick={() => navigate(`/iniciativas/${i.id}/editar`)}
+                      title="Editar"
+                      className="rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-brand"
+                    >
+                      <Icon.Edit width={16} height={16} />
+                    </button>
+                  </td>
                 </tr>
               )
             })}
             {pageRows.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-gray-400">
+                <td colSpan={7} className="px-4 py-10 text-center text-gray-400">
                   Nenhuma iniciativa encontrada.
                 </td>
               </tr>

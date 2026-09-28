@@ -97,22 +97,22 @@ export default function Sidebar() {
                 label="Recomendações"
               />
               <SidebarItem
-                to="/centros-de-custo"
-                icon={itemIcon(Icon.Building)}
-                label="Centros de custo"
-                subtitle="Listagem / cadastro"
+                to="/vinculo-automatico"
+                icon={itemIcon(Icon.Plug)}
+                label="Vínculo automático"
+                subtitle="Centro de custo / Iniciativa"
               />
               <SidebarItem
-                to="/iniciativas"
-                icon={itemIcon(Icon.Target)}
-                label="Iniciativas"
-                subtitle="Listagem / cadastro"
+                to="/centro-de-custo"
+                icon={itemIcon(Icon.Building)}
+                label="Centro de Custo"
+                subtitle="Listagem / Cadastro"
               />
               <SidebarItem
                 to="/iniciativas-listagem"
-                icon={itemIcon(Icon.List)}
-                label="Iniciativas - Listagem"
-                subtitle="Gerenciamento e match com Workload"
+                icon={itemIcon(Icon.Target)}
+                label="Iniciativas"
+                subtitle="Listagem"
               />
               <SidebarItem
                 to="/estrutura-financeira"
