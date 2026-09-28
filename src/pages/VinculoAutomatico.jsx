@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { PageHeader } from '../components/Layout.jsx'
 import { Field, TextInput, TextArea, Select } from '../components/fields.jsx'
 import Stepper from '../components/Stepper.jsx'
@@ -25,7 +24,6 @@ const STEPS = ['Instruções', 'Busca de vínculo', 'Tipo de API', 'Busca de Aut
  * "Busca de vínculo").
  */
 export default function VinculoAutomatico() {
-  const navigate = useNavigate()
   const { vinculoAutomatico, dispatch, uid } = useApp()
   const editing = Boolean(vinculoAutomatico)
 
@@ -74,7 +72,6 @@ export default function VinculoAutomatico() {
       },
     })
     setToastOpen(true)
-    setTimeout(() => navigate('/centro-de-custo'), 900)
   }
 
   return (
@@ -281,7 +278,7 @@ function PassoBuscaDeVinculo({ endpoints, endpointAtivo, setEndpointAtivo, addEn
       </div>
 
       <Field label="Organização" required>
-        <TextInput value={ep.organizacao} onChange={(e) => setEp({ organizacao: e.target.value })} placeholder="Ex.: Omnicloud" />
+        <TextInput value={ep.organizacao} onChange={(e) => setEp({ organizacao: e.target.value })} placeholder="Ex.: Empresa X" />
       </Field>
 
       <div className="grid grid-cols-[1fr_180px] gap-4">

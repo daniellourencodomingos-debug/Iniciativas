@@ -102,14 +102,6 @@ export default function CentroDeCusto() {
         </div>
 
         <button
-          onClick={() => navigate('/vinculo-automatico')}
-          title="Vínculo automático"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-hairline bg-white text-gray-500 hover:bg-gray-50 hover:text-brand"
-        >
-          <Icon.Plug width={16} height={16} />
-        </button>
-
-        <button
           onClick={() => navigate('/centro-de-custo/novo')}
           className="ml-auto flex h-9 shrink-0 items-center gap-2 rounded-md bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-dark"
         >
