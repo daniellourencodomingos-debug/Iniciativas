@@ -18,7 +18,11 @@ import {
   PESO_CONSUMO_POR_CENTRO,
   escalarKpi,
   kpiTotal,
+  RATEIO_OPCOES,
+  HIERARQUIA_OPCOES,
+  SERVICO_OPCOES,
 } from '../data/consumoMock.js'
+import { GERENTES } from '../data/mock.js'
 
 const TABS = [
   { key: 'consumo', label: 'Consumo', icon: Icon.Wallet },
@@ -49,6 +53,14 @@ export default function Orcamento() {
     : 'consumo'
   const [selectedCentros, setSelectedCentros] = useState([])
   const [selectedIniciativas, setSelectedIniciativas] = useState([])
+  const [rateio, setRateio] = useState([])
+  // Sem seleção padrão — o usuário escolhe a hierarquia que quiser, a tela
+  // não vem mais pré-filtrada.
+  const [hierarquia, setHierarquia] = useState([])
+  const [gerentes, setGerentes] = useState([])
+  const [workspaces, setWorkspaces] = useState([])
+  const [servicos, setServicos] = useState([])
+  const [contas, setContas] = useState([])
   // Estado de aberto/recolhido da caixa "Filtrado por:" — mora aqui (não
   // dentro de ConsumoFiltroChips) porque, recolhido, o indicador some da
   // caixa e reaparece como um pill "Filtrado por (N)" dentro da barra de
@@ -79,7 +91,15 @@ export default function Orcamento() {
   }, [selectedCentros])
 
   const iniciativaById = (id) => iniciativas.find((i) => i.id === id)
+  const rateioLabel = (v) => RATEIO_OPCOES.find((o) => o.value === v)?.label ?? v
+  const hierarquiaLabel = (v) => HIERARQUIA_OPCOES.find((o) => o.value === v)?.label ?? v
+  const servicoLabel = (v) => SERVICO_OPCOES.find((o) => o.value === v)?.label ?? v
+  const gerenteNome = (id) => GERENTES.find((g) => g.id === id)?.nome ?? id
 
+  // "Filtrado por:" reflete TODO filtro ativo da barra, não só Centro de
+  // custo/Iniciativa — por isso o estado de cada pill mora aqui (não dentro
+  // de ConsumoFilterBar), controlado, pra dar pra remover qualquer um deles
+  // por aqui também.
   const filtroChips = [
     ...selectedCentros.map((id) => ({
       key: `centro-${id}`,
@@ -91,6 +111,39 @@ export default function Orcamento() {
       label: `Iniciativa: ${iniciativaById(id)?.slug ?? id}`,
       onRemove: () => setSelectedIniciativas((s) => s.filter((v) => v !== id)),
     })),
+    ...rateio.map((v) => ({
+      key: `rateio-${v}`,
+      label: rateioLabel(v),
+      onRemove: () => setRateio((s) => s.filter((x) => x !== v)),
+    })),
+    ...hierarquia.map((v) => ({
+      key: `hierarquia-${v}`,
+      label: hierarquiaLabel(v),
+      onRemove: () => setHierarquia((s) => s.filter((x) => x !== v)),
+    })),
+    ...gerentes.map((id) => ({
+      key: `gerente-${id}`,
+      label: `Gerente: ${gerenteNome(id)}`,
+      onRemove: () => setGerentes((s) => s.filter((v) => v !== id)),
+    })),
+    ...workspaces.map((w) => ({
+      key: `workspace-${w}`,
+      label: `Workspace: ${w}`,
+      onRemove: () => setWorkspaces((s) => s.filter((v) => v !== w)),
+    })),
+    ...servicos.map((v) => ({
+      key: `servico-${v}`,
+      label: `Serviço: ${servicoLabel(v)}`,
+      onRemove: () => setServicos((s) => s.filter((x) => x !== v)),
+    })),
+    ...contas.map((id) => {
+      const [provedor, conta] = id.split('::')
+      return {
+        key: `conta-${id}`,
+        label: `Conta: ${conta} (${provedor})`,
+        onRemove: () => setContas((s) => s.filter((v) => v !== id)),
+      }
+    }),
   ]
 
   return (
@@ -138,6 +191,18 @@ export default function Orcamento() {
             iniciativaOpts={iniciativaOpts}
             selectedIniciativas={selectedIniciativas}
             onChangeIniciativas={setSelectedIniciativas}
+            rateio={rateio}
+            onChangeRateio={setRateio}
+            hierarquia={hierarquia}
+            onChangeHierarquia={setHierarquia}
+            gerentes={gerentes}
+            onChangeGerentes={setGerentes}
+            workspaces={workspaces}
+            onChangeWorkspaces={setWorkspaces}
+            servicos={servicos}
+            onChangeServicos={setServicos}
+            contas={contas}
+            onChangeContas={setContas}
             chipsCount={filtroChips.length}
             chipsAberto={filtradoPorAberto}
             onToggleChips={() => setFiltradoPorAberto((v) => !v)}
@@ -148,6 +213,12 @@ export default function Orcamento() {
             onClearAll={() => {
               setSelectedCentros([])
               setSelectedIniciativas([])
+              setRateio([])
+              setHierarquia([])
+              setGerentes([])
+              setWorkspaces([])
+              setServicos([])
+              setContas([])
             }}
             aberto={filtradoPorAberto}
             onToggle={() => setFiltradoPorAberto((v) => !v)}
