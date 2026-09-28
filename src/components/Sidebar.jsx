@@ -97,12 +97,6 @@ export default function Sidebar() {
                 label="Recomendações"
               />
               <SidebarItem
-                to="/vinculo-automatico"
-                icon={itemIcon(Icon.Plug)}
-                label="Vínculo automático"
-                subtitle="Centro de custo / Iniciativa"
-              />
-              <SidebarItem
                 to="/centro-de-custo"
                 icon={itemIcon(Icon.Building)}
                 label="Centro de Custo"
@@ -113,6 +107,12 @@ export default function Sidebar() {
                 icon={itemIcon(Icon.Target)}
                 label="Iniciativas"
                 subtitle="Listagem"
+              />
+              <SidebarItem
+                to="/vinculo-automatico"
+                icon={itemIcon(Icon.Plug)}
+                label="Vínculo automático"
+                subtitle="Centro de custo / Iniciativa"
               />
               <SidebarItem
                 to="/estrutura-financeira"
