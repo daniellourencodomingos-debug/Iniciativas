@@ -294,18 +294,16 @@ function PassoBuscaDeVinculo({ endpoints, endpointAtivo, setEndpointAtivo, addEn
         </Field>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <Field label="Header">
-          <Select value={ep.contentType} onChange={(e) => setEp({ contentType: e.target.value })}>
-            {CONTENT_TYPES.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </Select>
-        </Field>
-        <Field label="Headers adicionais">
-          <HeadersAdicionais value={ep.headersAdicionais} onChange={(v) => setEp({ headersAdicionais: v })} />
-        </Field>
-      </div>
+      <Field label="Header">
+        <Select value={ep.contentType} onChange={(e) => setEp({ contentType: e.target.value })}>
+          {CONTENT_TYPES.map((c) => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </Select>
+      </Field>
+      <Field label="Headers adicionais">
+        <HeadersAdicionais value={ep.headersAdicionais} onChange={(v) => setEp({ headersAdicionais: v })} />
+      </Field>
 
       <Field label="Body" hint="JSON">
         <TextArea value={ep.body} onChange={(e) => setEp({ body: e.target.value })} rows={4} className="font-mono" />
@@ -325,27 +323,25 @@ function PassoBuscaDeVinculo({ endpoints, endpointAtivo, setEndpointAtivo, addEn
   }]
 }`}</ApiReturnBox>
 
-      <div className="grid grid-cols-2 gap-4">
-        <Field label="Identificador da lista de itens (JSON Path)" required hint="Exemplo: data">
-          <TextInput value={ep.caminhoLista} onChange={(e) => setEp({ caminhoLista: e.target.value })} />
-        </Field>
-        <Field label="Identificador do Centro de custo (JSON Path)" required hint="Exemplo: centro_custo">
-          <TextInput value={ep.caminhoCentroId} onChange={(e) => setEp({ caminhoCentroId: e.target.value })} />
-        </Field>
-        <Field label="Nome do Centro de Custo (JSON Path)" required hint="Exemplo: nome_centro_custo">
-          <TextInput value={ep.caminhoCentroNome} onChange={(e) => setEp({ caminhoCentroNome: e.target.value })} />
-        </Field>
-        <Field label="Identificador do Workspace (JSON Path)" hint="Exemplo: workspace">
-          <TextInput value={ep.caminhoWorkspace} onChange={(e) => setEp({ caminhoWorkspace: e.target.value })} />
-        </Field>
-      </div>
+      <Field label="Identificador da lista de itens (JSON Path)" required hint="Exemplo: data">
+        <TextInput value={ep.caminhoLista} onChange={(e) => setEp({ caminhoLista: e.target.value })} />
+      </Field>
+      <Field label="Identificador do Centro de custo (JSON Path)" required hint="Exemplo: centro_custo">
+        <TextInput value={ep.caminhoCentroId} onChange={(e) => setEp({ caminhoCentroId: e.target.value })} />
+      </Field>
+      <Field label="Nome do Centro de Custo (JSON Path)" required hint="Exemplo: nome_centro_custo">
+        <TextInput value={ep.caminhoCentroNome} onChange={(e) => setEp({ caminhoCentroNome: e.target.value })} />
+      </Field>
+      <Field label="Identificador do Workspace (JSON Path)" hint="Exemplo: workspace">
+        <TextInput value={ep.caminhoWorkspace} onChange={(e) => setEp({ caminhoWorkspace: e.target.value })} />
+      </Field>
 
       <div className="border-t border-hairline pt-4">
         <p className="text-sm font-semibold text-gray-900">Mapeamento de Iniciativa</p>
         <p className="mt-0.5 text-sm text-gray-500">
           Use estes campos para localizar e vincular automaticamente a Iniciativa quando a mesma fonte externa fornecer esse dado — o vínculo com a Iniciativa é feito junto com o do Centro de Custo, sem etapa separada.
         </p>
-        <div className="mt-3 grid grid-cols-2 gap-4">
+        <div className="mt-3 space-y-4">
           <Field label="Identificador da Iniciativa (JSON Path)" hint="Exemplo: iniciativa">
             <TextInput value={ep.caminhoIniciativaId} onChange={(e) => setEp({ caminhoIniciativaId: e.target.value })} />
           </Field>
@@ -358,7 +354,7 @@ function PassoBuscaDeVinculo({ endpoints, endpointAtivo, setEndpointAtivo, addEn
       <div className="border-t border-hairline pt-4">
         <p className="text-sm font-semibold text-gray-900">Paginação</p>
         <p className="mt-0.5 text-sm text-gray-500">Se a sua API possui paginação, configure os campos abaixo para que a plataforma navegue automaticamente por todas as páginas de resultados.</p>
-        <div className="mt-3 grid grid-cols-2 gap-4">
+        <div className="mt-3 space-y-4">
           <Field label="Caminho do token (JSON Path)" hint="Exemplo: pagination.next_page">
             <TextInput value={ep.caminhoPaginacaoToken} onChange={(e) => setEp({ caminhoPaginacaoToken: e.target.value })} />
           </Field>
@@ -461,18 +457,16 @@ function PassoBuscaDeAutenticacao({ auth, setAuth, podeAvancar, onBack, onNext }
         </Field>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <Field label="Header">
-          <Select value={auth.contentType} onChange={(e) => setAuth({ ...auth, contentType: e.target.value })}>
-            {CONTENT_TYPES.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </Select>
-        </Field>
-        <Field label="Headers adicionais">
-          <HeadersAdicionais value={auth.headersAdicionais} onChange={(v) => setAuth({ ...auth, headersAdicionais: v })} />
-        </Field>
-      </div>
+      <Field label="Header">
+        <Select value={auth.contentType} onChange={(e) => setAuth({ ...auth, contentType: e.target.value })}>
+          {CONTENT_TYPES.map((c) => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </Select>
+      </Field>
+      <Field label="Headers adicionais">
+        <HeadersAdicionais value={auth.headersAdicionais} onChange={(v) => setAuth({ ...auth, headersAdicionais: v })} />
+      </Field>
 
       <Field label="Body" hint="JSON — Ex.: ID, client secret ou password. Deixe vazio se não for necessário.">
         <TextArea value={auth.body} onChange={(e) => setAuth({ ...auth, body: e.target.value })} rows={4} className="font-mono" />
