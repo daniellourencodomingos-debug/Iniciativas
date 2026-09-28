@@ -95,25 +95,13 @@ export default function ConsumoFilterBar({
     )
 
   // Canto direito da barra: botão de exportar + indicador do "Filtrado por"
-  // (quando houver) andam sempre juntos, nessa ordem.
-  //
-  // Com os filtros EXPANDIDOS (muitos pills, que quebram em duas linhas), fica
-  // numa LINHA PRÓPRIA, separada da linha dos pills — assim ele nunca disputa
-  // linha com sobras de pill (ex.: Serviço/Contas quebrados sozinhos), o que
-  // antes criava um vão feio e uma leitura bagunçada só nesse cenário.
-  //
-  // Com os filtros RECOLHIDOS, só há "Período" + "Filtros" na linha — cabe
-  // tranquilo, então o canto direito entra na MESMA linha (empurrado pra
-  // ponta com ml-auto) pra ganhar espaço vertical, em vez de reservar uma
-  // linha inteira só pra ele.
-  const CantoDireito = ({ inline = false }) => (
-    <div
-      className={
-        inline
-          ? 'ml-auto flex shrink-0 items-center gap-2'
-          : 'mt-2 flex items-center justify-end gap-2'
-      }
-    >
+  // (quando houver) andam sempre juntos, nessa ordem, sempre empurrados pra
+  // ponta direita (ml-auto) da PRIMEIRA linha de pills — tanto recolhido
+  // (Período + Filtros) quanto expandido (que quebra em duas linhas, com o
+  // canto direito fechando a primeira). Isso evita reservar uma linha
+  // inteira só pro botão de exportar.
+  const CantoDireito = () => (
+    <div className="ml-auto flex shrink-0 items-center gap-2">
       <button
         type="button"
         title="Exportar"
@@ -135,13 +123,16 @@ export default function ConsumoFilterBar({
           Período: {PERIODO_CONSUMO_PADRAO.replace(' - ', ' – ')}
         </button>
         <FiltrosToggle />
-        <CantoDireito inline />
+        <CantoDireito />
       </div>
     )
   }
 
   return (
-    <div className="mb-4">
+    <div className="mb-4 space-y-2">
+      {/* Linha 1: pills principais + canto direito (exportar/filtrado por)
+          sempre no final dessa linha, pra não reservar uma linha própria só
+          pro botão de exportar. */}
       <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
@@ -190,6 +181,12 @@ export default function ConsumoFilterBar({
           selected={gerentes}
           onChange={setGerentes}
         />
+
+        <CantoDireito />
+      </div>
+
+      {/* Linha 2: pills restantes, sem disputar espaço com o canto direito. */}
+      <div className="flex flex-wrap items-center gap-2">
         <FilterDropdownPill
           icon={Icon.Window}
           label="Workspace"
@@ -211,8 +208,6 @@ export default function ConsumoFilterBar({
           onChange={setContas}
         />
       </div>
-
-      <CantoDireito />
     </div>
   )
 }
