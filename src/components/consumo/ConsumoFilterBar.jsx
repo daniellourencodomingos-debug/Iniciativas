@@ -53,20 +53,28 @@ export default function ConsumoFilterBar({
   const gerenteOpts = GERENTES.map((g) => ({ value: g.id, label: g.nome }))
   const workspaceOpts = WORKSPACES.map((w) => ({ value: w, label: w }))
 
+  // Divisor antes do ícone de recolher/expandir — mesmo espaço (8px) dos
+  // dois lados do ícone (do divisor até o ícone, e do ícone até a borda do
+  // botão), em vez de deixar o ícone "grudado" no texto e só o padding do
+  // botão sobrando de um lado. Também dá mais destaque a essa ação — fica
+  // claramente separada do resto do botão, não só mais um item na fileira.
   const FiltrosToggle = () => (
     <button
       type="button"
       onClick={toggle}
       title={expanded ? 'Recolher filtros' : 'Expandir filtros'}
       className={[
-        'flex h-9 items-center gap-1.5 whitespace-nowrap rounded-md border px-3 text-sm font-semibold transition',
+        'flex h-9 items-center whitespace-nowrap rounded-md border pl-3 pr-2 text-sm font-semibold transition',
         expanded
           ? 'border-brand text-brand'
           : 'border-hairline bg-white text-gray-700 hover:bg-gray-50',
       ].join(' ')}
     >
-      <Icon.Filter width={15} height={15} />
+      <Icon.Filter width={15} height={15} className="mr-1.5 shrink-0" />
       Filtros
+      <span
+        className={`mx-2 h-4 w-px shrink-0 ${expanded ? 'bg-brand/30' : 'bg-hairline'}`}
+      />
       {expanded ? (
         <Icon.Collapse width={12} height={12} />
       ) : (
@@ -93,10 +101,11 @@ export default function ConsumoFilterBar({
         onClick={onToggleChips}
         title="Expandir filtrado por"
         aria-label="Expandir filtrado por"
-        className="flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md bg-brand px-3 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-dark"
+        className="flex h-9 shrink-0 items-center whitespace-nowrap rounded-md bg-brand pl-3 pr-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-dark"
       >
-        <Icon.Filter width={14} height={14} />
+        <Icon.Filter width={14} height={14} className="mr-1.5 shrink-0" />
         Filtrado por ({chipsCount})
+        <span className="mx-2 h-4 w-px shrink-0 bg-white/30" />
         <Icon.Expand width={12} height={12} />
       </button>
     )
