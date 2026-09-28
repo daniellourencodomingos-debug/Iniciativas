@@ -95,15 +95,25 @@ export default function ConsumoFilterBar({
     )
 
   // Canto direito da barra: botão de exportar + indicador do "Filtrado por"
-  // (quando houver) andam sempre juntos, nessa ordem. Fica numa LINHA PRÓPRIA,
-  // sempre — separado da linha dos pills de filtro — pra ter um padrão único
-  // em qualquer estado: com poucos pills (tudo cabe numa linha só) ou com
-  // muitos (os pills quebram em duas linhas), o canto direito nunca disputa
+  // (quando houver) andam sempre juntos, nessa ordem.
+  //
+  // Com os filtros EXPANDIDOS (muitos pills, que quebram em duas linhas), fica
+  // numa LINHA PRÓPRIA, separada da linha dos pills — assim ele nunca disputa
   // linha com sobras de pill (ex.: Serviço/Contas quebrados sozinhos), o que
-  // antes criava um vão feio e uma leitura bagunçada só nesse cenário
-  // específico. O exportar fica sempre visível, mesmo sem filtro ativo.
-  const CantoDireito = () => (
-    <div className="mt-2 flex items-center justify-end gap-2">
+  // antes criava um vão feio e uma leitura bagunçada só nesse cenário.
+  //
+  // Com os filtros RECOLHIDOS, só há "Período" + "Filtros" na linha — cabe
+  // tranquilo, então o canto direito entra na MESMA linha (empurrado pra
+  // ponta com ml-auto) pra ganhar espaço vertical, em vez de reservar uma
+  // linha inteira só pra ele.
+  const CantoDireito = ({ inline = false }) => (
+    <div
+      className={
+        inline
+          ? 'ml-auto flex shrink-0 items-center gap-2'
+          : 'mt-2 flex items-center justify-end gap-2'
+      }
+    >
       <button
         type="button"
         title="Exportar"
@@ -117,17 +127,15 @@ export default function ConsumoFilterBar({
 
   if (!expanded) {
     return (
-      <div className="mb-4">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className="flex h-9 items-center whitespace-nowrap rounded-md border border-brand px-3 text-sm font-semibold text-brand"
-          >
-            Período: {PERIODO_CONSUMO_PADRAO.replace(' - ', ' – ')}
-          </button>
-          <FiltrosToggle />
-        </div>
-        <CantoDireito />
+      <div className="mb-4 flex items-center gap-2">
+        <button
+          type="button"
+          className="flex h-9 items-center whitespace-nowrap rounded-md border border-brand px-3 text-sm font-semibold text-brand"
+        >
+          Período: {PERIODO_CONSUMO_PADRAO.replace(' - ', ' – ')}
+        </button>
+        <FiltrosToggle />
+        <CantoDireito inline />
       </div>
     )
   }
