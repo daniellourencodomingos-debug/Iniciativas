@@ -1,19 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { PageHeader } from '../components/Layout.jsx'
 import { Icon } from '../components/icons.jsx'
-import AttentionBanner from '../components/AttentionBanner.jsx'
 import MultiSelectField from '../components/MultiSelectField.jsx'
 import ContasField from '../components/ContasField.jsx'
 import FilterChipsBar from '../components/FilterChipsBar.jsx'
 import { useApp } from '../store/AppContext.jsx'
-import {
-  PROVEDORES,
-  WORKSPACES,
-  CONTAS_FATURAMENTO,
-  MATCH_WORKLOAD,
-  statusMatchInfo,
-} from '../data/mock.js'
+import { PROVEDORES, WORKSPACES, CONTAS_FATURAMENTO } from '../data/mock.js'
 
 const PER_PAGE_OPTS = [5, 10, 20]
 
@@ -48,17 +40,11 @@ function CountTooltip({ count, items = [] }) {
 const ctl =
   'h-9 rounded-md border border-hairline bg-white px-3 text-sm text-gray-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/20'
 
-const MATCH_FILTRO_OPTS = [
-  { value: 'match', label: 'Match confirmado' },
-  { value: 'divergente', label: 'Divergente' },
-  { value: 'semWorkload', label: 'Sem workload' },
-]
-
 /**
- * Gerenciamento das Iniciativas puxadas de fonte externa (planilha), com o
- * match 1:1 contra os Workloads técnicos. Somente leitura/gestão — não
- * cadastra iniciativa (isso continua em "Iniciativas" / cadastro). Reaproveita
- * os mesmos componentes de filtro e tabela da listagem de cadastro.
+ * Listagem de Iniciativas. A iniciativa vem da base (via Vínculo automático de
+ * Centro de custo + Iniciativa) — não há cadastro nem edição aqui por
+ * enquanto. Reaproveita os mesmos componentes de filtro e tabela usados nas
+ * demais listagens.
  */
 export default function IniciativasListagem() {
   const {
@@ -69,21 +55,18 @@ export default function IniciativasListagem() {
     centrosDaIniciativa,
     vinculosDaIniciativa,
   } = useApp()
-  const navigate = useNavigate()
 
   const [fWorkspaces, setFWorkspaces] = useState([])
   const [fContas, setFContas] = useState([])
   const [fCentros, setFCentros] = useState([])
-  const [fMatch, setFMatch] = useState([])
   const [q, setQ] = useState('')
   const [sort, setSort] = useState({ col: 'iniciativa', dir: 'asc' })
-  const [bannerAck, setBannerAck] = useState(false)
   const [perPage, setPerPage] = useState(10)
   const [page, setPage] = useState(0)
 
   useEffect(() => {
     setPage(0)
-  }, [fWorkspaces, fContas, fCentros, fMatch, q, perPage])
+  }, [fWorkspaces, fContas, fCentros, q, perPage])
 
   const provedoresDe = (id) =>
     new Set(
@@ -98,8 +81,6 @@ export default function IniciativasListagem() {
       ),
     )
   const workspacesDe = (i) => workspacesDaIniciativa(i.id).size
-
-  const matchDe = (id) => MATCH_WORKLOAD[id] ?? { workload: null, status: 'semWorkload' }
 
   const centroOpts = useMemo(
     () => centros.map((c) => ({ value: c.id, label: c.nome })),
@@ -134,7 +115,6 @@ export default function IniciativasListagem() {
         !centrosDaIniciativa(i.id).some((cid) => fCentros.includes(cid))
       )
         return false
-      if (fMatch.length > 0 && !fMatch.includes(matchDe(i.id).status)) return false
       return true
     })
     list.sort((a, b) => {
@@ -146,7 +126,7 @@ export default function IniciativasListagem() {
     })
     return list
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [iniciativas, vinculos, fWorkspaces, fContas, provedoresSelecionados, q, fCentros, fMatch, sort])
+  }, [iniciativas, vinculos, fWorkspaces, fContas, provedoresSelecionados, q, fCentros, sort])
 
   const total = filtered.length
   const totalPages = Math.max(1, Math.ceil(total / perPage))
@@ -154,8 +134,6 @@ export default function IniciativasListagem() {
   const pageRows = filtered.slice(pageC * perPage, pageC * perPage + perPage)
   const from = total === 0 ? 0 : pageC * perPage + 1
   const to = Math.min(total, (pageC + 1) * perPage)
-
-  const pendencias = iniciativas.filter((i) => matchDe(i.id).status !== 'match').length
 
   const toggleSort = (col) =>
     setSort((s) =>
@@ -166,7 +144,6 @@ export default function IniciativasListagem() {
     setFWorkspaces([])
     setFContas([])
     setFCentros([])
-    setFMatch([])
     setQ('')
   }
 
@@ -194,16 +171,9 @@ export default function IniciativasListagem() {
         onRemove: () => setFContas((s) => s.filter((v) => v !== id)),
       })
     })
-    fMatch.forEach((m) =>
-      chips.push({
-        key: `match-${m}`,
-        label: `Match: ${statusMatchInfo(m).label}`,
-        onRemove: () => setFMatch((s) => s.filter((v) => v !== m)),
-      }),
-    )
     if (q) chips.push({ key: 'q', label: `Procurar: ${q}`, onRemove: () => setQ('') })
     return chips
-  }, [fCentros, fWorkspaces, fContas, fMatch, q, centroById])
+  }, [fCentros, fWorkspaces, fContas, q, centroById])
 
   const SortHeader = ({ col, children }) => (
     <th className="px-4 py-3 text-left font-semibold">
@@ -227,7 +197,7 @@ export default function IniciativasListagem() {
     <>
       <PageHeader
         title="Iniciativas — Listagem"
-        subtitle="Gerenciamento das iniciativas importadas da planilha de origem, com o match 1:1 contra os Workloads técnicos. O cadastro continua em Iniciativas."
+        subtitle="Iniciativas obtidas a partir do Vínculo automático de Centro de custo e Iniciativa. Sem cadastro ou edição por aqui."
       />
 
       <div className="relative z-10 mb-4 flex items-end gap-3 pb-1">
@@ -269,31 +239,10 @@ export default function IniciativasListagem() {
             onChange={setFCentros}
             className="w-[150px] shrink-0"
           />
-          <MultiSelectField
-            label="Match workload"
-            options={MATCH_FILTRO_OPTS}
-            selected={fMatch}
-            onChange={setFMatch}
-            className="w-[160px] shrink-0"
-          />
         </div>
       </div>
 
       <FilterChipsBar chips={filterChips} onClearAll={clearAllFilters} />
-
-      {!bannerAck && (
-        <div className="mb-4">
-          <AttentionBanner
-            variant={pendencias > 0 ? 'atencao' : 'importante'}
-            actionLabel="Entendi"
-            onAction={() => setBannerAck(true)}
-          >
-            {pendencias > 0
-              ? `${pendencias} iniciativa(s) com pendência de match contra o Workload técnico — confira a coluna "Match workload".`
-              : 'Todas as iniciativas estão com o match confirmado contra o Workload técnico.'}
-          </AttentionBanner>
-        </div>
-      )}
 
       <div className="overflow-hidden rounded-card border border-hairline bg-white">
         <table className="w-full text-sm">
@@ -303,16 +252,11 @@ export default function IniciativasListagem() {
               <th className="px-4 py-3 font-semibold">Centro de Custo</th>
               <SortHeader col="workspaces">Workspace</SortHeader>
               <th className="px-4 py-3 font-semibold">Provedores</th>
-              <th className="px-4 py-3 font-semibold">Workload</th>
-              <th className="px-4 py-3 font-semibold">Match workload</th>
-              <th className="px-4 py-3 text-right font-semibold">Ação</th>
             </tr>
           </thead>
           <tbody>
             {pageRows.map((i) => {
               const centrosI = centrosDaIniciativa(i.id)
-              const match = matchDe(i.id)
-              const s = statusMatchInfo(match.status)
               return (
                 <tr
                   key={i.id}
@@ -337,35 +281,12 @@ export default function IniciativasListagem() {
                       items={[...provedoresDe(i.id)]}
                     />
                   </td>
-                  <td className="px-4 py-3 text-gray-900">
-                    {match.workload ?? (
-                      <span className="text-gray-400">—</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="inline-flex items-center gap-2">
-                      <span
-                        className="inline-block h-2 w-2 rounded-full"
-                        style={{ backgroundColor: s.color }}
-                      />
-                      <span className="text-gray-900">{s.label}</span>
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <button
-                      onClick={() => navigate(`/iniciativas/${i.id}/editar`)}
-                      title="Editar"
-                      className="rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-brand"
-                    >
-                      <Icon.Edit width={16} height={16} />
-                    </button>
-                  </td>
                 </tr>
               )
             })}
             {pageRows.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-10 text-center text-gray-400">
+                <td colSpan={4} className="px-4 py-10 text-center text-gray-400">
                   Nenhuma iniciativa encontrada.
                 </td>
               </tr>
