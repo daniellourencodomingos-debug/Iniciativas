@@ -82,21 +82,6 @@ export default function Sidebar() {
                 forceActive={orcamentoTabAtiva === 'orcamento-vs-consumo'}
               />
               <SidebarItem
-                to="/solicitacoes"
-                icon={itemIcon(Icon.Bell)}
-                label="Solicitações"
-              />
-              <SidebarItem
-                to="/historico-previsoes"
-                icon={itemIcon(Icon.History)}
-                label="Histórico de Previsões"
-              />
-              <SidebarItem
-                to="/recomendacoes"
-                icon={itemIcon(Icon.Bulb)}
-                label="Recomendações"
-              />
-              <SidebarItem
                 to="/centro-de-custo"
                 icon={itemIcon(Icon.Building)}
                 label="Centro de Custo"
@@ -113,6 +98,16 @@ export default function Sidebar() {
                 icon={itemIcon(Icon.Plug)}
                 label="Vínculo automático"
                 subtitle="Centro de custo / Iniciativa"
+              />
+              <SidebarItem
+                to="/historico-previsoes"
+                icon={itemIcon(Icon.History)}
+                label="Histórico de Previsões"
+              />
+              <SidebarItem
+                to="/recomendacoes"
+                icon={itemIcon(Icon.Bulb)}
+                label="Recomendações"
               />
               <SidebarItem
                 to="/estrutura-financeira"
