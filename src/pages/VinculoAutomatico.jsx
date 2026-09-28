@@ -400,6 +400,43 @@ function PassoTipoDeApi({ apiPrivada, setApiPrivada, podeAvancar, onBack, onNext
         <Opt value={false} title="Não, é uma API pública" desc="O endpoint está aberto e não exige credenciais de segurança ou autenticação prévia para a coleta dos dados." />
         <Opt value={true} title="Sim, é uma API privada" desc="O endpoint exige um token dinâmico ou estático nos cabeçalhos (headers) da requisição para liberar o acesso aos dados." />
       </div>
+
+      {apiPrivada === true && (
+        <div className="border-t border-hairline pt-4">
+          <p className="text-sm font-semibold text-gray-900">Busca de Autenticação</p>
+          <ol className="mt-3 space-y-3 text-sm text-gray-700">
+            <li>
+              <p className="font-semibold text-gray-900">1. Informe a URL de Autenticação</p>
+              <p>Insira o endpoint da API externo utilizado exclusivamente para realizar a autenticação e gerar o token de acesso.</p>
+            </li>
+            <li>
+              <p className="font-semibold text-gray-900">2. Método HTTP de Autenticação</p>
+              <p>Selecione o método HTTP correspondente para enviar a requisição de autenticação ao servidor de identidade.</p>
+            </li>
+            <li>
+              <p className="font-semibold text-gray-900">3. Payload de Autenticação (Opcional)</p>
+              <p>Caso o endpoint exija credenciais no corpo da requisição (como ID, client secret ou password), insira o objeto estruturado em formato JSON. Se a requisição não exigir corpo, deixe este campo vazio.</p>
+            </li>
+            <li>
+              <p className="font-semibold text-gray-900">4. Headers de Autenticação (Opcional)</p>
+              <p>Configure os cabeçalhos de rede para a chamada de autenticação. Defina o formato esperado no <strong>Content-Type</strong> (application/json ou application/x-www-form-urlencoded) e adicione outras chaves customizadas se necessário.</p>
+            </li>
+            <li>
+              <p className="font-semibold text-gray-900">5. Mapeamento do Token (JSON Path)</p>
+              <p>Indique o caminho exato no JSON de retorno da autenticação para localizar o token gerado. Utilize a notação de ponto para propriedades aninhadas (Ex.: auth.access_token).</p>
+            </li>
+            <li>
+              <p className="font-semibold text-gray-900">6. Chave do Header de Destino</p>
+              <p>Especifique o nome exato da chave de cabeçalho onde esse token extraído deve ser injetado quando o sistema for realizar a busca principal dos dados de custo (Ex.: Authorization).</p>
+            </li>
+            <li>
+              <p className="font-semibold text-gray-900">7. Formatação do Token</p>
+              <p>Defina a estrutura de formatação com a qual o valor do token deve ser transmitido no cabeçalho configurado no passo anterior (Ex.: Bearer {'{token}'}).</p>
+            </li>
+          </ol>
+        </div>
+      )}
+
       <StepFooter onBack={onBack} onNext={onNext} podeAvancar={podeAvancar} />
     </Card>
   )
