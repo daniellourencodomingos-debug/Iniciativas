@@ -204,7 +204,7 @@ function PassoInstrucoes({ onNext }) {
           <p><strong>Identificador do Centro de Custo:</strong> caminho para o campo de custo.</p>
           <p><strong>Identificador para o nome do Centro de Custo:</strong> caminho para o nome do Centro de Custo.</p>
           <p><strong>Identificador do Workspace:</strong> caminho para o campo do workspace.</p>
-          <p><strong>Identificador da Iniciativa (opcional):</strong> caminho para o campo de iniciativa vinculado ao mesmo registro — quando a fonte já traz essa informação, o vínculo com a Iniciativa é feito automaticamente junto com o do Centro de Custo.</p>
+          <p><strong>Identificador da Iniciativa:</strong> caminho para o campo de iniciativa vinculado ao mesmo registro — o vínculo com a Iniciativa é feito automaticamente junto com o do Centro de Custo.</p>
         </li>
         <li>
           <p className="font-semibold text-gray-900">7. Configuração de Paginação (Opcional)</p>
@@ -341,7 +341,7 @@ function PassoBuscaDeVinculo({ endpoints, endpointAtivo, setEndpointAtivo, addEn
       </div>
 
       <div className="border-t border-hairline pt-4">
-        <p className="text-sm font-semibold text-gray-900">Mapeamento de Iniciativa (opcional)</p>
+        <p className="text-sm font-semibold text-gray-900">Mapeamento de Iniciativa</p>
         <p className="mt-0.5 text-sm text-gray-500">
           Use estes campos para localizar e vincular automaticamente a Iniciativa quando a mesma fonte externa fornecer esse dado — o vínculo com a Iniciativa é feito junto com o do Centro de Custo, sem etapa separada.
         </p>
