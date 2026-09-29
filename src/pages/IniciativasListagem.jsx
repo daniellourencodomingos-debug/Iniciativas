@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { PageHeader } from '../components/Layout.jsx'
 import { Icon } from '../components/icons.jsx'
 import MultiSelectField from '../components/MultiSelectField.jsx'
@@ -55,6 +56,7 @@ export default function IniciativasListagem() {
     centrosDaIniciativa,
     vinculosDaIniciativa,
   } = useApp()
+  const navigate = useNavigate()
 
   const [fWorkspaces, setFWorkspaces] = useState([])
   const [fContas, setFContas] = useState([])
@@ -197,7 +199,7 @@ export default function IniciativasListagem() {
     <>
       <PageHeader
         title="Iniciativas — Listagem"
-        subtitle="Iniciativas obtidas a partir do Vínculo automático de Centro de custo e Iniciativa. Sem cadastro ou edição por aqui."
+        subtitle="Iniciativas obtidas a partir do Vínculo automático de Centro de custo e Iniciativa. Sem cadastro ou edição por aqui — clique no chevron para visualizar."
       />
 
       <div className="relative z-10 mb-4 flex items-end gap-3 pb-1">
@@ -252,6 +254,7 @@ export default function IniciativasListagem() {
               <th className="px-4 py-3 font-semibold">Centro de Custo</th>
               <SortHeader col="workspaces">Workspace</SortHeader>
               <th className="px-4 py-3 font-semibold">Provedores</th>
+              <th className="px-4 py-3 text-right font-semibold">Ação</th>
             </tr>
           </thead>
           <tbody>
@@ -260,7 +263,8 @@ export default function IniciativasListagem() {
               return (
                 <tr
                   key={i.id}
-                  className="border-b border-hairline last:border-0 hover:bg-gray-50"
+                  className="cursor-pointer border-b border-hairline last:border-0 hover:bg-gray-50"
+                  onClick={() => navigate(`/iniciativas/${i.id}`)}
                 >
                   <td className="px-4 py-3 text-gray-900">{i.slug}</td>
                   <td className="px-4 py-3">
@@ -281,12 +285,24 @@ export default function IniciativasListagem() {
                       items={[...provedoresDe(i.id)]}
                     />
                   </td>
+                  <td className="px-4 py-3 text-right">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        navigate(`/iniciativas/${i.id}`)
+                      }}
+                      title="Visualizar"
+                      className="rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-brand"
+                    >
+                      <Icon.Chevron width={18} height={18} />
+                    </button>
+                  </td>
                 </tr>
               )
             })}
             {pageRows.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-4 py-10 text-center text-gray-400">
+                <td colSpan={5} className="px-4 py-10 text-center text-gray-400">
                   Nenhuma iniciativa encontrada.
                 </td>
               </tr>

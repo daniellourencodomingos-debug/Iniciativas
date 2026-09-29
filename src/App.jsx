@@ -8,6 +8,7 @@ import Orcamento from './pages/Orcamento.jsx'
 import CentroDeCusto from './pages/CentroDeCusto.jsx'
 import CentroDeCustoForm from './pages/CentroDeCustoForm.jsx'
 import VinculoAutomatico from './pages/VinculoAutomatico.jsx'
+import IniciativaVisualizar from './pages/IniciativaVisualizar.jsx'
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
 
         <Route path="/iniciativas" element={<Iniciativas />} />
         <Route path="/iniciativas-listagem" element={<IniciativasListagem />} />
+        <Route path="/iniciativas/:id" element={<IniciativaVisualizar />} />
         <Route path="/centro-de-custo" element={<CentroDeCusto />} />
         <Route path="/centro-de-custo/novo" element={<CentroDeCustoForm />} />
         <Route path="/centro-de-custo/:id/editar" element={<CentroDeCustoForm />} />
