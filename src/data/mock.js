@@ -305,7 +305,7 @@ export const novoVinculo = (uid, centroId = '') => ({
 })
 
 // ---------------------------------------------------------------------------
-// Vínculo automático de Centro de Custo + Iniciativa (via API externa)
+// Vínculo automatizado de Centro de Custo + Iniciativa (via API externa)
 // ---------------------------------------------------------------------------
 
 export const METODOS_HTTP = ['GET', 'POST', 'PUT', 'PATCH']

@@ -15,7 +15,7 @@ import {
 const STEPS = ['Instruções', 'Busca de vínculo', 'Tipo de API', 'Busca de Autenticação', 'Revisar']
 
 /**
- * Jornada de "Vínculo automático" — identifica Centro de Custo e Iniciativa
+ * Jornada de "Vínculo automatizado" — identifica Centro de Custo e Iniciativa
  * (e opcionalmente Workspace) direto de uma fonte externa via API, sem
  * cadastro manual nem planilha. Reflete o Figma "Vínculo de Iniciativas e
  * centro de custo", com uma correção: a etapa Revisar aqui também mostra o
@@ -78,7 +78,7 @@ export default function VinculoAutomatico() {
   return (
     <>
       <PageHeader
-        title={editing ? 'Editar vínculo automático' : 'Novo vínculo automático'}
+        title={editing ? 'Editar vínculo automatizado' : 'Novo vínculo automatizado'}
         subtitle="Identifica Centro de Custo e Iniciativa automaticamente a partir de uma fonte externa via API — sem cadastro manual e sem planilha."
       />
 
@@ -139,7 +139,7 @@ export default function VinculoAutomatico() {
       )}
 
       <Toast open={toastOpen} onClose={() => setToastOpen(false)}>
-        Vínculo automático salvo. A identificação e o vínculo dos centros de custo e iniciativas podem levar até 24 horas.
+        Vínculo automatizado salvo. A identificação e o vínculo dos centros de custo e iniciativas podem levar até 24 horas.
       </Toast>
     </>
   )
@@ -594,7 +594,7 @@ function PassoRevisar({ endpoints, apiPrivada, auth, onBack, onSalvar }) {
       <div className="flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
         <Icon.Alert width={16} height={16} className="mt-0.5 shrink-0" />
         <p>
-          <strong>Tempo de processamento do vínculo.</strong> Após salvar a configuração, a identificação e o vínculo automático dos centros de custo e iniciativas podem levar <strong>até 24 horas</strong> para serem concluídos.
+          <strong>Tempo de processamento do vínculo.</strong> Após salvar a configuração, a identificação e o vínculo automatizado dos centros de custo e iniciativas podem levar <strong>até 24 horas</strong> para serem concluídos.
         </p>
       </div>
 

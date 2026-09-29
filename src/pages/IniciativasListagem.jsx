@@ -42,7 +42,7 @@ const ctl =
   'h-9 rounded-md border border-hairline bg-white px-3 text-sm text-gray-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/20'
 
 /**
- * Listagem de Iniciativas. A iniciativa vem da base (via Vínculo automático de
+ * Listagem de Iniciativas. A iniciativa vem da base (via Vínculo automatizado de
  * Centro de custo + Iniciativa) — não há cadastro nem edição aqui por
  * enquanto. Reaproveita os mesmos componentes de filtro e tabela usados nas
  * demais listagens.
@@ -199,7 +199,7 @@ export default function IniciativasListagem() {
     <>
       <PageHeader
         title="Iniciativas — Listagem"
-        subtitle="Iniciativas obtidas a partir do Vínculo automático de Centro de custo e Iniciativa. Sem cadastro ou edição por aqui — clique no chevron para visualizar."
+        subtitle="Iniciativas obtidas a partir do Vínculo automatizado de Centro de custo e Iniciativa. Sem cadastro ou edição por aqui — clique no chevron para visualizar."
       />
 
       <div className="relative z-10 mb-4 flex items-end gap-3 pb-1">

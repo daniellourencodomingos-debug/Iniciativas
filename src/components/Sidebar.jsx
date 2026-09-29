@@ -96,7 +96,7 @@ export default function Sidebar() {
               <SidebarItem
                 to="/vinculo-automatico"
                 icon={itemIcon(Icon.Plug)}
-                label="Vínculo automático"
+                label="Vínculo automatizado"
                 subtitle="Centro de custo / Iniciativa"
               />
               <SidebarItem

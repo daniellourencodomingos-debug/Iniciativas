@@ -85,7 +85,7 @@ function VinculoCard({ vinculo, centroNome }) {
 
 /**
  * Visualização somente leitura de uma Iniciativa — sem edição, já que a
- * iniciativa vem do Vínculo automático. Mostra as informações mais
+ * iniciativa vem do Vínculo automatizado. Mostra as informações mais
  * importantes: orçamento por Centro de Custo/Provedor, workspaces e
  * provedores vinculados.
  */
@@ -135,7 +135,7 @@ export default function IniciativaVisualizar() {
 
       <PageHeader
         title={iniciativa.slug}
-        subtitle="Visualização somente leitura — dados vindos do Vínculo automático. Sem edição por aqui."
+        subtitle="Visualização somente leitura — dados vindos do Vínculo automatizado. Sem edição por aqui."
       />
 
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">

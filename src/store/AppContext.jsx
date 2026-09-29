@@ -18,7 +18,7 @@ const initialState = {
   iniciativas: INICIATIVAS_INICIAIS,
   vinculos: VINCULOS_INICIAIS,
   gerentes: GERENTES,
-  // Config do vínculo automático de Centro de Custo + Iniciativa via API
+  // Config do vínculo automatizado de Centro de Custo + Iniciativa via API
   // externa (null = nunca configurado, cai na jornada "Novo vínculo").
   vinculoAutomatico: VINCULO_AUTOMATICO_INICIAL,
 }
