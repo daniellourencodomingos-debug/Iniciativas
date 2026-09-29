@@ -27,6 +27,7 @@ export default function VinculoAutomatico() {
   const { vinculoAutomatico, dispatch, uid } = useApp()
   const editing = Boolean(vinculoAutomatico)
 
+  const [started, setStarted] = useState(editing)
   const [step, setStep] = useState(editing ? 1 : 0)
   const [endpoints, setEndpoints] = useState(() =>
     editing && vinculoAutomatico.endpoints?.length
@@ -81,11 +82,15 @@ export default function VinculoAutomatico() {
         subtitle="Identifica Centro de Custo e Iniciativa automaticamente a partir de uma fonte externa via API — sem cadastro manual e sem planilha."
       />
 
-      <div className="mb-6">
-        <Stepper steps={STEPS} current={step} />
-      </div>
+      {!started && <PassoApresentacao onNext={() => setStarted(true)} />}
 
-      {step === 0 && <PassoInstrucoes onNext={() => setStep(1)} />}
+      {started && (
+        <>
+          <div className="mb-6">
+            <Stepper steps={STEPS} current={step} />
+          </div>
+
+          {step === 0 && <PassoInstrucoes onNext={() => setStep(1)} />}
 
       {step === 1 && (
         <PassoBuscaDeVinculo
@@ -121,14 +126,16 @@ export default function VinculoAutomatico() {
         />
       )}
 
-      {step === 4 && (
-        <PassoRevisar
-          endpoints={endpoints}
-          apiPrivada={apiPrivada}
-          auth={auth}
-          onBack={() => setStep(apiPrivada ? 3 : 2)}
-          onSalvar={salvar}
-        />
+          {step === 4 && (
+            <PassoRevisar
+              endpoints={endpoints}
+              apiPrivada={apiPrivada}
+              auth={auth}
+              onBack={() => setStep(apiPrivada ? 3 : 2)}
+              onSalvar={salvar}
+            />
+          )}
+        </>
       )}
 
       <Toast open={toastOpen} onClose={() => setToastOpen(false)}>
@@ -170,6 +177,41 @@ function StepFooter({ onBack, onNext, nextLabel = 'Próximo', podeAvancar = true
         {nextLabel} {nextLabel === 'Próximo' && <Icon.ArrowRight width={15} height={15} />}
       </button>
     </div>
+  )
+}
+
+function PassoApresentacao({ onNext }) {
+  return (
+    <Card>
+      <div className="space-y-4 text-sm text-gray-700">
+        <p>
+          Esta funcionalidade elimina o cadastro manual e o uso de planilhas para associar Centros de Custo,
+          Iniciativas e Workspaces.
+        </p>
+        <p>
+          Através de requisições HTTP, a plataforma coleta e atualiza esses dados periodicamente de forma
+          automática, integrando-se tanto a sistemas internos quanto a APIs externas de terceiros.
+        </p>
+        <p>
+          A ferramenta oferece flexibilidade técnica para você personalizar a sua integração. É possível
+          configurar múltiplos endpoints de busca, definir métodos HTTP, estruturar cargas de envio
+          (Payload/Body) e cabeçalhos customizados, além de mapear retornos JSON complexos com suporte a
+          paginação e infraestruturas de autenticação pública ou privada.
+        </p>
+        <p>
+          Tempo estimado desse processo: <strong className="font-semibold text-gray-900">15 minutos</strong> (sem
+          contar o tempo de processamento nas finalizações de processo).
+        </p>
+      </div>
+      <div className="mt-6 flex justify-end border-t border-hairline pt-5">
+        <button
+          onClick={onNext}
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-brand hover:underline"
+        >
+          Iniciar <Icon.ArrowRight width={15} height={15} />
+        </button>
+      </div>
+    </Card>
   )
 }
 
