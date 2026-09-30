@@ -42,6 +42,7 @@ export default function IniciativaVisualizar() {
     iniciativaById,
     centrosDaIniciativa,
     centroById,
+    centroTotal,
     iniciativaTotal,
     iniciativasDoCentro,
     vinculosDaIniciativa,
@@ -103,16 +104,21 @@ export default function IniciativaVisualizar() {
           {centros.length === 0 ? (
             <p className="text-sm text-gray-400">Nenhum centro de custo vinculado.</p>
           ) : (
-            <div className="space-y-1">
+            <div className="space-y-2.5">
               {centros.map((cid) => {
                 const c = centroById(cid)
                 return (
-                  <p key={cid} className="text-sm font-semibold text-gray-900">
-                    {c?.nome ?? cid}
-                    {c?.codigo && (
-                      <span className="ml-1.5 font-normal text-gray-400">· {c.codigo}</span>
-                    )}
-                  </p>
+                  <div key={cid}>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {c?.nome ?? cid}
+                      {c?.codigo && (
+                        <span className="ml-1.5 font-normal text-gray-400">· {c.codigo}</span>
+                      )}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Orçamento do centro: {currency(centroTotal(cid))}
+                    </p>
+                  </div>
                 )
               })}
             </div>
