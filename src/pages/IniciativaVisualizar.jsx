@@ -101,7 +101,7 @@ export default function IniciativaVisualizar() {
       </div>
 
       <div className="space-y-4">
-        <ExpandableSection title="Centro de custo" badge={centros.length} defaultOpen>
+        <ExpandableSection title="Centro de custo" defaultOpen>
           {centros.length === 0 ? (
             <p className="text-sm text-gray-400">Nenhum centro de custo vinculado.</p>
           ) : (
