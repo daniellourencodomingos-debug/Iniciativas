@@ -27,14 +27,6 @@ function StatusDot({ status }) {
   )
 }
 
-function Badge({ children }) {
-  return (
-    <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">
-      {children}
-    </span>
-  )
-}
-
 /**
  * Visualização somente leitura de uma Iniciativa. A iniciativa vem de uma
  * base externa (via Vínculo automatizado de Centro de custo + Iniciativa),
@@ -59,12 +51,18 @@ export default function IniciativaVisualizar() {
   const centros = centrosDaIniciativa(id)
   const vinculos = vinculosDaIniciativa(id)
 
-  const workspacesList = [
-    ...new Set(vinculos.flatMap((v) => (v.workspaces ?? []).map((w) => w.split('::')[1] ?? w))),
-  ]
-  const provedoresList = [
-    ...new Set(vinculos.flatMap((v) => (v.workspaces ?? []).map((w) => w.split('::')[0]))),
-  ]
+  // Workspaces agrupados pelo provedor a que pertencem (mesma lógica das
+  // outras telas: cada workspace vem como "Provedor::workspace").
+  const workspacesPorProvedor = {}
+  for (const v of vinculos) {
+    for (const w of v.workspaces ?? []) {
+      const [provedor, nome] = w.split('::')
+      const key = provedor ?? w
+      if (!workspacesPorProvedor[key]) workspacesPorProvedor[key] = new Set()
+      workspacesPorProvedor[key].add(nome ?? w)
+    }
+  }
+  const provedoresList = Object.keys(workspacesPorProvedor)
 
   if (!iniciativa) {
     return (
@@ -131,18 +129,20 @@ export default function IniciativaVisualizar() {
           {provedoresList.length === 0 ? (
             <p className="text-sm text-gray-400">Nenhum provedor vinculado.</p>
           ) : (
-            <>
-              <div className="flex flex-wrap gap-1.5">
-                {provedoresList.map((p) => (
-                  <Badge key={p}>{p}</Badge>
-                ))}
-              </div>
-              <ul className="mt-2.5 space-y-1 text-sm text-gray-700">
-                {workspacesList.map((w) => (
-                  <li key={w}>{w}</li>
-                ))}
-              </ul>
-            </>
+            <div className="space-y-2.5">
+              {provedoresList.map((p) => (
+                <div key={p}>
+                  <p className="text-sm font-semibold text-gray-900">{p}</p>
+                  <div className="mt-0.5 space-y-0.5">
+                    {[...workspacesPorProvedor[p]].map((w) => (
+                      <p key={w} className="text-sm text-gray-500">
+                        {w}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </InfoCard>
       </div>
