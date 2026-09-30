@@ -3,7 +3,7 @@ import { PageHeader } from '../components/Layout.jsx'
 import ExpandableSection from '../components/ExpandableSection.jsx'
 import { Icon } from '../components/icons.jsx'
 import { useApp } from '../store/AppContext.jsx'
-import { currency, statusIniciativaInfo } from '../data/mock.js'
+import { currency, formatDate, statusIniciativaInfo } from '../data/mock.js'
 
 function InfoCard({ icon: IconCmp, label, children }) {
   return (
@@ -27,13 +27,21 @@ function StatusDot({ status }) {
   )
 }
 
+function Badge({ children }) {
+  return (
+    <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">
+      {children}
+    </span>
+  )
+}
+
 /**
  * Visualização somente leitura de uma Iniciativa. A iniciativa vem de uma
  * base externa (via Vínculo automatizado de Centro de custo + Iniciativa),
- * por isso mostramos só o que essa base traz — identidade, centro de custo,
- * orçamento agregado e o resumo de provedores/workspaces. Sem alerta ou
- * previsão de consumo aqui: esses dados só existem quando o cadastro é feito
- * dentro do nosso produto, o que não é o caso da Iniciativa.
+ * por isso mostramos só o que essa base traz: identidade, centro de custo,
+ * orçamento agregado, provedores e workspaces vinculados. Sem alerta ou
+ * previsão de consumo aqui — esses dados só existem quando o cadastro é
+ * feito dentro do nosso produto, o que não é o caso da Iniciativa.
  */
 export default function IniciativaVisualizar() {
   const { id } = useParams()
@@ -51,12 +59,12 @@ export default function IniciativaVisualizar() {
   const centros = centrosDaIniciativa(id)
   const vinculos = vinculosDaIniciativa(id)
 
-  const workspacesTotal = new Set(
-    vinculos.flatMap((v) => (v.workspaces ?? []).map((w) => w.split('::')[1] ?? w)),
-  ).size
-  const provedoresTotal = new Set(
-    vinculos.flatMap((v) => (v.workspaces ?? []).map((w) => w.split('::')[0])),
-  ).size
+  const workspacesList = [
+    ...new Set(vinculos.flatMap((v) => (v.workspaces ?? []).map((w) => w.split('::')[1] ?? w))),
+  ]
+  const provedoresList = [
+    ...new Set(vinculos.flatMap((v) => (v.workspaces ?? []).map((w) => w.split('::')[0]))),
+  ]
 
   if (!iniciativa) {
     return (
@@ -90,7 +98,7 @@ export default function IniciativaVisualizar() {
 
       <PageHeader
         title={iniciativa.slug}
-        subtitle="Dados vindos da base de Iniciativas — visualização somente leitura."
+        subtitle={`Criada em ${formatDate(iniciativa.criadoEm)}`}
         actions={<StatusDot status={iniciativa.status} />}
       />
 
@@ -120,24 +128,26 @@ export default function IniciativaVisualizar() {
         </InfoCard>
 
         <InfoCard icon={Icon.Cloud} label="Provedores e workspaces">
-          <p className="text-lg font-semibold text-gray-900">
-            {provedoresTotal}
-            <span className="ml-1 text-sm font-normal text-gray-400">
-              {provedoresTotal === 1 ? 'provedor' : 'provedores'}
-            </span>
-          </p>
-          <p className="text-sm text-gray-600">
-            {workspacesTotal} {workspacesTotal === 1 ? 'workspace' : 'workspaces'}
-          </p>
+          {provedoresList.length === 0 ? (
+            <p className="text-sm text-gray-400">Nenhum provedor vinculado.</p>
+          ) : (
+            <>
+              <div className="flex flex-wrap gap-1.5">
+                {provedoresList.map((p) => (
+                  <Badge key={p}>{p}</Badge>
+                ))}
+              </div>
+              <ul className="mt-2.5 space-y-1 text-sm text-gray-700">
+                {workspacesList.map((w) => (
+                  <li key={w}>{w}</li>
+                ))}
+              </ul>
+            </>
+          )}
         </InfoCard>
       </div>
 
-      <ExpandableSection
-        title="Outras iniciativas do centro de custo"
-        subtitle={centros.length > 1 ? 'considerando todos os centros de custo acima' : undefined}
-        badge={outrasIds.length}
-        defaultOpen
-      >
+      <ExpandableSection title="Outras iniciativas do centro de custo" badge={outrasIds.length} defaultOpen>
         {outrasIds.length === 0 ? (
           <p className="text-sm text-gray-400">
             Nenhuma outra iniciativa associada a este centro de custo.
@@ -148,7 +158,6 @@ export default function IniciativaVisualizar() {
               <thead>
                 <tr className="border-b border-hairline bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
                   <th className="px-3 py-2 font-semibold">Iniciativa</th>
-                  <th className="px-3 py-2 font-semibold">Status</th>
                   <th className="px-3 py-2 text-right font-semibold">Orçamento</th>
                   <th className="w-10 px-3 py-2" />
                 </tr>
@@ -164,9 +173,6 @@ export default function IniciativaVisualizar() {
                       onClick={() => navigate(`/iniciativas/${oid}`)}
                     >
                       <td className="px-3 py-2 text-gray-900">{o.slug}</td>
-                      <td className="px-3 py-2">
-                        <StatusDot status={o.status} />
-                      </td>
                       <td className="px-3 py-2 text-right text-gray-900">
                         {currency(iniciativaTotal(oid))}
                       </td>

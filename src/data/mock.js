@@ -73,10 +73,10 @@ export const statusIniciativaInfo = (status) =>
 
 // Iniciativa é só identidade (nome/slug); orçamento e workspaces vivem nos Vínculos.
 export const INICIATIVAS_INICIAIS = [
-  { id: 'ini-1', slug: 'aceleracao-de-agentes-ia', status: 'ativa' },
-  { id: 'ini-2', slug: 'migracao-lakehouse', status: 'ativa' },
-  { id: 'ini-3', slug: 'observabilidade-unificada', status: 'inativa' },
-  { id: 'ini-4', slug: 'reducao-de-custo-storage', status: 'naoAssociada' },
+  { id: 'ini-1', slug: 'aceleracao-de-agentes-ia', status: 'ativa', criadoEm: '2025-11-04' },
+  { id: 'ini-2', slug: 'migracao-lakehouse', status: 'ativa', criadoEm: '2025-08-18' },
+  { id: 'ini-3', slug: 'observabilidade-unificada', status: 'inativa', criadoEm: '2025-05-27' },
+  { id: 'ini-4', slug: 'reducao-de-custo-storage', status: 'naoAssociada', criadoEm: '2026-01-09' },
 ]
 
 
@@ -208,6 +208,9 @@ export const currency = (n) =>
     style: 'currency',
     currency: 'BRL',
   })
+
+export const formatDate = (iso) =>
+  iso ? new Date(`${iso}T00:00:00`).toLocaleDateString('pt-BR') : '—'
 
 export const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
