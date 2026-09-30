@@ -64,7 +64,7 @@ export const CENTROS_INICIAIS = [
 
 export const STATUS_INICIATIVA = {
   ativa: { label: 'Ativa', color: '#2e7d32' },
-  inativa: { label: 'Inativa', color: '#9e9e9e' },
+  inativa: { label: 'Ociosa', color: '#9e9e9e' },
   naoAssociada: { label: 'Não associada', color: '#ed6c02' },
 }
 
