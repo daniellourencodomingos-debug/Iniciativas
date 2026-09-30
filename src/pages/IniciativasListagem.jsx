@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PageHeader } from '../components/Layout.jsx'
 import { Icon } from '../components/icons.jsx'
+import AttentionBanner from '../components/AttentionBanner.jsx'
 import MultiSelectField from '../components/MultiSelectField.jsx'
 import ContasField from '../components/ContasField.jsx'
 import FilterChipsBar from '../components/FilterChipsBar.jsx'
@@ -54,8 +55,10 @@ const ctl =
 /**
  * Listagem de Iniciativas. A iniciativa vem da base (via Vínculo automatizado de
  * Centro de custo + Iniciativa) — não há cadastro nem edição aqui por
- * enquanto. Reaproveita os mesmos componentes de filtro e tabela usados nas
- * demais listagens.
+ * enquanto. Cada Iniciativa pertence a exatamente 1 Centro de Custo, por
+ * isso a coluna "Centro de Custo" mostra sempre o nome único (nunca uma
+ * contagem/tooltip de vários centros, diferente de versões antigas desta
+ * tela que tratavam isso como lista).
  */
 export default function IniciativasListagem() {
   const {
@@ -71,14 +74,16 @@ export default function IniciativasListagem() {
   const [fWorkspaces, setFWorkspaces] = useState([])
   const [fContas, setFContas] = useState([])
   const [fCentros, setFCentros] = useState([])
+  const [fResponsavel, setFResponsavel] = useState('todos')
   const [q, setQ] = useState('')
   const [sort, setSort] = useState({ col: 'iniciativa', dir: 'asc' })
+  const [bannerAck, setBannerAck] = useState(false)
   const [perPage, setPerPage] = useState(10)
   const [page, setPage] = useState(0)
 
   useEffect(() => {
     setPage(0)
-  }, [fWorkspaces, fContas, fCentros, q, perPage])
+  }, [fWorkspaces, fContas, fCentros, fResponsavel, q, perPage])
 
   const provedoresDe = (id) =>
     new Set(
@@ -86,6 +91,8 @@ export default function IniciativasListagem() {
         (v.workspaces ?? []).map((w) => w.split('::')[0]),
       ),
     )
+  const responsaveisDe = (id) =>
+    new Set(vinculosDaIniciativa(id).flatMap((v) => v.emails ?? []))
   const workspacesDaIniciativa = (id) =>
     new Set(
       vinculosDaIniciativa(id).flatMap((v) =>
@@ -93,6 +100,11 @@ export default function IniciativasListagem() {
       ),
     )
   const workspacesDe = (i) => workspacesDaIniciativa(i.id).size
+
+  const responsavelOpts = useMemo(
+    () => [...new Set(vinculos.flatMap((v) => v.emails ?? []))].sort(),
+    [vinculos],
+  )
 
   const centroOpts = useMemo(
     () => centros.map((c) => ({ value: c.id, label: c.nome })),
@@ -124,6 +136,8 @@ export default function IniciativasListagem() {
         return false
       if (fCentros.length > 0 && !fCentros.includes(centroDaIniciativa(i.id)))
         return false
+      if (fResponsavel !== 'todos' && !responsaveisDe(i.id).has(fResponsavel))
+        return false
       return true
     })
     list.sort((a, b) => {
@@ -135,7 +149,17 @@ export default function IniciativasListagem() {
     })
     return list
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [iniciativas, vinculos, fWorkspaces, fContas, provedoresSelecionados, q, fCentros, sort])
+  }, [
+    iniciativas,
+    vinculos,
+    fWorkspaces,
+    fContas,
+    provedoresSelecionados,
+    q,
+    fCentros,
+    fResponsavel,
+    sort,
+  ])
 
   const total = filtered.length
   const totalPages = Math.max(1, Math.ceil(total / perPage))
@@ -153,6 +177,7 @@ export default function IniciativasListagem() {
     setFWorkspaces([])
     setFContas([])
     setFCentros([])
+    setFResponsavel('todos')
     setQ('')
   }
 
@@ -180,9 +205,15 @@ export default function IniciativasListagem() {
         onRemove: () => setFContas((s) => s.filter((v) => v !== id)),
       })
     })
+    if (fResponsavel !== 'todos')
+      chips.push({
+        key: 'responsavel',
+        label: `Responsável: ${fResponsavel}`,
+        onRemove: () => setFResponsavel('todos'),
+      })
     if (q) chips.push({ key: 'q', label: `Procurar: ${q}`, onRemove: () => setQ('') })
     return chips
-  }, [fCentros, fWorkspaces, fContas, q, centroById])
+  }, [fCentros, fWorkspaces, fContas, fResponsavel, q, centroById])
 
   const SortHeader = ({ col, children }) => (
     <th className="px-4 py-3 text-left font-semibold">
@@ -204,10 +235,7 @@ export default function IniciativasListagem() {
 
   return (
     <>
-      <PageHeader
-        title="Iniciativas — Listagem"
-        subtitle="Iniciativas obtidas a partir do Vínculo automatizado de Centro de custo e Iniciativa. Sem cadastro ou edição por aqui — clique no chevron para visualizar."
-      />
+      <PageHeader title="Iniciativas de centro de custo" />
 
       <div className="relative z-10 mb-4 flex items-end gap-3 pb-1">
         <div className="flex flex-wrap items-end gap-3">
@@ -234,7 +262,7 @@ export default function IniciativasListagem() {
             className="w-[150px] shrink-0"
           />
           <ContasField
-            label="Contas"
+            label="Provedor"
             providers={PROVEDORES}
             contasPorProvedor={CONTAS_FATURAMENTO}
             value={fContas}
@@ -248,20 +276,48 @@ export default function IniciativasListagem() {
             onChange={setFCentros}
             className="w-[150px] shrink-0"
           />
+          <FilterField label="Responsável" className="w-[140px] shrink-0">
+            <select
+              value={fResponsavel}
+              onChange={(e) => setFResponsavel(e.target.value)}
+              className={`${ctl} w-full`}
+            >
+              <option value="todos">Todos</option>
+              {responsavelOpts.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </select>
+          </FilterField>
         </div>
       </div>
 
       <FilterChipsBar chips={filterChips} onClearAll={clearAllFilters} />
+
+      {!bannerAck && (
+        <div className="mb-4">
+          <AttentionBanner
+            variant="importante"
+            actionLabel="Entendi"
+            onAction={() => setBannerAck(true)}
+          >
+            O orçamento é defendido anualmente durante o ciclo orçamentário e os valores
+            são alocados em suas respectivas iniciativas e farão match com as iniciativas
+            dos workloads.
+          </AttentionBanner>
+        </div>
+      )}
 
       <div className="overflow-hidden rounded-card border border-hairline bg-white">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-hairline bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
               <SortHeader col="iniciativa">Iniciativa</SortHeader>
-              <th className="px-4 py-3 font-semibold">Status</th>
               <th className="px-4 py-3 font-semibold">Centro de Custo</th>
               <SortHeader col="workspaces">Workspace</SortHeader>
               <th className="px-4 py-3 font-semibold">Provedores</th>
+              <th className="px-4 py-3 font-semibold">Status</th>
               <th className="px-4 py-3 text-right font-semibold">Ação</th>
             </tr>
           </thead>
@@ -275,9 +331,6 @@ export default function IniciativasListagem() {
                   onClick={() => navigate(`/iniciativas/${i.id}`)}
                 >
                   <td className="px-4 py-3 text-gray-900">{i.slug}</td>
-                  <td className="px-4 py-3">
-                    <StatusDot status={i.status} />
-                  </td>
                   <td className="px-4 py-3 text-gray-700">{centro?.nome ?? '—'}</td>
                   <td className="px-4 py-3">
                     <CountTooltip
@@ -290,6 +343,9 @@ export default function IniciativasListagem() {
                       count={provedoresDe(i.id).size}
                       items={[...provedoresDe(i.id)]}
                     />
+                  </td>
+                  <td className="px-4 py-3">
+                    <StatusDot status={i.status} />
                   </td>
                   <td className="px-4 py-3 text-right">
                     <button
