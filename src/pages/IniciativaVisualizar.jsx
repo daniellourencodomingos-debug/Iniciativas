@@ -5,18 +5,6 @@ import { Icon } from '../components/icons.jsx'
 import { useApp } from '../store/AppContext.jsx'
 import { currency, formatDate, idDoWorkspace, statusIniciativaInfo } from '../data/mock.js'
 
-function InfoCard({ icon: IconCmp, label, children }) {
-  return (
-    <div className="rounded-card border border-hairline bg-white px-5 py-4">
-      <div className="mb-2 flex items-center gap-1.5 text-gray-400">
-        {IconCmp && <IconCmp width={15} height={15} />}
-        <p className="text-[11px] font-medium uppercase tracking-wide">{label}</p>
-      </div>
-      {children}
-    </div>
-  )
-}
-
 function StatusDot({ status }) {
   const info = statusIniciativaInfo(status)
   return (
@@ -30,10 +18,15 @@ function StatusDot({ status }) {
 /**
  * Visualização somente leitura de uma Iniciativa. A iniciativa vem de uma
  * base externa (via Vínculo automatizado de Centro de custo + Iniciativa),
- * por isso mostramos só o que essa base traz: identidade, centro de custo,
- * orçamento agregado, provedores e workspaces vinculados. Sem alerta ou
- * previsão de consumo aqui — esses dados só existem quando o cadastro é
+ * por isso mostramos só o que essa base traz: identidade, centro(s) de
+ * custo, orçamento agregado, provedores e workspaces vinculados. Sem alerta
+ * ou previsão de consumo aqui — esses dados só existem quando o cadastro é
  * feito dentro do nosso produto, o que não é o caso da Iniciativa.
+ *
+ * Qualquer relação 1-para-N (centros de custo, provedores/workspaces,
+ * outras iniciativas) vira ExpandableSection + tabela, nunca texto
+ * empilhado dentro de um card — mesmo quando hoje só tem 1 item, porque o
+ * padrão não pode depender de quantidade.
  */
 export default function IniciativaVisualizar() {
   const { id } = useParams()
@@ -99,38 +92,47 @@ export default function IniciativaVisualizar() {
         actions={<StatusDot status={iniciativa.status} />}
       />
 
-      <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <InfoCard icon={Icon.Building} label="Centro de custo">
-          {centros.length === 0 ? (
-            <p className="text-sm text-gray-400">Nenhum centro de custo vinculado.</p>
-          ) : (
-            <div className="space-y-2.5">
-              {centros.map((cid) => {
-                const c = centroById(cid)
-                return (
-                  <div key={cid}>
-                    <p className="text-sm font-semibold text-gray-900">
-                      {c?.nome ?? cid}
-                      {c?.codigo && (
-                        <span className="ml-1.5 font-normal text-gray-400">· {c.codigo}</span>
-                      )}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      Orçamento do centro: {currency(centroTotal(cid))}
-                    </p>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </InfoCard>
-
-        <InfoCard icon={Icon.Wallet} label="Orçamento da iniciativa">
-          <p className="text-lg font-semibold text-gray-900">{currency(iniciativaTotal(id))}</p>
-        </InfoCard>
+      <div className="mb-6 rounded-card border border-hairline bg-white px-5 py-4">
+        <div className="mb-1 flex items-center gap-1.5 text-gray-400">
+          <Icon.Wallet width={15} height={15} />
+          <p className="text-[11px] font-medium uppercase tracking-wide">Orçamento da iniciativa</p>
+        </div>
+        <p className="text-lg font-semibold text-gray-900">{currency(iniciativaTotal(id))}</p>
       </div>
 
       <div className="space-y-4">
+        <ExpandableSection title="Centro de custo" badge={centros.length} defaultOpen>
+          {centros.length === 0 ? (
+            <p className="text-sm text-gray-400">Nenhum centro de custo vinculado.</p>
+          ) : (
+            <div className="overflow-hidden rounded-md border border-hairline">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-hairline bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
+                    <th className="px-3 py-2 font-semibold">Centro de custo</th>
+                    <th className="px-3 py-2 font-semibold">Código</th>
+                    <th className="px-3 py-2 text-right font-semibold">Orçamento do centro</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {centros.map((cid) => {
+                    const c = centroById(cid)
+                    return (
+                      <tr key={cid} className="border-b border-hairline last:border-0">
+                        <td className="px-3 py-2 text-gray-900">{c?.nome ?? cid}</td>
+                        <td className="px-3 py-2 text-gray-500">{c?.codigo ?? '—'}</td>
+                        <td className="px-3 py-2 text-right text-gray-900">
+                          {currency(centroTotal(cid))}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </ExpandableSection>
+
         <ExpandableSection title="Provedores e workspaces" badge={workspaceRows.length} defaultOpen>
           {workspaceRows.length === 0 ? (
             <p className="text-sm text-gray-400">Nenhum workspace vinculado.</p>
