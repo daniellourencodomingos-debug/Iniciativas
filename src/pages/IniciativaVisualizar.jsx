@@ -3,7 +3,7 @@ import { PageHeader } from '../components/Layout.jsx'
 import ExpandableSection from '../components/ExpandableSection.jsx'
 import { Icon } from '../components/icons.jsx'
 import { useApp } from '../store/AppContext.jsx'
-import { currency, formatDate, statusIniciativaInfo } from '../data/mock.js'
+import { currency, formatDate, idDoWorkspace, statusIniciativaInfo } from '../data/mock.js'
 
 function InfoCard({ icon: IconCmp, label, children }) {
   return (
@@ -51,18 +51,16 @@ export default function IniciativaVisualizar() {
   const centros = centrosDaIniciativa(id)
   const vinculos = vinculosDaIniciativa(id)
 
-  // Workspaces agrupados pelo provedor a que pertencem (mesma lógica das
-  // outras telas: cada workspace vem como "Provedor::workspace").
-  const workspacesPorProvedor = {}
-  for (const v of vinculos) {
-    for (const w of v.workspaces ?? []) {
+  // Linhas Provedor + Workspace, uma por workspace vinculado (mesma forma
+  // "Provedor::workspace" usada em todo o app), ordenadas por provedor.
+  const workspaceRows = [
+    ...new Set(vinculos.flatMap((v) => v.workspaces ?? [])),
+  ]
+    .map((w) => {
       const [provedor, nome] = w.split('::')
-      const key = provedor ?? w
-      if (!workspacesPorProvedor[key]) workspacesPorProvedor[key] = new Set()
-      workspacesPorProvedor[key].add(nome ?? w)
-    }
-  }
-  const provedoresList = Object.keys(workspacesPorProvedor)
+      return { key: w, provedor: provedor ?? '—', nome: nome ?? w }
+    })
+    .sort((a, b) => a.provedor.localeCompare(b.provedor) || a.nome.localeCompare(b.nome))
 
   if (!iniciativa) {
     return (
@@ -100,7 +98,7 @@ export default function IniciativaVisualizar() {
         actions={<StatusDot status={iniciativa.status} />}
       />
 
-      <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <InfoCard icon={Icon.Building} label="Centro de custo">
           {centros.length === 0 ? (
             <p className="text-sm text-gray-400">Nenhum centro de custo vinculado.</p>
@@ -124,69 +122,77 @@ export default function IniciativaVisualizar() {
         <InfoCard icon={Icon.Wallet} label="Orçamento da iniciativa">
           <p className="text-lg font-semibold text-gray-900">{currency(iniciativaTotal(id))}</p>
         </InfoCard>
-
-        <InfoCard icon={Icon.Cloud} label="Provedores e workspaces">
-          {provedoresList.length === 0 ? (
-            <p className="text-sm text-gray-400">Nenhum provedor vinculado.</p>
-          ) : (
-            <div className="space-y-2.5">
-              {provedoresList.map((p) => (
-                <div key={p}>
-                  <p className="text-sm font-semibold text-gray-900">{p}</p>
-                  <div className="mt-0.5 space-y-0.5">
-                    {[...workspacesPorProvedor[p]].map((w) => (
-                      <p key={w} className="text-sm text-gray-500">
-                        {w}
-                      </p>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </InfoCard>
       </div>
 
-      <ExpandableSection title="Outras iniciativas do centro de custo" badge={outrasIds.length} defaultOpen>
-        {outrasIds.length === 0 ? (
-          <p className="text-sm text-gray-400">
-            Nenhuma outra iniciativa associada a este centro de custo.
-          </p>
-        ) : (
-          <div className="overflow-hidden rounded-md border border-hairline">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-hairline bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
-                  <th className="px-3 py-2 font-semibold">Iniciativa</th>
-                  <th className="px-3 py-2 text-right font-semibold">Orçamento</th>
-                  <th className="w-10 px-3 py-2" />
-                </tr>
-              </thead>
-              <tbody>
-                {outrasIds.map((oid) => {
-                  const o = iniciativaById(oid)
-                  if (!o) return null
-                  return (
-                    <tr
-                      key={oid}
-                      className="cursor-pointer border-b border-hairline last:border-0 hover:bg-gray-50"
-                      onClick={() => navigate(`/iniciativas/${oid}`)}
-                    >
-                      <td className="px-3 py-2 text-gray-900">{o.slug}</td>
-                      <td className="px-3 py-2 text-right text-gray-900">
-                        {currency(iniciativaTotal(oid))}
-                      </td>
-                      <td className="px-3 py-2 text-right text-gray-400">
-                        <Icon.Chevron width={16} height={16} />
-                      </td>
+      <div className="space-y-4">
+        <ExpandableSection title="Provedores e workspaces" badge={workspaceRows.length} defaultOpen>
+          {workspaceRows.length === 0 ? (
+            <p className="text-sm text-gray-400">Nenhum workspace vinculado.</p>
+          ) : (
+            <div className="overflow-hidden rounded-md border border-hairline">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-hairline bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
+                    <th className="px-3 py-2 font-semibold">Provedor</th>
+                    <th className="px-3 py-2 font-semibold">Workspace</th>
+                    <th className="px-3 py-2 font-semibold">ID</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {workspaceRows.map((row) => (
+                    <tr key={row.key} className="border-b border-hairline last:border-0">
+                      <td className="px-3 py-2 text-gray-700">{row.provedor}</td>
+                      <td className="px-3 py-2 text-gray-900">{row.nome}</td>
+                      <td className="px-3 py-2 text-gray-400">{idDoWorkspace(row.nome)}</td>
                     </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </ExpandableSection>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </ExpandableSection>
+
+        <ExpandableSection title="Outras iniciativas do centro de custo" badge={outrasIds.length} defaultOpen>
+          {outrasIds.length === 0 ? (
+            <p className="text-sm text-gray-400">
+              Nenhuma outra iniciativa associada a este centro de custo.
+            </p>
+          ) : (
+            <div className="overflow-hidden rounded-md border border-hairline">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-hairline bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
+                    <th className="px-3 py-2 font-semibold">Iniciativa</th>
+                    <th className="px-3 py-2 text-right font-semibold">Orçamento</th>
+                    <th className="w-10 px-3 py-2" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {outrasIds.map((oid) => {
+                    const o = iniciativaById(oid)
+                    if (!o) return null
+                    return (
+                      <tr
+                        key={oid}
+                        className="cursor-pointer border-b border-hairline last:border-0 hover:bg-gray-50"
+                        onClick={() => navigate(`/iniciativas/${oid}`)}
+                      >
+                        <td className="px-3 py-2 text-gray-900">{o.slug}</td>
+                        <td className="px-3 py-2 text-right text-gray-900">
+                          {currency(iniciativaTotal(oid))}
+                        </td>
+                        <td className="px-3 py-2 text-right text-gray-400">
+                          <Icon.Chevron width={16} height={16} />
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </ExpandableSection>
+      </div>
     </>
   )
 }
