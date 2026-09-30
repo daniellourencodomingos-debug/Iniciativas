@@ -114,6 +114,11 @@ export function AppProvider({ children }) {
           (s, v) => s + valorVinculo(v),
           0,
         ),
+      // Cada Iniciativa pertence a exatamente 1 Centro de Custo. Retorna o
+      // centroId único (ou undefined, se a iniciativa ainda não tem vínculo).
+      centroDaIniciativa: (iniciativaId) => vinculosDaIniciativa(iniciativaId)[0]?.centroId,
+      // Mantido por compatibilidade com telas que ainda esperam uma lista
+      // (sempre com no máximo 1 item, dado o relacionamento acima).
       centrosDaIniciativa: (iniciativaId) => [
         ...new Set(vinculosDaIniciativa(iniciativaId).map((v) => v.centroId)),
       ],

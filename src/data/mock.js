@@ -72,11 +72,16 @@ export const statusIniciativaInfo = (status) =>
   STATUS_INICIATIVA[status] ?? STATUS_INICIATIVA.ativa
 
 // Iniciativa é só identidade (nome/slug); orçamento e workspaces vivem nos Vínculos.
+// Cada Iniciativa pertence a exatamente 1 Centro de Custo (nunca mais de
+// um). O mesmo nome pode se repetir em centros de custo diferentes (ex.:
+// ini-1 e ini-5 abaixo) — são entidades distintas, cada uma com seu próprio
+// orçamento, nunca somadas entre si.
 export const INICIATIVAS_INICIAIS = [
   { id: 'ini-1', slug: 'aceleracao-de-agentes-ia', status: 'ativa', criadoEm: '2025-11-04' },
   { id: 'ini-2', slug: 'migracao-lakehouse', status: 'ativa', criadoEm: '2025-08-18' },
   { id: 'ini-3', slug: 'observabilidade-unificada', status: 'inativa', criadoEm: '2025-05-27' },
   { id: 'ini-4', slug: 'reducao-de-custo-storage', status: 'naoAssociada', criadoEm: '2026-01-09' },
+  { id: 'ini-5', slug: 'aceleracao-de-agentes-ia', status: 'ativa', criadoEm: '2025-12-02' },
 ]
 
 
@@ -129,7 +134,7 @@ export const VINCULOS_INICIAIS = [
   },
   {
     id: 'v-2',
-    iniciativaId: 'ini-1',
+    iniciativaId: 'ini-5',
     centroId: 'cc-2',
     workspaces: ['Provedor C::workspace-seguranca-03'],
     distribuicaoProporcional: true,

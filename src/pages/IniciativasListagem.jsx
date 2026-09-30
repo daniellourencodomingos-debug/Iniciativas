@@ -6,7 +6,7 @@ import MultiSelectField from '../components/MultiSelectField.jsx'
 import ContasField from '../components/ContasField.jsx'
 import FilterChipsBar from '../components/FilterChipsBar.jsx'
 import { useApp } from '../store/AppContext.jsx'
-import { PROVEDORES, WORKSPACES, CONTAS_FATURAMENTO } from '../data/mock.js'
+import { PROVEDORES, WORKSPACES, CONTAS_FATURAMENTO, statusIniciativaInfo } from '../data/mock.js'
 
 const PER_PAGE_OPTS = [5, 10, 20]
 
@@ -38,6 +38,16 @@ function CountTooltip({ count, items = [] }) {
   )
 }
 
+function StatusDot({ status }) {
+  const info = statusIniciativaInfo(status)
+  return (
+    <span className="inline-flex items-center gap-1.5 text-sm text-gray-700">
+      <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: info.color }} />
+      {info.label}
+    </span>
+  )
+}
+
 const ctl =
   'h-9 rounded-md border border-hairline bg-white px-3 text-sm text-gray-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/20'
 
@@ -53,7 +63,7 @@ export default function IniciativasListagem() {
     centros,
     vinculos,
     centroById,
-    centrosDaIniciativa,
+    centroDaIniciativa,
     vinculosDaIniciativa,
   } = useApp()
   const navigate = useNavigate()
@@ -112,10 +122,7 @@ export default function IniciativasListagem() {
         ![...provedoresDe(i.id)].some((p) => provedoresSelecionados.has(p))
       )
         return false
-      if (
-        fCentros.length > 0 &&
-        !centrosDaIniciativa(i.id).some((cid) => fCentros.includes(cid))
-      )
+      if (fCentros.length > 0 && !fCentros.includes(centroDaIniciativa(i.id)))
         return false
       return true
     })
@@ -251,6 +258,7 @@ export default function IniciativasListagem() {
           <thead>
             <tr className="border-b border-hairline bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
               <SortHeader col="iniciativa">Iniciativa</SortHeader>
+              <th className="px-4 py-3 font-semibold">Status</th>
               <th className="px-4 py-3 font-semibold">Centro de Custo</th>
               <SortHeader col="workspaces">Workspace</SortHeader>
               <th className="px-4 py-3 font-semibold">Provedores</th>
@@ -259,7 +267,7 @@ export default function IniciativasListagem() {
           </thead>
           <tbody>
             {pageRows.map((i) => {
-              const centrosI = centrosDaIniciativa(i.id)
+              const centro = centroById(centroDaIniciativa(i.id))
               return (
                 <tr
                   key={i.id}
@@ -268,11 +276,9 @@ export default function IniciativasListagem() {
                 >
                   <td className="px-4 py-3 text-gray-900">{i.slug}</td>
                   <td className="px-4 py-3">
-                    <CountTooltip
-                      count={centrosI.length}
-                      items={centrosI.map((cid) => centroById(cid)?.nome ?? cid)}
-                    />
+                    <StatusDot status={i.status} />
                   </td>
+                  <td className="px-4 py-3 text-gray-700">{centro?.nome ?? '—'}</td>
                   <td className="px-4 py-3">
                     <CountTooltip
                       count={workspacesDe(i)}
@@ -302,7 +308,7 @@ export default function IniciativasListagem() {
             })}
             {pageRows.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-gray-400">
+                <td colSpan={6} className="px-4 py-10 text-center text-gray-400">
                   Nenhuma iniciativa encontrada.
                 </td>
               </tr>
