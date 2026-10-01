@@ -97,7 +97,7 @@ export default function CentroDeCusto() {
           </div>
         </label>
 
-        <div className="flex h-9 items-center rounded-md bg-gray-100 px-3 text-sm text-gray-600">
+        <div className="flex h-9 items-center rounded-md border border-hairline bg-gray-50 px-3 text-sm text-gray-600">
           Total: <span className="font-semibold text-gray-900">&nbsp;{centros.length}&nbsp;</span> Centros de custo
         </div>
 
