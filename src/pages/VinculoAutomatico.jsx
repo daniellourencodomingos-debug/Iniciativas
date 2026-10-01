@@ -24,7 +24,7 @@ export default function VinculoAutomatico() {
   const editing = Boolean(vinculoAutomatico)
 
   const [started, setStarted] = useState(editing)
-  const [step, setStep] = useState(editing ? 1 : 0)
+  const [step, setStep] = useState(0)
   const [endpoints, setEndpoints] = useState(() =>
     editing && vinculoAutomatico.endpoints?.length
       ? vinculoAutomatico.endpoints.map((e) => ({ ...e }))
