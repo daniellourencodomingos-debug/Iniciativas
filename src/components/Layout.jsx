@@ -16,12 +16,15 @@ export default function Layout() {
   )
 }
 
-export function PageHeader({ title, subtitle, actions }) {
+export function PageHeader({ title, subtitle, actions, icon: IconCmp }) {
   return (
     <div className="mb-6 flex items-end justify-between gap-4">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
-        {subtitle && <p className="mt-1 text-sm text-gray-500">{subtitle}</p>}
+      <div className="flex items-center gap-3">
+        {IconCmp && <IconCmp width={28} height={28} className="shrink-0 text-gray-500" />}
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
+          {subtitle && <p className="mt-1 text-sm text-gray-500">{subtitle}</p>}
+        </div>
       </div>
       {actions && <div className="flex items-center gap-2">{actions}</div>}
     </div>

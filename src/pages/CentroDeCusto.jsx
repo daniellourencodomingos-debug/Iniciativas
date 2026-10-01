@@ -75,7 +75,7 @@ export default function CentroDeCusto() {
 
   return (
     <>
-      <PageHeader title="Centros de custo" />
+      <PageHeader title="Centros de custo" icon={Icon.CloudPlain} />
 
       <div className="relative z-10 mb-4 flex items-end gap-3 pb-1">
         <label className="flex flex-col gap-1 w-[260px] shrink-0">
@@ -98,7 +98,7 @@ export default function CentroDeCusto() {
         </label>
 
         <div className="flex h-9 items-center rounded-md bg-gray-100 px-3 text-sm text-gray-600">
-          Total: {centros.length} Centros de custo
+          Total: <span className="font-semibold text-gray-900">{centros.length}</span> Centros de custo
         </div>
 
         <button
@@ -134,15 +134,20 @@ export default function CentroDeCusto() {
                   </td>
                   <td className="px-4 py-3">
                     {gerente ? (
-                      <div>
-                        <div className="text-gray-900">{gerente.nome}</div>
-                        <div className="text-xs text-gray-400">{gerente.email}</div>
+                      <div className="flex items-center gap-2.5">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-200 text-gray-400">
+                          <Icon.UserSingle width={18} height={18} />
+                        </span>
+                        <div>
+                          <div className="text-gray-900">{gerente.nome}</div>
+                          <div className="text-xs text-gray-400">{gerente.email}</div>
+                        </div>
                       </div>
                     ) : (
                       <span className="text-gray-400">—</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-gray-900">{currency(centroTotal(c.id))}</td>
+                  <td className="px-4 py-3 font-medium text-brand">{currency(centroTotal(c.id))}</td>
                   <td className="px-4 py-3 text-right">
                     <button
                       onClick={(e) => {
