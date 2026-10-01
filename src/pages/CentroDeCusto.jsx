@@ -97,13 +97,13 @@ export default function CentroDeCusto() {
           </div>
         </label>
 
-        <div className="flex h-9 items-center rounded-md border border-hairline bg-gray-50 px-3 text-sm text-gray-600">
+        <div className="flex h-9 flex-1 items-center rounded-md bg-gray-100 px-3 text-sm text-gray-600">
           Total: <span className="font-semibold text-gray-900">&nbsp;{centros.length}&nbsp;</span> Centros de custo
         </div>
 
         <button
           onClick={() => navigate('/centro-de-custo/novo')}
-          className="ml-auto flex h-9 shrink-0 items-center gap-2 rounded-md bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-dark"
+          className="flex h-9 shrink-0 items-center gap-2 rounded-md bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-dark"
         >
           <Icon.Plus width={16} height={16} /> Novo centro de custo
         </button>
