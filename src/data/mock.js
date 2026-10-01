@@ -334,9 +334,8 @@ export const novoEndpointVinculo = (uid) => ({
   caminhoCentroId: '',
   caminhoCentroNome: '',
   caminhoWorkspace: '',
-  // Mapeamento de Iniciativa (opcional) — mesma origem, campos extras.
-  caminhoIniciativaId: '',
-  caminhoIniciativaNome: '',
+  // Iniciativa (opcional) — mesma origem, campo extra do mapeamento.
+  caminhoIniciativa: '',
   // Paginação (opcional).
   caminhoPaginacaoToken: '',
   paginacaoQueryParam: '',
@@ -356,9 +355,7 @@ export const novaAutenticacaoVinculo = () => ({
 
 /**
  * Config já salva, usada para demonstrar a jornada de EDIÇÃO — mesmos dados
- * do exemplo "Revisar" do Figma. Inclui o mapeamento de Iniciativa (que o
- * fluxo original do Figma esquece de exibir na etapa Revisar — corrigido
- * aqui e na tela).
+ * do exemplo "Revisar" do Figma.
  */
 export const VINCULO_AUTOMATICO_INICIAL = {
   apiPrivada: true,
@@ -376,8 +373,7 @@ export const VINCULO_AUTOMATICO_INICIAL = {
       caminhoCentroId: 'data.cost_center.code',
       caminhoCentroNome: 'data.cost_center_name.code',
       caminhoWorkspace: 'data.workspace.uuid',
-      caminhoIniciativaId: 'data.initiative.code',
-      caminhoIniciativaNome: 'data.initiative_name.code',
+      caminhoIniciativa: 'data.initiative.code',
       caminhoPaginacaoToken: 'pagination.next_page',
       paginacaoQueryParam: 'page',
     },

@@ -15,13 +15,9 @@ import {
 const STEPS = ['Instruções', 'Busca de vínculo', 'Tipo de API', 'Busca de Autenticação', 'Revisar']
 
 /**
- * Jornada de "Vínculo automatizado" — identifica Centro de Custo e Iniciativa
- * (e opcionalmente Workspace) direto de uma fonte externa via API, sem
- * cadastro manual nem planilha. Reflete o Figma "Vínculo de Iniciativas e
- * centro de custo", com uma correção: a etapa Revisar aqui também mostra o
- * mapeamento de Iniciativa (no Figma original a etapa Revisar só listava
- * Centro de Custo e Workspace, mesmo a Iniciativa sendo capturada na etapa
- * "Busca de vínculo").
+ * Jornada de "Vínculo automatizado" — identifica Centro de Custo, Iniciativa
+ * e Workspace direto de uma fonte externa via API, sem cadastro manual nem
+ * planilha. Reflete o Figma "Vínculo de Iniciativas e centro de custo".
  */
 export default function VinculoAutomatico() {
   const { vinculoAutomatico, dispatch, uid } = useApp()
@@ -336,7 +332,7 @@ function PassoBuscaDeVinculo({ endpoints, endpointAtivo, setEndpointAtivo, addEn
         </Field>
       </div>
 
-      <Field label="Header">
+      <Field label="Header" required>
         <Select value={ep.contentType} onChange={(e) => setEp({ contentType: e.target.value })}>
           {CONTENT_TYPES.map((c) => (
             <option key={c} value={c}>{c}</option>
@@ -353,14 +349,14 @@ function PassoBuscaDeVinculo({ endpoints, endpointAtivo, setEndpointAtivo, addEn
 
       <div className="rounded-md bg-blue-50 px-4 py-3 text-sm text-blue-900">
         <p className="font-semibold">Retorno da API</p>
-        <p className="mt-0.5 text-blue-800">Abaixo está uma representação do retorno da sua API. Identifique quais chaves contêm os dados de Centro de Custo, Iniciativa e Workspace para realizar o mapeamento.</p>
+        <p className="mt-0.5 text-blue-800">Abaixo está uma representação do retorno da sua API. Identifique quais chaves contêm os dados de Centro de Custo, Iniciativa e Workspace para realizar o mapeamento. Use a notação de ponto para campos aninhados (Ex: resultado.projeto_id).</p>
       </div>
       <ApiReturnBox>{`{
   "status": "success",
   "data": [{
     "centro_custo": "CC-123",
     "nome_centro_custo": "Departamento TI",
-    "iniciativa": "INIT-789",
+    "iniciativa": "Nome da iniciativa",
     "workspace": "WS-456"
   }]
 }`}</ApiReturnBox>
@@ -368,30 +364,18 @@ function PassoBuscaDeVinculo({ endpoints, endpointAtivo, setEndpointAtivo, addEn
       <Field label="Identificador da lista de itens (JSON Path)" required hint="Exemplo: data">
         <TextInput value={ep.caminhoLista} onChange={(e) => setEp({ caminhoLista: e.target.value })} />
       </Field>
-      <Field label="Identificador do Centro de custo (JSON Path)" required hint="Exemplo: centro_custo">
+      <Field label="Identificador de Centro de custo (JSON Path)" required hint="Exemplo: centro_custo">
         <TextInput value={ep.caminhoCentroId} onChange={(e) => setEp({ caminhoCentroId: e.target.value })} />
       </Field>
       <Field label="Nome do Centro de Custo (JSON Path)" required hint="Exemplo: nome_centro_custo">
         <TextInput value={ep.caminhoCentroNome} onChange={(e) => setEp({ caminhoCentroNome: e.target.value })} />
       </Field>
-      <Field label="Identificador do Workspace (JSON Path)" hint="Exemplo: workspace">
+      <Field label="Iniciativa (JSON Path)" hint="Exemplo: iniciativa">
+        <TextInput value={ep.caminhoIniciativa} onChange={(e) => setEp({ caminhoIniciativa: e.target.value })} />
+      </Field>
+      <Field label="Identificador do Workspace (JSON Path)" required hint="Exemplo: workspace">
         <TextInput value={ep.caminhoWorkspace} onChange={(e) => setEp({ caminhoWorkspace: e.target.value })} />
       </Field>
-
-      <div className="border-t border-hairline pt-4">
-        <p className="text-sm font-semibold text-gray-900">Mapeamento de Iniciativa</p>
-        <p className="mt-0.5 text-sm text-gray-500">
-          Use estes campos para localizar e vincular automaticamente a Iniciativa quando a mesma fonte externa fornecer esse dado — o vínculo com a Iniciativa é feito junto com o do Centro de Custo, sem etapa separada.
-        </p>
-        <div className="mt-3 space-y-4">
-          <Field label="Identificador da Iniciativa (JSON Path)" hint="Exemplo: iniciativa">
-            <TextInput value={ep.caminhoIniciativaId} onChange={(e) => setEp({ caminhoIniciativaId: e.target.value })} />
-          </Field>
-          <Field label="Nome da Iniciativa (JSON Path)" hint="Exemplo: nome_iniciativa">
-            <TextInput value={ep.caminhoIniciativaNome} onChange={(e) => setEp({ caminhoIniciativaNome: e.target.value })} />
-          </Field>
-        </div>
-      </div>
 
       <div className="border-t border-hairline pt-4">
         <p className="text-sm font-semibold text-gray-900">Paginação</p>
@@ -400,13 +384,20 @@ function PassoBuscaDeVinculo({ endpoints, endpointAtivo, setEndpointAtivo, addEn
           <Field label="Caminho do token (JSON Path)" hint="Exemplo: pagination.next_page">
             <TextInput value={ep.caminhoPaginacaoToken} onChange={(e) => setEp({ caminhoPaginacaoToken: e.target.value })} />
           </Field>
+          <div className="rounded-md bg-[#0B2D4D] px-3 py-2 font-mono text-xs leading-relaxed text-blue-100">
+            curl --request GET 'https://suaApi.com/seuEndpoint?<span className="text-white">{ep.paginacaoQueryParam || 'page'}</span>=2' \
+            --header 'Content-Type: application/json'
+          </div>
+          <p className="text-sm text-gray-500">
+            Informe o nome da variável que sua API espera na URL para identificar a página. Com base no exemplo, se você preencher <strong>page</strong>, o sistema montará automaticamente a chamada inserindo <strong>?page=2</strong> no fim da sua rota para buscar a sequência de dados.
+          </p>
           <Field label="Nome do Parâmetro (Query Param)" hint="Exemplo: page">
             <TextInput value={ep.paginacaoQueryParam} onChange={(e) => setEp({ paginacaoQueryParam: e.target.value })} />
           </Field>
         </div>
       </div>
 
-      <StepFooter onBack={onBack} onNext={onNext} podeAvancar={podeAvancar} />
+      <StepFooter onBack={onBack} onNext={onNext} podeAvancar={podeAvancar} nextLabel="Salvar" />
     </Card>
   )
 }
@@ -499,7 +490,7 @@ function PassoBuscaDeAutenticacao({ auth, setAuth, podeAvancar, onBack, onNext }
         </Field>
       </div>
 
-      <Field label="Header">
+      <Field label="Header" required>
         <Select value={auth.contentType} onChange={(e) => setAuth({ ...auth, contentType: e.target.value })}>
           {CONTENT_TYPES.map((c) => (
             <option key={c} value={c}>{c}</option>
@@ -510,7 +501,7 @@ function PassoBuscaDeAutenticacao({ auth, setAuth, podeAvancar, onBack, onNext }
         <HeadersAdicionais value={auth.headersAdicionais} onChange={(v) => setAuth({ ...auth, headersAdicionais: v })} />
       </Field>
 
-      <Field label="Body" hint="JSON — Ex.: ID, client secret ou password. Deixe vazio se não for necessário.">
+      <Field label="Body" hint="JSON">
         <TextArea value={auth.body} onChange={(e) => setAuth({ ...auth, body: e.target.value })} rows={4} className="font-mono" />
       </Field>
 
@@ -526,14 +517,14 @@ function PassoBuscaDeAutenticacao({ auth, setAuth, podeAvancar, onBack, onNext }
       <Field label="Chave do token (JSON Path)" required hint="Exemplo: access_token">
         <TextInput value={auth.caminhoToken} onChange={(e) => setAuth({ ...auth, caminhoToken: e.target.value })} />
       </Field>
-      <Field label="Header" hint="Chave do header na requisição">
+      <Field label="Header" required hint="Chave do header na requisição">
         <TextInput value={auth.headerDestino} onChange={(e) => setAuth({ ...auth, headerDestino: e.target.value })} />
       </Field>
-      <Field label="Formatação do Token (JSON Path)" required hint="Ex.: Bearer {token}">
+      <Field label="Formatação do Token (JSON Path)" required hint="Ex: Bearer token">
         <TextInput value={auth.formatoToken} onChange={(e) => setAuth({ ...auth, formatoToken: e.target.value })} />
       </Field>
 
-      <StepFooter onBack={onBack} onNext={onNext} podeAvancar={podeAvancar} nextLabel="Próximo" />
+      <StepFooter onBack={onBack} onNext={onNext} podeAvancar={podeAvancar} nextLabel="Salvar" />
     </Card>
   )
 }
@@ -550,9 +541,10 @@ function Resumo({ label, value }) {
 function PassoRevisar({ endpoints, apiPrivada, auth, onBack, onSalvar }) {
   return (
     <Card title="Revisar" description="Revise os dados da integração antes de finalizar. Essas configurações podem ser alteradas a qualquer momento.">
+      <p className="text-sm font-semibold text-gray-900">Busca de vínculo</p>
       {endpoints.map((ep) => (
         <div key={ep.id} className="space-y-1.5 border-b border-hairline pb-4 last:border-0">
-          <p className="text-sm font-semibold text-gray-900">Busca de vínculo — {ep.nome}</p>
+          <p className="text-sm font-semibold text-gray-900">{ep.nome}</p>
           <Resumo label="Organização" value={ep.organizacao} />
           <Resumo label="URL" value={ep.url} />
           <Resumo label="Método HTTP" value={ep.metodo} />
@@ -562,17 +554,21 @@ function PassoRevisar({ endpoints, apiPrivada, auth, onBack, onSalvar }) {
             value={ep.headersAdicionais.length ? ep.headersAdicionais.map((h) => `${h.key}: ${h.value}`).join(', ') : 'Nenhum configurado'}
           />
           <div className="pt-1">
+            <p className="text-sm font-semibold text-gray-900">Body</p>
+            <pre className="mt-0.5 whitespace-pre-wrap font-sans text-sm text-gray-600">{ep.body || 'Não configurado'}</pre>
+          </div>
+          <div className="pt-1">
             <p className="text-sm font-semibold text-gray-900">Mapeamento (JSON Path)</p>
+            <p className="text-sm font-semibold text-gray-900">Identificador de centro de custo:</p>
             <Resumo label="Centro de custo" value={ep.caminhoCentroId} />
             <Resumo label="Nome do centro de custo" value={ep.caminhoCentroNome} />
             <Resumo label="Workspace" value={ep.caminhoWorkspace} />
-            <Resumo label="Iniciativa" value={ep.caminhoIniciativaId} />
-            <Resumo label="Nome da iniciativa" value={ep.caminhoIniciativaNome} />
+            <Resumo label="Iniciativas" value={ep.caminhoIniciativa} />
           </div>
           <div className="pt-1">
             <p className="text-sm font-semibold text-gray-900">Paginação</p>
-            <Resumo label="Caminho do token" value={ep.caminhoPaginacaoToken || 'Não configurada'} />
-            <Resumo label="Parâmetro da URL" value={ep.paginacaoQueryParam} />
+            <Resumo label="Responde token key" value={ep.caminhoPaginacaoToken || 'Não configurada'} />
+            <Resumo label="Pagination query param" value={ep.paginacaoQueryParam} />
           </div>
         </div>
       ))}
@@ -583,10 +579,19 @@ function PassoRevisar({ endpoints, apiPrivada, auth, onBack, onSalvar }) {
         {apiPrivada && auth && (
           <>
             <Resumo label="URL de autenticação" value={auth.url} />
-            <Resumo label="Método HTTP" value={auth.metodo} />
+            <Resumo label="Método HTTP de autenticação" value={auth.metodo} />
+            <Resumo label="Header Content-Type" value={auth.contentType} />
+            <Resumo
+              label="Headers adicionais"
+              value={auth.headersAdicionais.length ? auth.headersAdicionais.map((h) => `${h.key}: ${h.value}`).join(', ') : 'Nenhum configurado'}
+            />
+            <div className="pt-1">
+              <p className="text-sm font-semibold text-gray-900">Body de autenticação</p>
+              <pre className="mt-0.5 whitespace-pre-wrap font-sans text-sm text-gray-600">{auth.body || 'Não configurado'}</pre>
+            </div>
             <Resumo label="Token (JSON Path)" value={auth.caminhoToken} />
-            <Resumo label="Chave do header" value={auth.headerDestino} />
-            <Resumo label="Formatação do token" value={auth.formatoToken} />
+            <Resumo label="Chave do header na requisição" value={auth.headerDestino} />
+            <Resumo label="Formatação do Token" value={auth.formatoToken} />
           </>
         )}
       </div>
@@ -594,7 +599,7 @@ function PassoRevisar({ endpoints, apiPrivada, auth, onBack, onSalvar }) {
       <div className="flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
         <Icon.Alert width={16} height={16} className="mt-0.5 shrink-0" />
         <p>
-          <strong>Tempo de processamento do vínculo.</strong> Após salvar a configuração, a identificação e o vínculo automatizado dos centros de custo e iniciativas podem levar <strong>até 24 horas</strong> para serem concluídos.
+          <strong>Tempo de processamento do vínculo.</strong> Após salvar a configuração, a identificação e o vínculo automático dos centros de custo podem levar <strong>até 24 horas</strong> para serem concluídos.
         </p>
       </div>
 
