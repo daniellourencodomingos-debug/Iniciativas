@@ -50,7 +50,7 @@ export default function MultiSelectField({
     <div className={className} ref={ref}>
       <div className="relative rounded border border-gray-300 bg-white transition focus-within:border-brand focus-within:ring-1 focus-within:ring-brand/30">
         {label && (
-          <span className="pointer-events-none absolute -top-[7px] left-2.5 z-10 bg-white px-1 text-[11px] font-medium leading-none text-gray-500">
+          <span className="pointer-events-none absolute -top-[7px] left-2.5 z-10 bg-pagebg px-1 text-[11px] font-medium leading-none text-gray-500">
             {label}
           </span>
         )}
