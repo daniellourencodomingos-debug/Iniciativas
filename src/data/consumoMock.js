@@ -40,6 +40,17 @@ export const PESO_CONSUMO_POR_CENTRO = {
   'cc-4': 0.19,
 }
 
+// Peso fictício de cada Provedor no consumo total — mesma lógica do peso por
+// Centro de Custo acima, só que pro filtro global de Provedor (menu
+// superior). Proporcional à série "Comparativo por Provedores" (Provedor A
+// domina o consumo, D é o menor) — soma = 1.
+export const PESO_CONSUMO_POR_PROVEDOR = {
+  'Provedor A': 0.58,
+  'Provedor B': 0.2,
+  'Provedor C': 0.13,
+  'Provedor D': 0.09,
+}
+
 // Cards de KPI (linha do topo). "total" é derivado dos demais, igual ao
 // produto real: recursos + suporte + compromissos - créditos.
 export const KPI_BASE = {

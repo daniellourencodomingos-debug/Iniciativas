@@ -16,13 +16,14 @@ import {
   painelSku,
   ANOMALIAS,
   PESO_CONSUMO_POR_CENTRO,
+  PESO_CONSUMO_POR_PROVEDOR,
   escalarKpi,
   kpiTotal,
   RATEIO_OPCOES,
   HIERARQUIA_OPCOES,
   SERVICO_OPCOES,
 } from '../data/consumoMock.js'
-import { GERENTES } from '../data/mock.js'
+import { GERENTES, PROVEDORES } from '../data/mock.js'
 
 const TABS = [
   { key: 'consumo', label: 'Consumo', icon: Icon.Wallet },
@@ -42,7 +43,7 @@ function EmptyTab() {
 }
 
 export default function Orcamento() {
-  const { centros, centroById, iniciativas } = useApp()
+  const { centros, centroById, iniciativas, provedoresGlobais } = useApp()
   const [searchParams, setSearchParams] = useSearchParams()
   // A aba ativa vem da URL (?tab=...), não de um state próprio — assim,
   // tanto os links do menu lateral quanto os cliques aqui na página
@@ -82,13 +83,19 @@ export default function Orcamento() {
   )
 
   const kpi = useMemo(() => {
-    const fator =
+    const fatorCentro =
       selectedCentros.length === 0
         ? 1
         : selectedCentros.reduce((s, id) => s + (PESO_CONSUMO_POR_CENTRO[id] ?? 0), 0)
-    const base = escalarKpi(Math.max(fator, 0.05))
+    // Filtro global de Provedor (menu superior) também escala o dash —
+    // "Todos" selecionado (padrão) não filtra nada, igual ao Centro de custo.
+    const fatorProvedor =
+      provedoresGlobais.length === PROVEDORES.length
+        ? 1
+        : provedoresGlobais.reduce((s, p) => s + (PESO_CONSUMO_POR_PROVEDOR[p] ?? 0), 0)
+    const base = escalarKpi(Math.max(fatorCentro * fatorProvedor, 0.05))
     return { ...base, total: kpiTotal(base) }
-  }, [selectedCentros])
+  }, [selectedCentros, provedoresGlobais])
 
   const iniciativaById = (id) => iniciativas.find((i) => i.id === id)
   const rateioLabel = (v) => RATEIO_OPCOES.find((o) => o.value === v)?.label ?? v

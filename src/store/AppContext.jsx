@@ -6,6 +6,7 @@ import {
   GERENTES,
   VINCULO_AUTOMATICO_INICIAL,
   valorVinculo,
+  PROVEDORES,
 } from '../data/mock.js'
 
 const AppContext = createContext(null)
@@ -21,6 +22,9 @@ const initialState = {
   // Config do vínculo automatizado de Centro de Custo + Iniciativa via API
   // externa (null = nunca configurado, cai na jornada "Novo vínculo").
   vinculoAutomatico: VINCULO_AUTOMATICO_INICIAL,
+  // Filtro global de Provedor (menu superior) — afeta a plataforma inteira,
+  // não só uma tela. Todos selecionados = sem filtro ("Todos").
+  provedoresGlobais: [...PROVEDORES],
 }
 
 function reducer(state, action) {
@@ -81,6 +85,9 @@ function reducer(state, action) {
 
     case 'SAVE_VINCULO_AUTOMATICO':
       return { ...state, vinculoAutomatico: action.payload }
+
+    case 'SET_PROVEDORES_GLOBAIS':
+      return { ...state, provedoresGlobais: action.payload }
 
     // Substitui todos os vínculos de uma iniciativa pela lista informada.
     case 'SYNC_INICIATIVA_VINCULOS': {

@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Icon } from './icons.jsx'
-
-const PROVIDER_ICONS = [Icon.Cloud, Icon.CloudPlain, Icon.Layers, Icon.Building]
+import { Icon, PROVIDER_ICONS } from './icons.jsx'
 
 /**
  * Campo "Contas": seletor de duas colunas — provedores à esquerda (com ícone),

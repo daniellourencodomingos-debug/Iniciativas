@@ -295,3 +295,10 @@ export const Icon = {
     </svg>
   ),
 }
+
+// Ícones genéricos usados pra representar "provedores de cloud" fictícios
+// (PROVEDORES = Provedor A/B/C/D em mock.js) — nunca logos de marcas reais.
+// Mapeados por índice (idx % length) onde quer que a lista de provedores
+// apareça com ícone: coluna de Provedores do campo "Contas" (ContasField)
+// e o filtro global de Provedor no header.
+export const PROVIDER_ICONS = [Icon.Cloud, Icon.CloudPlain, Icon.Layers, Icon.Building]
