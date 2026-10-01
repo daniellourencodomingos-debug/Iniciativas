@@ -98,7 +98,7 @@ export default function CentroDeCusto() {
         </label>
 
         <div className="flex h-9 items-center rounded-md bg-gray-100 px-3 text-sm text-gray-600">
-          Total: <span className="font-semibold text-gray-900">{centros.length}</span> Centros de custo
+          Total: <span className="font-semibold text-gray-900">&nbsp;{centros.length}&nbsp;</span> Centros de custo
         </div>
 
         <button
@@ -147,7 +147,7 @@ export default function CentroDeCusto() {
                       <span className="text-gray-400">—</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 font-medium text-brand">{currency(centroTotal(c.id))}</td>
+                  <td className="px-4 py-3 text-gray-900">{currency(centroTotal(c.id))}</td>
                   <td className="px-4 py-3 text-right">
                     <button
                       onClick={(e) => {
