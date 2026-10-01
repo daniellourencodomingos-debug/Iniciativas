@@ -324,7 +324,7 @@ export default function Iniciativas() {
               <SortHeader col="workspaces">Workspace</SortHeader>
               <th className="px-4 py-3 font-semibold">Provedores</th>
               <th className="px-4 py-3 font-semibold">Status</th>
-              <th className="px-4 py-3 text-right font-semibold">Ação</th>
+              <th className="px-4 py-3 text-right font-semibold">Detalhes</th>
             </tr>
           </thead>
           <tbody>
