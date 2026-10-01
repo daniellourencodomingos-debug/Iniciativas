@@ -373,7 +373,7 @@ export const VINCULO_AUTOMATICO_INICIAL = {
       caminhoCentroId: 'data.cost_center.code',
       caminhoCentroNome: 'data.cost_center_name.code',
       caminhoWorkspace: 'data.workspace.uuid',
-      caminhoIniciativa: 'data.initiative.code',
+      caminhoIniciativa: 'data.initiative_name',
       caminhoPaginacaoToken: 'pagination.next_page',
       paginacaoQueryParam: 'page',
     },
